@@ -67,11 +67,12 @@ if($SYMB_UID){
 		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
-	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH.'/taxa/speciesprofile.css';
-	if(!file_exists($cssPath)){
-		$cssPath = $CLIENT_ROOT.'/css/symb/taxa/speciesprofile.css';
+	$cssPath = $CLIENT_ROOT.$CSS_BASE_PATH;
+	if(!file_exists($cssPath.'/taxa/speciesprofile.css')){
+		$cssPath = $CLIENT_ROOT.'/css/symb';
 	}
-	echo '<link href="'.$cssPath.'?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link href="'.$cssPath.'/taxa/speciesprofile.css?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
+	echo '<link href="'.$cssPath.'/taxa/traitplot.css?ver='.$CSS_VERSION_LOCAL.'" type="text/css" rel="stylesheet" />';
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script src="../js/jquery.js" type="text/javascript"></script>
