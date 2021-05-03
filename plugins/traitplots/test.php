@@ -32,6 +32,7 @@ class TraitPlotter extends Manager {
 	}
 
 	private function setTaxon(){
+		//need to roll up from child taxa!!
 		if($this->tid){
 			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
 			$rs = $this->conn->query($sql);
@@ -56,65 +57,100 @@ class TraitPlotter extends Manager {
 		}
 	}
 
-  private function convertToSvgCoords($submittedLat, $submittedLon){
-    $tllat = 41.99846;
-    $tllon = -124.40962;
-    $tlycoord = -55123;
-    $tlxcoord = -35597;
-
-    $brlat = 32.53429;
-    $brlon = -114.13182;
-    $brycoord = 50237;
-    $brxcoord = 56047;
-
-    $xslope = ($tlxcoord - $brxcoord) / ($tllon - $brlon);
-    $xintercept = $tlxcoord - ($xslope * $tllon);
-    $yslope = ($tlycoord - $brycoord) / ($tllat - $brlat);
-    $yintercept = $tlycoord - ($yslope * $tllat);
-
-    $x = $xslope * $submittedLon + $xintercept;
-    $y = $yslope * $submittedLat + $yintercept;
-
-    return array("x" => strval($x), "y" => strval($y));
-  }
-
-  public function traitMapPoints(){
-    return $this->getMapPoints();
-  }
-
-  private function getMapPoints(){
-    $radius = "600";
-		$colorTrue = "orange";
-		$colorFalse = "gray";
-		if(isset($this->sid)){
-			$stateID = $this->sid;
-		} else {
-			$stateID = 0;
-		}
-		if($this->tid){
-      $svgStr = '<g>';
-			$sql = 'SELECT DISTINCT o.decimalLatitude, o.decimalLongitude, IF(t.stateid = ' .$stateID. ', "yes", "no") AS targettrait FROM omoccurrences AS o JOIN tmattributes AS t ON o.occid = t.occid WHERE o.tidinterpreted = ' . $this->tid . ' ORDER BY targettrait';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-        if($r->targettrait == "yes") {
-          $clr = $colorTrue;
-        } else {
-          $clr = $colorFalse;
-        }
-        $svgCoords = $this->convertToSvgCoords($r->decimalLatitude, $r->decimalLongitude);
-        $svgStr .= '<circle cx="'.$svgCoords['x'].'" cy="'.$svgCoords['y'].'" r="' .$radius. '" stroke="black" stroke-width="3" fill="'.$clr.'" />';
-			}
-			$rs->free();
-      $svgStr .= '</g>';
-		}
-    return $svgStr;
-  }
-
-	public function getPlot(){
-	    return $this->getPlotData();
+	public function getCalendarPlot(){
+	    return $this->CalendarPlotData();
 	}
 
-	private function getPlotData(){
+	private function CalendarPlotData(){
+
+	}
+
+	public function CatmullRomSpline($GivenPoint0, $GivenPoint1, $GivenPoint2, $GivenPoint3) {
+		return array("p0" => $GivenPoint0, "p1" => $GivenPoint1, "p2" => $GivenPoint2, "p3" => $GivenPoint3);
+	}
+
+	private function ti1($pt0, $pt1, $ti, $alpha=0.5) {
+		# alpha = 0 ~ standard (uniform)
+		# alpha = 0.5 ~ centripetal
+		# alpha = 1 ~ chordal
+		return sqrt((($pt1['x'] - $pt0['x']) ** 2 + ($pt1['y'] - $pt0['y']) ** 2)) ** $alpha + $ti;
+	}
+
+	private function BarryGoldmanSplinePoint($spline, $tVal) {
+		$P0 = $spline['p0'];
+		$P1 = $spline['p1'];
+		$P2 = $spline['p2'];
+		$P3 = $spline['p3'];
+		$t0 = 0;
+		$t1 = $this->ti1($P0, $P1, $t0);
+		$t2 = $this->ti1($P1, $P2, $t1);
+		$t3 = $this->ti1($P2, $P3, $t2);
+		$t = ($t2 - $t1) * $tVal + $t1;
+		if( (($t0 == $t1) + ($t0 == $t2) + ($t0 == $t3) + ($t1 == $t2) + ($t1 == $t3) + ($t2 == $t3)) > 0 ) {
+			exit();
+		} else {
+			$A1 = array(
+				'x' => ($t1 - $t) / ($t1 - $t0) * $P0['x'] + ($t - $t0) / ($t1 - $t0) * $P1['x'],
+				'y' => ($t1 - $t) / ($t1 - $t0) * $P0['y'] + ($t - $t0) / ($t1 - $t0) * $P1['y']
+			);
+			$A2 = array(
+				'x' => ($t2 - $t) / ($t2 - $t1) * $P1['x'] + ($t - $t1) / ($t2 - $t1) * $P2['x'],
+				'y' => ($t2 - $t) / ($t2 - $t1) * $P1['y'] + ($t - $t1) / ($t2 - $t1) * $P2['y']
+			);
+			$A3 = array(
+				'x' => ($t3 - $t) / ($t3 - $t2) * $P2['x'] + ($t - $t2) / ($t3 - $t2) * $P3['x'],
+				'y' => ($t3 - $t) / ($t3 - $t2) * $P2['y'] + ($t - $t2) / ($t3 - $t2) * $P3['y']
+			);
+			$B1 = array(
+				'x' => ($t2 - $t) / ($t2 - $t0) * $A1['x'] + ($t - $t0) / ($t2 - $t0) * $A2['x'],
+				'y' => ($t2 - $t) / ($t2 - $t0) * $A1['y'] + ($t - $t0) / ($t2 - $t0) * $A2['y']
+			);
+			$B2 = array(
+				'x' => ($t3 - $t) / ($t3 - $t1) * $A2['x'] + ($t - $t1) / ($t3 - $t1) * $A3['x'],
+				'y' => ($t3 - $t) / ($t3 - $t1) * $A2['y'] + ($t - $t1) / ($t3 - $t1) * $A3['y']
+			);
+			$C = array(
+				'x' => round(($t2 - $t) / ($t2 - $t1) * $B1['x'] + ($t - $t1) / ($t2 - $t1) * $B2['x'], 1),
+				'y' => round(($t2 - $t) / ($t2 - $t1) * $B1['y'] + ($t - $t1) / ($t2 - $t1) * $B2['y'], 1)
+			);
+		}
+		return $C;
+	}
+
+	public function drawSpline($spline, $iter) {
+		$tInc = 1 / $iter;
+		$t = $tInc;
+		$firstPt = $this->BarryGoldmanSplinePoint($spline, 0);
+		$svgd = "<path class='CalendarPlotFocalCurve' d='M" . $firstPt['x'] . "," . $firstPt['y'] . " L";
+		for ($i = 0; $i < $iter; $i++) {
+			$pt = $this->BarryGoldmanSplinePoint($spline, $t);
+			$svgd .= $pt['x'] . "," . $pt['y'] . " ";
+			$t += $tInc;
+		}
+		return $svgd . "' />";
+	}
+
+	// function calPlotCoord(point, radius, center) {
+	// 	return {
+	// 		x: (point.x * radius) + center.x,
+	// 		'y'=> (point.y * radius) + center.y
+	// 	}
+	// }
+	//  var calPlotUnitPoints = [
+	// 	{x:0.259, y:0.966},
+	// 	{x:0.707, y:0.707},
+	// 	{x:0.966, y:0.259},
+	// 	{x:0.966, y:-0.259},
+	// 	{x:0.707, y:-0.707},
+	// 	{x:0.259, y:-0.966},
+	// 	{x:-0.259, y:-0.966},
+	// 	{x:-0.707, y:-0.707},
+	// 	{x:-0.966, y:-0.259},
+	// 	{x:-0.966, y:0.259},
+	// 	{x:-0.707, y:0.707},
+	// 	{x:-0.259, y:0.966} ];
+
+	private function BarplotData(){
 		$stateID = $this->sid;
 		$colorTrue = "orange";
 		$svgStr = '<svg viewBox="-10 0 130 110" width="400" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="lightgray"/><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect x="0" y="0" width="120" height="100" fill="url(#grid)" /><text x="0" y="12" text-anchor="end" font-size="4px" fill="black">90%</text><text x="0" y="22" text-anchor="end" font-size="4px" fill="black">80%</text><text x="0" y="32" text-anchor="end" font-size="4px" fill="black">70%</text><text x="0" y="42" text-anchor="end" font-size="4px" fill="black">60%</text><text x="0" y="52" text-anchor="end" font-size="4px" fill="black">50%</text><text x="0" y="62" text-anchor="end" font-size="4px" fill="black">40%</text><text x="0" y="72" text-anchor="end" font-size="4px" fill="black">30%</text><text x="0" y="82" text-anchor="end" font-size="4px" fill="black">20%</text><text x="0" y="92" text-anchor="end" font-size="4px" fill="black">10%</text><text x="5" y="105" text-anchor="middle" font-size="4px" fill="black">Jan</text><text x="15" y="105" text-anchor="middle" font-size="4px" fill="black">Feb</text><text x="25" y="105" text-anchor="middle" font-size="4px" fill="black">Mar</text><text x="35" y="105" text-anchor="middle" font-size="4px" fill="black">Apr</text><text x="45" y="105" text-anchor="middle" font-size="4px" fill="black">May</text><text x="55" y="105" text-anchor="middle" font-size="4px" fill="black">Jun</text><text x="65" y="105" text-anchor="middle" font-size="4px" fill="black">Jul</text><text x="75" y="105" text-anchor="middle" font-size="4px" fill="black">Aug</text><text x="85" y="105" text-anchor="middle" font-size="4px" fill="black">Sep</text><text x="95" y="105" text-anchor="middle" font-size="4px" fill="black">Oct</text><text x="105" y="105" text-anchor="middle" font-size="4px" fill="black">Nov</text><text x="115" y="105" text-anchor="middle" font-size="4px" fill="black">Dec</text>';
@@ -163,6 +199,8 @@ class TraitPlotter extends Manager {
 
 ### End of class ############
 
+$mypoints = array( array('x'=>120, 'y'=>121), array('x'=>143, 'y'=>143), array('x'=>196, 'y'=>140), array('x'=>209, 'y'=>96), array('x'=>182, 'y'=>58), array('x'=>131, 'y'=>80), array('x'=>119, 'y'=>117), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120) );
+
 Header("Content-Type: text/html; charset=".$CHARSET);
 
 $tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
@@ -175,7 +213,30 @@ $traitPlotter = new TraitPlotter();
 if($tid) $traitPlotter->setTid($tid);
 if($sid) $traitPlotter->setSid($sid);
 
-$pointsStr = $traitPlotter->traitMapPoints();
+$mySpline = array();
+for($i = 0; $i < count($mypoints); $i++) {
+	$ptidx = array();
+	for($j = 0; $j < 4; $j++){
+		$ptidx[] = ($i + $j) % count($mypoints);
+	}
+	$mySpline[] = $traitPlotter->CatmullRomSpline($mypoints[$ptidx[0]], $mypoints[$ptidx[1]], $mypoints[$ptidx[2]], $mypoints[$ptidx[3]]);
+}
+
+
+// $mySpline1 = $traitPlotter->CatmullRomSpline($mypoints[0], $mypoints[1], $mypoints[2], $mypoints[3]);
+// $mySpline2 = $traitPlotter->CatmullRomSpline($mypoints[1], $mypoints[2], $mypoints[3], $mypoints[4]);
+// $mySpline3 = $traitPlotter->CatmullRomSpline($mypoints[2], $mypoints[3], $mypoints[4], $mypoints[5]);
+// $mySpline4 = $traitPlotter->CatmullRomSpline($mypoints[3], $mypoints[4], $mypoints[5], $mypoints[6]);
+// $mySpline5 = $traitPlotter->CatmullRomSpline($mypoints[4], $mypoints[5], $mypoints[6], $mypoints[7]);
+// $mySpline6 = $traitPlotter->CatmullRomSpline($mypoints[5], $mypoints[6], $mypoints[7], $mypoints[8]);
+// $mySpline7 = $traitPlotter->CatmullRomSpline($mypoints[6], $mypoints[7], $mypoints[8], $mypoints[9]);
+// $mySpline8 = $traitPlotter->CatmullRomSpline($mypoints[7], $mypoints[8], $mypoints[9], $mypoints[10]);
+// $mySpline9 = $traitPlotter->CatmullRomSpline($mypoints[8], $mypoints[9], $mypoints[10], $mypoints[11]);
+// $mySpline10 = $traitPlotter->CatmullRomSpline($mypoints[9], $mypoints[10], $mypoints[11], $mypoints[0]);
+// $mySpline11 = $traitPlotter->CatmullRomSpline($mypoints[10], $mypoints[11], $mypoints[0], $mypoints[1]);
+// $mySpline12 = $traitPlotter->CatmullRomSpline($mypoints[11], $mypoints[0], $mypoints[1], $mypoints[2]);
+
+#$pointsStr = $traitPlotter->traitMapPoints();
 
 ?>
 <html>
@@ -202,7 +263,13 @@ $pointsStr = $traitPlotter->traitMapPoints();
 			</h2><h3>
 				<?php echo $traitPlotter->getStateName(); ?>
 			</h3>
-			<?php echo $traitPlotter->getPlot(); ?>
+			<?php
+				echo '<svg>';
+				foreach ($mySpline as $k => $v) {
+					echo $traitPlotter->drawSpline($v, 10);
+				}
+				echo '</svg>';
+			?>
 		</div>
 
 		<div class="column">
@@ -213,7 +280,7 @@ $pointsStr = $traitPlotter->traitMapPoints();
 
 
 
-<html>
+<!-- <html>
 <head>
   <link rel="stylesheet" type="text/css" href="/Users/cdt/Professional/Projects/CCH2/BioKIC/Symbiota-light/css/symb/taxa/traitplot.css">
   <script type="text/javascript">
@@ -369,4 +436,4 @@ $pointsStr = $traitPlotter->traitMapPoints();
 
   </svg>
 </body>
-</html>
+</html> -->
