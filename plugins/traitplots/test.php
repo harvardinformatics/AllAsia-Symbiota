@@ -62,7 +62,57 @@ class TraitPlotter extends Manager {
 	}
 
 	private function CalendarPlotData(){
+		$calPlotUnitPoints = array(
+		 array('x' => 0.259, 'y' => 0.966),
+		 array('x' => 0.707, 'y' => 0.707),
+		 array('x' => 0.966, 'y' => 0.259),
+		 array('x' => 0.966, 'y' => -0.259),
+		 array('x' => 0.707, 'y' => -0.707),
+		 array('x' => 0.259, 'y' => -0.966),
+		 array('x' => -0.259, 'y' => -0.966),
+		 array('x' => -0.707, 'y' => -0.707),
+		 array('x' => -0.966, 'y' => -0.259),
+		 array('x' => -0.966, 'y' => 0.259),
+		 array('x' => -0.707, 'y' => 0.707),
+		 array('x' => -0.259, 'y' => 0.966) );
 
+		 // <svg width="240" height="240" id="cdt">
+	   //   <line x1="94" y1="217" x2="146" y2="23" class="CalendarPlotSpokeLine" />
+	   //   <line x1="146" y1="217" x2="94" y2="23" class="CalendarPlotSpokeLine"/>
+	   //   <line x1="191" y1="191" x2="49" y2="49" class="CalendarPlotSpokeLine"/>
+	   //   <line x1="217" y1="146" x2="23" y2="94" class="CalendarPlotSpokeLine"/>
+	   //   <line x1="191" y1="49" x2="49" y2="191" class="CalendarPlotSpokeLine"/>
+	   //   <line x1="23" y1="146" x2="217" y2="94" class="CalendarPlotSpokeLine"/>
+	   //   <polyline points="146,23 191,49 217,94 217,146 191,191 146,217 94,217 49,191 23,146 23,94 49,49 94,23 146,23" class="CalendarPlotOuterWebLine" />
+	   //   <text class="CalendarPlotText" transform="translate(147,18) rotate(15)">Jan</text>
+	   //   <text class="CalendarPlotText" transform="translate(194,46) rotate(45)">Feb</text>
+	   //   <text class="CalendarPlotText" transform="translate(221,93) rotate(75)">Mar</text>
+	   //   <text class="CalendarPlotText" transform="translate(221,147) rotate(105)">Apr</text>
+	   //   <text class="CalendarPlotText" transform="translate(194,194) rotate(135)">May</text>
+	   //   <text class="CalendarPlotText" transform="translate(147,221) rotate(165)">Jun</text>
+	   //   <text class="CalendarPlotText" transform="translate(93,221) rotate(195)">Jul</text>
+	   //   <text class="CalendarPlotText" transform="translate(46,194) rotate(225)">Aug</text>
+	   //   <text class="CalendarPlotText" transform="translate(18,147) rotate(255)">Sep</text>
+	   //   <text class="CalendarPlotText" transform="translate(18,93) rotate(285)">Oct</text>
+	   //   <text class="CalendarPlotText" transform="translate(46,46) rotate(315)">Nov</text>
+	   //   <text class="CalendarPlotText" transform="translate(93,18) rotate(345)">Dec</text>
+
+		if($this->tid){
+			 $sql = 'SELECT o.month, COUNT(*) AS count FROM tmattributes AS a LEFT JOIN omoccurrences AS o ON o.occid = a.occid WHERE o.tidinterpreted = ' . $this->tid . ' AND a.stateid = ' . $this->sid . ' GROUP BY o.month';
+			 $rs = $this->conn->query($sql);
+			 $countArr = array_fill(0,12,0);
+			 while($r = $rs->fetch_object()){
+				 if($r->month > 0 && $r->month < 13) {
+					 $countArr[$r->month-1] = (int)$r->count;
+				 }
+			 }
+			 $rs->free();
+		}
+		$cppts = array();
+		for($i = 0; $i < 12; $i++) {
+			$cppts[] = $this->calPlotCoord($calPlotUnitPoints[$i], $countArr[$i], array('x'=>150,'y'=>150));
+		}
+		return $cppts;
 	}
 
 	public function CatmullRomSpline($GivenPoint0, $GivenPoint1, $GivenPoint2, $GivenPoint3) {
@@ -86,8 +136,10 @@ class TraitPlotter extends Manager {
 		$t2 = $this->ti1($P1, $P2, $t1);
 		$t3 = $this->ti1($P2, $P3, $t2);
 		$t = ($t2 - $t1) * $tVal + $t1;
-		if( (($t0 == $t1) + ($t0 == $t2) + ($t0 == $t3) + ($t1 == $t2) + ($t1 == $t3) + ($t2 == $t3)) > 0 ) {
-			exit();
+		$nancheck = (($t0 == $t1) + ($t0 == $t2) + ($t0 == $t3) + ($t1 == $t2) + ($t1 == $t3) + ($t2 == $t3));
+		if($nancheck > 0) {
+			return array('x' => ($P1['x'] + $P2['x'])/2, 'y' => ($P1['x'] + $P2['x'])/2);
+			# return the average of the center control points if the Barry Goldman algorithm divides by zero.
 		} else {
 			$A1 = array(
 				'x' => ($t1 - $t) / ($t1 - $t0) * $P0['x'] + ($t - $t0) / ($t1 - $t0) * $P1['x'],
@@ -130,25 +182,11 @@ class TraitPlotter extends Manager {
 		return $svgd . "' />";
 	}
 
-	// function calPlotCoord(point, radius, center) {
-	// 	return {
-	// 		x: (point.x * radius) + center.x,
-	// 		'y'=> (point.y * radius) + center.y
-	// 	}
-	// }
-	//  var calPlotUnitPoints = [
-	// 	{x:0.259, y:0.966},
-	// 	{x:0.707, y:0.707},
-	// 	{x:0.966, y:0.259},
-	// 	{x:0.966, y:-0.259},
-	// 	{x:0.707, y:-0.707},
-	// 	{x:0.259, y:-0.966},
-	// 	{x:-0.259, y:-0.966},
-	// 	{x:-0.707, y:-0.707},
-	// 	{x:-0.966, y:-0.259},
-	// 	{x:-0.966, y:0.259},
-	// 	{x:-0.707, y:0.707},
-	// 	{x:-0.259, y:0.966} ];
+	private function calPlotCoord($point, $radius, $offset = array('x'=>0,'y'=>0)) {
+		return array(
+			'x' => ($point['x'] * $radius) + $offset['x'],
+			'y' => ($point['y'] * $radius) + $offset['y'] );
+	}
 
 	private function BarplotData(){
 		$stateID = $this->sid;
@@ -199,7 +237,7 @@ class TraitPlotter extends Manager {
 
 ### End of class ############
 
-$mypoints = array( array('x'=>120, 'y'=>121), array('x'=>143, 'y'=>143), array('x'=>196, 'y'=>140), array('x'=>209, 'y'=>96), array('x'=>182, 'y'=>58), array('x'=>131, 'y'=>80), array('x'=>119, 'y'=>117), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120) );
+//$mypoints = array( array('x'=>120, 'y'=>121), array('x'=>143, 'y'=>143), array('x'=>196, 'y'=>140), array('x'=>209, 'y'=>96), array('x'=>182, 'y'=>58), array('x'=>131, 'y'=>80), array('x'=>119, 'y'=>117), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120), array('x'=>120, 'y'=>120) );
 
 Header("Content-Type: text/html; charset=".$CHARSET);
 
@@ -213,6 +251,7 @@ $traitPlotter = new TraitPlotter();
 if($tid) $traitPlotter->setTid($tid);
 if($sid) $traitPlotter->setSid($sid);
 
+$mypoints = $traitPlotter->getCalendarPlot();
 $mySpline = array();
 for($i = 0; $i < count($mypoints); $i++) {
 	$ptidx = array();
@@ -221,26 +260,10 @@ for($i = 0; $i < count($mypoints); $i++) {
 	}
 	$mySpline[] = $traitPlotter->CatmullRomSpline($mypoints[$ptidx[0]], $mypoints[$ptidx[1]], $mypoints[$ptidx[2]], $mypoints[$ptidx[3]]);
 }
-
-
-// $mySpline1 = $traitPlotter->CatmullRomSpline($mypoints[0], $mypoints[1], $mypoints[2], $mypoints[3]);
-// $mySpline2 = $traitPlotter->CatmullRomSpline($mypoints[1], $mypoints[2], $mypoints[3], $mypoints[4]);
-// $mySpline3 = $traitPlotter->CatmullRomSpline($mypoints[2], $mypoints[3], $mypoints[4], $mypoints[5]);
-// $mySpline4 = $traitPlotter->CatmullRomSpline($mypoints[3], $mypoints[4], $mypoints[5], $mypoints[6]);
-// $mySpline5 = $traitPlotter->CatmullRomSpline($mypoints[4], $mypoints[5], $mypoints[6], $mypoints[7]);
-// $mySpline6 = $traitPlotter->CatmullRomSpline($mypoints[5], $mypoints[6], $mypoints[7], $mypoints[8]);
-// $mySpline7 = $traitPlotter->CatmullRomSpline($mypoints[6], $mypoints[7], $mypoints[8], $mypoints[9]);
-// $mySpline8 = $traitPlotter->CatmullRomSpline($mypoints[7], $mypoints[8], $mypoints[9], $mypoints[10]);
-// $mySpline9 = $traitPlotter->CatmullRomSpline($mypoints[8], $mypoints[9], $mypoints[10], $mypoints[11]);
-// $mySpline10 = $traitPlotter->CatmullRomSpline($mypoints[9], $mypoints[10], $mypoints[11], $mypoints[0]);
-// $mySpline11 = $traitPlotter->CatmullRomSpline($mypoints[10], $mypoints[11], $mypoints[0], $mypoints[1]);
-// $mySpline12 = $traitPlotter->CatmullRomSpline($mypoints[11], $mypoints[0], $mypoints[1], $mypoints[2]);
-
-#$pointsStr = $traitPlotter->traitMapPoints();
-
 ?>
 <html>
 <head>
+	<link rel="stylesheet" type="text/css" href="http://localhost:8080/BioKIC/css/symb/taxa/traitplot.css">
 	<style>
 	.column {
   float: left;
@@ -277,163 +300,3 @@ for($i = 0; $i < count($mypoints); $i++) {
 </div>
 </body>
 </html>
-
-
-
-<!-- <html>
-<head>
-  <link rel="stylesheet" type="text/css" href="/Users/cdt/Professional/Projects/CCH2/BioKIC/Symbiota-light/css/symb/taxa/traitplot.css">
-  <script type="text/javascript">
-  var mypoints = [ {x:120, y:121}, {x:143, y:143}, {x:196, y:140}, {x:209, y:96}, {x:182, y:58}, {x:131, y:80}, {x:119, y:117}, {x:120, y:120}, {x:120, y:120}, {x:120, y:120}, {x:120, y:120}, {x:120, y:120} ];
-
-  function createSpline(p0, p1, p2, p3) {
-    return {
-      p0: p0,
-      p1: p1,
-      p2: p2,
-      p3: p3
-    };
-  }
-
-  function splinePoint(spline, tVal) {
-    function ti1(pi, pi1, ti) {
-      return Math.sqrt(((pi1.x - pi.x) ** 2 + (pi1.y - pi.y) ** 2)) ** 0.5 + ti;
-    }
-    let P0 = spline.p0;
-    let P1 = spline.p1;
-    let P2 = spline.p2;
-    let P3 = spline.p3;
-    let t0 = 0;
-    let t1 = ti1(spline.p0, spline.p1, t0);
-    let t2 = ti1(spline.p1, spline.p2, t1);
-    let t3 = ti1(spline.p2, spline.p3, t2);
-    let t = (t2 - t1) * tVal + t1;
-    let A1 = {
-      x: (t1 - t) / (t1 - t0) * P0.x + (t - t0) / (t1 - t0) * P1.x,
-      y: (t1 - t) / (t1 - t0) * P0.y + (t - t0) / (t1 - t0) * P1.y
-    }
-    let A2 = {
-      x: (t2 - t) / (t2 - t1) * P1.x + (t - t1) / (t2 - t1) * P2.x,
-      y: (t2 - t) / (t2 - t1) * P1.y + (t - t1) / (t2 - t1) * P2.y
-    }
-    let A3 = {
-      x: (t3 - t) / (t3 - t2) * P2.x + (t - t2) / (t3 - t2) * P3.x,
-      y: (t3 - t) / (t3 - t2) * P2.y + (t - t2) / (t3 - t2) * P3.y
-    }
-    let B1 = {
-      x: (t2 - t) / (t2 - t0) * A1.x + (t - t0) / (t2 - t0) * A2.x,
-      y: (t2 - t) / (t2 - t0) * A1.y + (t - t0) / (t2 - t0) * A2.y
-    };
-    let B2 = {
-      x: (t3 - t) / (t3 - t1) * A2.x + (t - t1) / (t3 - t1) * A3.x,
-      y: (t3 - t) / (t3 - t1) * A2.y + (t - t1) / (t3 - t1) * A3.y
-    };
-    let C = {
-      x: (t2 - t) / (t2 - t1) * B1.x + (t - t1) / (t2 - t1) * B2.x,
-      y: (t2 - t) / (t2 - t1) * B1.y + (t - t1) / (t2 - t1) * B2.y
-    };
-    return C;
-  }
-
-  var mySpline1 = createSpline(mypoints[0], mypoints[1], mypoints[2], mypoints[3]);
-  var mySpline2 = createSpline(mypoints[1], mypoints[2], mypoints[3], mypoints[4]);
-  var mySpline3 = createSpline(mypoints[2], mypoints[3], mypoints[4], mypoints[5]);
-  var mySpline4 = createSpline(mypoints[3], mypoints[4], mypoints[5], mypoints[6]);
-  var mySpline5 = createSpline(mypoints[4], mypoints[5], mypoints[6], mypoints[7]);
-  var mySpline6 = createSpline(mypoints[5], mypoints[6], mypoints[7], mypoints[8]);
-  var mySpline7 = createSpline(mypoints[6], mypoints[7], mypoints[8], mypoints[9]);
-  var mySpline8 = createSpline(mypoints[7], mypoints[8], mypoints[9], mypoints[10]);
-  var mySpline9 = createSpline(mypoints[8], mypoints[9], mypoints[10], mypoints[11]);
-  var mySpline10 = createSpline(mypoints[9], mypoints[10], mypoints[11], mypoints[0]);
-  var mySpline11 = createSpline(mypoints[10], mypoints[11], mypoints[0], mypoints[1]);
-  var mySpline12 = createSpline(mypoints[11], mypoints[0], mypoints[1], mypoints[2]);
-
-  function drawSpline(spl, color, thickness, iter) {
-    let tInc = 1 / iter;
-    let t = tInc;
-    firstPt = splinePoint(spl, 0);
-    var svgd = "<path class='CalendarPlotFocalCurve' d='M" + firstPt.x + "," + firstPt.y + " L";
-    for (let i = 0; i < iter; i++) {
-      pt = splinePoint(spl, t);
-      svgd += pt.x + "," + pt.y + " ";
-      t += tInc;
-    }
-    return svgd + "' />";
-  }
-
-  function calPlotCoord(point, radius, center) {
-    return {
-      x: (point.x * radius) + center.x,
-      y: (point.y * radius) + center.y
-    }
-  }
-   var calPlotUnitPoints = [
-    {x:0.259, y:0.966},
-    {x:0.707, y:0.707},
-    {x:0.966, y:0.259},
-    {x:0.966, y:-0.259},
-    {x:0.707, y:-0.707},
-    {x:0.259, y:-0.966},
-    {x:-0.259, y:-0.966},
-    {x:-0.707, y:-0.707},
-    {x:-0.966, y:-0.259},
-    {x:-0.966, y:0.259},
-    {x:-0.707, y:0.707},
-    {x:-0.259, y:0.966} ];
-  </script>
-</head>
-<body>
-<table>
-  <tr><td>j</td><td>0.259</td><td>0.966</td></tr>
-  <tr><td>f</td><td>0.707</td><td>0.707</td></tr>
-  <tr><td>m</td><td>0.966</td><td>0.259</td></tr>
-  <tr><td>a</td><td>0.966</td><td>-0.259</td></tr>
-  <tr><td>m</td><td>0.707</td><td>-0.707</td></tr>
-  <tr><td>j</td><td>0.259</td><td>-0.966</td></tr>
-  <tr><td>j</td><td>-0.259</td><td>-0.966</td></tr>
-  <tr><td>a</td><td>-0.707</td><td>-0.707</td></tr>
-  <tr><td>s</td><td>-0.966</td><td>-0.259</td></tr>
-  <tr><td>o</td><td>-0.966</td><td>0.259</td></tr>
-  <tr><td>n</td><td>-0.707</td><td>0.707</td></tr>
-  <tr><td>d</td><td>-0.259</td><td>0.966</td></tr>
-</table>
-  <svg width="240" height="240" id="cdt">
-    <line x1="94" y1="217" x2="146" y2="23" class="CalendarPlotSpokeLine" />
-    <line x1="146" y1="217" x2="94" y2="23" class="CalendarPlotSpokeLine"/>
-    <line x1="191" y1="191" x2="49" y2="49" class="CalendarPlotSpokeLine"/>
-    <line x1="217" y1="146" x2="23" y2="94" class="CalendarPlotSpokeLine"/>
-    <line x1="191" y1="49" x2="49" y2="191" class="CalendarPlotSpokeLine"/>
-    <line x1="23" y1="146" x2="217" y2="94" class="CalendarPlotSpokeLine"/>
-    <polyline points="146,23 191,49 217,94 217,146 191,191 146,217 94,217 49,191 23,146 23,94 49,49 94,23 146,23" class="CalendarPlotOuterWebLine" />
-    <text class="CalendarPlotText" transform="translate(147,18) rotate(15)">Jan</text>
-    <text class="CalendarPlotText" transform="translate(194,46) rotate(45)">Feb</text>
-    <text class="CalendarPlotText" transform="translate(221,93) rotate(75)">Mar</text>
-    <text class="CalendarPlotText" transform="translate(221,147) rotate(105)">Apr</text>
-    <text class="CalendarPlotText" transform="translate(194,194) rotate(135)">May</text>
-    <text class="CalendarPlotText" transform="translate(147,221) rotate(165)">Jun</text>
-    <text class="CalendarPlotText" transform="translate(93,221) rotate(195)">Jul</text>
-    <text class="CalendarPlotText" transform="translate(46,194) rotate(225)">Aug</text>
-    <text class="CalendarPlotText" transform="translate(18,147) rotate(255)">Sep</text>
-    <text class="CalendarPlotText" transform="translate(18,93) rotate(285)">Oct</text>
-    <text class="CalendarPlotText" transform="translate(46,46) rotate(315)">Nov</text>
-    <text class="CalendarPlotText" transform="translate(93,18) rotate(345)">Dec</text>
-
-<script type="text/javascript">
-  var res = 10;
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline1, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline2, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline3, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline4, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline5, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline6, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline7, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline8, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline9, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline10, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline11, res);
-    document.getElementById("cdt").innerHTML += drawSpline(mySpline12, res);
-  </script>
-
-  </svg>
-</body>
-</html> -->
