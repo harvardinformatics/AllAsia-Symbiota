@@ -24,11 +24,15 @@ class PolarPlot {
   private $AxisLabels = array();
   private $TickNumber = 2;
   private $DataValues = array();
+  private $TickScale;
+  private $Splines = array();
+  private $SplineSmoothness = 10;
   private $RadInterval;
   private $RadTopPosition;
   public $PlotSVG;
 
 
+  ## METHODS ##
 
   public function __construct($className = 'PolarPlot', $id = ''){
     $this->PlotClass = $className;
@@ -41,6 +45,9 @@ class PolarPlot {
 
 	public function __destruct(){
 	}
+
+
+  ### Public Methods ###
 
   public function setAxisNumber($n) {
     $this->AxisNumber = $n;
@@ -65,7 +72,14 @@ class PolarPlot {
   }
 
   public function setDataValues($d) {
-    $this->DataValues = $d;
+    if(count($d) == $this->AxisNumber) {
+      $this->DataValues = $d;
+      $this->setTickScale();
+      $this->setSplines();
+      return 1;
+    } else {
+      return 0;
+    }
   }
 
   public function getViewboxWidth() {
@@ -77,26 +91,32 @@ class PolarPlot {
   }
 
   public function getPlotSVG() {
-    $mySpline = array();
+    return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->scaleSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->splineSVG();
+  }
+
+
+  ### Private Methods ###
+
+  private function makePolar($value, $axis) {
+    $radDist = $this->RadTopPosition - ($axis * $this->RadInterval);
+    $out['x'] = round($this->PlotCenter['x'] + $value * cos($radDist), 0);
+    $out['y'] = round($this->PlotCenter['y'] - $value * sin($radDist), 0);
+    return $out;
+  }
+
+  private function setSplines(){
     for($i = 0; $i < count($this->DataValues); $i++) {
-    	$ptidx = array();
-    	for($j = 0; $j < 4; $j++){
-    		$ptidx[] = ($i + $j) % count($this->DataValues);
-    	}
-    	$mySpline[] = $this->CatmullRomSpline($this->DataValues[$ptidx[0]], $this->DataValues[$ptidx[1]], $this->DataValues[$ptidx[2]], $this->DataValues[$ptidx[3]]);
+      $ptidx = array();
+      for($j = 0; $j < 4; $j++){
+        $ptidx[] = ($i + $j) % count($this->DataValues);
+      }
+      $scaleFactor = $this->TickScale * $this->TickNumber;
+      $spline1 = $this->makePolar($this->DataValues[$ptidx[0]] * $this->AxisLength / $scaleFactor, $i);
+      $spline2 = $this->makePolar($this->DataValues[$ptidx[1]] * $this->AxisLength / $scaleFactor, $i + 1);
+      $spline3 = $this->makePolar($this->DataValues[$ptidx[2]] * $this->AxisLength / $scaleFactor, $i + 2);
+      $spline4 = $this->makePolar($this->DataValues[$ptidx[3]] * $this->AxisLength / $scaleFactor, $i + 3);
+      $this->Splines[] = $this->CatmullRomSpline($spline1, $spline2, $spline3, $spline4);
     }
-    $splineSVG = '';
-    foreach ($mySpline as $k => $v) {
-
-      // $cppts = array();
-  		// for($i = 0; $i < 12; $i++) {
-  		// 	$cppts[] = $this->calPlotCoord($calPlotUnitPoints[$i], $countArr[$i], array('x'=>150,'y'=>150));
-  		// }
-  		// return $cppts;
-
-      $splineSVG .= $this->drawSpline($v, 10);
-    }
-    return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->scaleSVG() . ' ' . $this->axisLabelSVG() . ' ' . $splineSVG;
   }
 
   private function setRadInterval() {
@@ -107,14 +127,43 @@ class PolarPlot {
     $this->RadTopPosition = (pi() / 2) - deg2rad($this->AxisRotation);
   }
 
+  private function setTickScale() {
+    if(empty($this->DataValues)) {
+      $this->TickScale = 1;
+      return;
+    }
+    if(isset($this->TickNumber) && $this->TickNumber) {
+      $s1 = max($this->DataValues) / $this->TickNumber;
+      $s2 = 10 ** (round(log10($s1), 0) - 1);
+      $s3 = ceil($s1 / $s2) * $s2;
+      $this->TickScale = $s3;
+    }
+  }
+
+  #### Graphic Functions ####
   private function axisSVG() {
     $svgStr = '';
     $radPos = $this->RadTopPosition;
     for($i = 0; $i < $this->AxisNumber; $i++) {
       $x2 = round($this->PlotCenter['x'] + $this->AxisLength * cos($radPos), 0);
       $y2 = round($this->PlotCenter['y'] - $this->AxisLength * sin($radPos), 0);
-      $svgStr .= '<line x1="' . $this->PlotCenter['x'] . '" y1="' . $this->PlotCenter['y'] . '" x2="' . $x2 . '" y2="' . $y2 . '" class="' . $this->PlotClass . 'AxisLine" />';
+      $svgStr .= '<line x1="' . $this->PlotCenter['x'] . '" y1="' . $this->PlotCenter['y'] . '" x2="' . $x2 . '" y2="' . $y2 . '" class="' . $this->PlotClass . 'AxisLine" />' . PHP_EOL;
       $radPos -= $this->RadInterval;
+    }
+    return $svgStr;
+  }
+
+  private function axisLabelSVG() {
+    $svgStr = '';
+    $radPos = $this->RadTopPosition;
+    $degRotation = $this->AxisRotation;
+    for($i = 0; $i < $this->AxisNumber; $i++) {
+      if(isset($this->AxisLabels[$i])) { $label = $this->AxisLabels[$i]; } else { $label = $i; }
+      $x2 = round($this->PlotCenter['x'] + ($this->AxisLength + $this->PlotPadding) * cos($radPos), 0);
+      $y2 = round($this->PlotCenter['y'] - ($this->AxisLength + $this->PlotPadding) * sin($radPos), 0);
+      $svgStr .= '<text transform="translate(' . $x2 . ',' . $y2 . ') rotate(' . $degRotation . ')" class="' . $this->PlotClass . 'LabelText">' . $label . '</text>' . PHP_EOL;
+      $radPos -= $this->RadInterval;
+      $degRotation += rad2deg($this->RadInterval);
     }
     return $svgStr;
   }
@@ -133,7 +182,7 @@ class PolarPlot {
           $svgStr .= $x2 . ',' . $y2 . ' ';
           $radPos -= $this->RadInterval;
         }
-        $svgStr .= '" />';
+        $svgStr .= '" />' . PHP_EOL;
       }
     }
     return $svgStr;
@@ -145,31 +194,31 @@ class PolarPlot {
       return $svgStr;
     }
     if(isset($this->TickNumber) && $this->TickNumber) {
-      $s1 = max($this->DataValues) / $this->TickNumber;
-      $s2 = 10 ** (round(log10($s1), 0) - 1);
-      $s3 = ceil($s1 / $s2) * $s2;
-      $tickInterval = $this->AxisLength/$this->TickNumber;
+      $tickInterval = $this->AxisLength / $this->TickNumber;
       for($j = 1; $j <= $this->TickNumber; $j++){
         $tickRadius = $this->PlotCenter['y'] - round($tickInterval * $j, 1);
-        $svgStr .= '<text transform="translate(' . $this->PlotCenter['x'] . ',' . $tickRadius . ')" class="' . $this->PlotClass . 'ScaleText">' . $s3 * $j . '</text>';
+        $svgStr .= '<text transform="translate(' . $this->PlotCenter['x'] . ',' . $tickRadius . ')" class="' . $this->PlotClass . 'ScaleText">' . $this->TickScale * $j . '</text>' . PHP_EOL;
       }
     }
     return $svgStr;
   }
 
-  private function axisLabelSVG() {
-    $svgStr = '';
-    $radPos = $this->RadTopPosition;
-    $degRotation = $this->AxisRotation;
-    for($i = 0; $i < $this->AxisNumber; $i++) {
-      if(isset($this->AxisLabels[$i])) { $label = $this->AxisLabels[$i]; } else { $label = $i; }
-      $x2 = round($this->PlotCenter['x'] + ($this->AxisLength + $this->PlotPadding) * cos($radPos), 0);
-      $y2 = round($this->PlotCenter['y'] - ($this->AxisLength + $this->PlotPadding) * sin($radPos), 0);
-      $svgStr .= '<text transform="translate(' . $x2 . ',' . $y2 . ') rotate(' . $degRotation . ')" class="' . $this->PlotClass . 'LabelText">' . $label . '</text>';
-      $radPos -= $this->RadInterval;
-      $degRotation += rad2deg($this->RadInterval);
+  ##### Spline Functions #####
+  private function splineSVG() {
+    $svgd = '';
+    foreach ($this->Splines as $s) {
+      $tInc = 1 / $this->SplineSmoothness;
+      $t = $tInc;
+      $firstPt = $this->BarryGoldmanSplinePoint($s, 0);
+      $svgd .= '<path class="' . $this->PlotClass . 'FocalCurve" d="M' . $firstPt["x"] . ',' . $firstPt["y"] . ' L';
+      for ($i = 0; $i < $this->SplineSmoothness; $i++) {
+        $pt = $this->BarryGoldmanSplinePoint($s, $t);
+        $svgd .= $pt["x"] . ',' . $pt["y"] . ' ';
+        $t += $tInc;
+      }
+      $svgd .= '" />' . PHP_EOL;
     }
-    return $svgStr;
+    return $svgd;
   }
 
   private function CatmullRomSpline($GivenPoint0, $GivenPoint1, $GivenPoint2, $GivenPoint3) {
@@ -184,6 +233,7 @@ class PolarPlot {
   }
 
   private function BarryGoldmanSplinePoint($spline, $tVal) {
+    //The problem is, $spline contains a single datavalue, but this function wants an x/y coord!
     $P0 = $spline['p0'];
     $P1 = $spline['p1'];
     $P2 = $spline['p2'];
@@ -193,7 +243,7 @@ class PolarPlot {
     $t2 = $this->ti1($P1, $P2, $t1);
     $t3 = $this->ti1($P2, $P3, $t2);
     $t = ($t2 - $t1) * $tVal + $t1;
-    var_dump($spline);
+    //$nancheck = (($t0 == $t1) + ($t1 == $t2) + ($t2 == $t3));
     $nancheck = (($t0 == $t1) + ($t0 == $t2) + ($t0 == $t3) + ($t1 == $t2) + ($t1 == $t3) + ($t2 == $t3));
     if($nancheck > 0) {
       return array('x' => ($P1['x'] + $P2['x'])/2, 'y' => ($P1['x'] + $P2['x'])/2);
@@ -225,25 +275,6 @@ class PolarPlot {
       );
     }
     return $C;
-  }
-
-  public function drawSpline($spline, $iter) {
-    $tInc = 1 / $iter;
-    $t = $tInc;
-    $firstPt = $this->BarryGoldmanSplinePoint($spline, 0);
-    $svgd = "<path class='" . $this->PlotClass . "FocalCurve' d='M" . $firstPt['x'] . "," . $firstPt['y'] . " L";
-    for ($i = 0; $i < $iter; $i++) {
-      $pt = $this->BarryGoldmanSplinePoint($spline, $t);
-      $svgd .= $pt['x'] . "," . $pt['y'] . " ";
-      $t += $tInc;
-    }
-    return $svgd . "' />";
-  }
-
-  private function calPlotCoord($point, $radius, $offset = array('x'=>0,'y'=>0)) {
-    return array(
-      'x' => ($point['x'] * $radius) + $offset['x'],
-      'y' => ($point['y'] * $radius) + $offset['y'] );
   }
 
 }

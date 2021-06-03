@@ -52,7 +52,7 @@ $polarPlot->setDataValues($traitPlotter->getCalendarPlotData());
 				<?php echo $traitPlotter->getStateName(); ?>
 			</h3>
 			<?php
-				echo '<svg width="500" height="500" viewbox="0 0 ' . $polarPlot->getViewboxWidth() . ' ' . $polarPlot->getViewboxHeight() . '"><g>';
+				echo '<svg width="500" height="500" viewbox="0 0 ' . $polarPlot->getViewboxWidth() . ' ' . $polarPlot->getViewboxHeight() . '"><g>' . PHP_EOL;
 				echo $polarPlot->getPlotSVG();
 				echo '</g></svg>';
 			?>
