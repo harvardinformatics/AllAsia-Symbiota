@@ -21,7 +21,7 @@
 .PolarPlotFocalCurve {
   fill: none;
   stroke-width: 3px;
-  stroke: red;
+  stroke: orange;
 }
 .PolarPlotBlurredCurve {
   font-family: sans-serif;

@@ -12,17 +12,15 @@ $sid = array_key_exists("sid",$_REQUEST)?$_REQUEST["sid"]:"";
 if(!is_numeric($tid)) $tid = 0;
 if(!is_numeric($sid)) $sid = 0;
 
-$polarPlot = new PolarPlot();
-$polarPlot->setAxisNumber(12);
-$polarPlot->setAxisRotation(15);
-$polarPlot->setTickNumber(3);
-$polarPlot->setAxisLabels(array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'));
-
-$traitPlotter = new TraitPlotter();
+$traitPlotter = new TraitPlotter("polar");
 if($tid) $traitPlotter->setTid($tid);
 if($sid) $traitPlotter->setSid($sid);
 
-$polarPlot->setDataValues($traitPlotter->getCalendarPlotData());
+// $polarPlot = new PolarPlot();
+// $polarPlot->setAxisNumber(12);
+// $polarPlot->setAxisRotation(15);
+// $polarPlot->setTickNumber(3);
+// $polarPlot->setAxisLabels(array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'));
 
 ?>
 
@@ -52,8 +50,8 @@ $polarPlot->setDataValues($traitPlotter->getCalendarPlotData());
 				<?php echo $traitPlotter->getStateName(); ?>
 			</h3>
 			<?php
-				echo '<svg width="500" height="500" viewbox="0 0 ' . $polarPlot->getViewboxWidth() . ' ' . $polarPlot->getViewboxHeight() . '"><g>' . PHP_EOL;
-				echo $polarPlot->getPlotSVG();
+				echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '"><g>' . PHP_EOL;
+				echo $traitPlotter->monthlyPolarPlot();
 				echo '</g></svg>';
 			?>
 		</div>
