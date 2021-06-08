@@ -73,8 +73,8 @@ class PolarPlot {
 
   public function setTickNumber($n) {
     // max out ticks at the number of pixels in the axis since they're not visible anyway.
-    if($n > $this->AxisLength) { $n = $this->AxisLength; }
     if(is_numeric($n)) {
+      if($n > $this->AxisLength) { $n = $this->AxisLength; }
       $this->TickNumber = $n;
     }
   }
@@ -105,8 +105,8 @@ class PolarPlot {
     }
   }
 
-  public function setPlotDimensions($h, $w) {
-    if(!isset($w)) { $w = $h; }
+  public function setPlotDimensions($h, $w = -1) {
+    if($w < 0) { $w = $h; }
     if(is_numeric($w) && is_numeric($h)) {
       $this->PlotHeight = $h;
       $this->PlotWidth = $w;

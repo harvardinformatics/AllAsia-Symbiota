@@ -12,6 +12,7 @@ class TraitPlotter extends Manager {
 	private $taxonArr = array();
   private $traitDataArr = array();
 	private $plotInstance;
+	private $TaxAuthId = 1;
 
 
 	// METHODS
@@ -69,17 +70,18 @@ class TraitPlotter extends Manager {
 	}
 
 	public function monthlyPolarPlot() {
-		$this->plotInstance->setAxisNumber(12);
-		$this->plotInstance->setAxisRotation(15);
-		$this->plotInstance->setTickNumber(3);
-		$this->plotInstance->setAxisLabels(array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'));
-		$this->plotInstance->setDataValues($this->summarizeTraitByMonth());
-		return $this->plotInstance->display();
+		if($this->taxonArr['rankid'] > 179) {  // limit to genus and below
+			$this->plotInstance->setAxisNumber(12);
+			$this->plotInstance->setAxisRotation(15);
+			$this->plotInstance->setTickNumber(3);
+			$this->plotInstance->setAxisLabels(array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'));
+			$this->plotInstance->setDataValues($this->summarizeTraitByMonth());
+			return $this->plotInstance->display();
+		}
 	}
 
 	### Private methods ###
 	private function setTaxon(){
-		//need to roll up from child taxa!!
 		if($this->tid){
 			$sql = 'SELECT tid, sciname, author, rankid FROM taxa WHERE (tid = '.$this->tid.') ';
 			$rs = $this->conn->query($sql);
@@ -88,6 +90,14 @@ class TraitPlotter extends Manager {
 				$this->taxonArr['sciname'] = $r->sciname;
 				$this->taxonArr['author'] = $r->author;
 				$this->taxonArr['rankid'] = $r->rankid;
+			}
+			$rs->free();
+			// Roll up child taxa, then select synonyms of the target and children
+			$sql = 'SELECT DISTINCT t.tid FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.TidAccepted != ts.tid) AND (ts.taxauthid =' . $this->TaxAuthId . ') AND (ts.tidaccepted IN((SELECT DISTINCT t.tid FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid WHERE (ts.parenttid =' . $this->tid .') AND (ts.TidAccepted = ts.tid) AND (ts.taxauthid =' . $this->TaxAuthId . '))))';
+			$rs = $this->conn->query($sql);
+			$this->taxonArr['synonymtids'] = array();
+			while($r = $rs->fetch_object()){
+				$this->taxonArr['synonymtids'][] = $r->tid;
 			}
 			$rs->free();
 		}
@@ -107,7 +117,8 @@ class TraitPlotter extends Manager {
  	private function summarizeTraitByMonth(){
 		$countArr = array_fill(0,12,0);  // makes a zero array
 		if($this->tid && $this->sid){
-			 $sql = 'SELECT o.month, COUNT(*) AS count FROM tmattributes AS a LEFT JOIN omoccurrences AS o ON o.occid = a.occid WHERE o.tidinterpreted = ' . $this->tid . ' AND a.stateid = ' . $this->sid . ' GROUP BY o.month';
+			$searchtids = array_merge(array($this->tid), $this->taxonArr['synonymtids']);
+			 $sql = 'SELECT o.month, COUNT(*) AS count FROM tmattributes AS a LEFT JOIN omoccurrences AS o ON o.occid = a.occid WHERE o.tidinterpreted IN(' . implode(",", $searchtids) . ') AND a.stateid = ' . $this->sid . ' GROUP BY o.month';
 			 $rs = $this->conn->query($sql);
 			 while($r = $rs->fetch_object()){
 				 if($r->month > 0 && $r->month < 13) {
