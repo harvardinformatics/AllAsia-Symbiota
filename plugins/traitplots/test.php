@@ -1,20 +1,23 @@
 <?php
 include_once('../../config/symbini.php');
-include_once($SERVER_ROOT.'/classes/TraitPlotter.php');
+include_once($SERVER_ROOT.'/classes/TraitPlotManager.php');
 include_once($SERVER_ROOT.'/classes/TraitPolarPlot.php');
 
 
 Header("Content-Type: text/html; charset=".$CHARSET);
 
 $tid = array_key_exists("tid",$_REQUEST)?$_REQUEST["tid"]:"";
-$sid = array_key_exists("sid",$_REQUEST)?$_REQUEST["sid"]:"";
+$traitid = array_key_exists("traitid",$_REQUEST)?$_REQUEST["traitid"]:"";
 
 if(!is_numeric($tid)) $tid = 0;
-if(!is_numeric($sid)) $sid = 0;
+if(!is_numeric($traitid)) $traitid = 0;
 
-$traitPlotter = new TraitPlotter("polar");
+$traitPlotter = new TraitPlotManager("polar");
 if($tid) $traitPlotter->setTid($tid);
-if($sid) $traitPlotter->setSid($sid);
+if($traitid) $traitPlotter->setTraitid($traitid);
+$traitPlotter2 = new TraitPlotManager("bar");
+if($tid) $traitPlotter2->setTid($tid);
+if($traitid) $traitPlotter2->setTraitid($traitid);
 
 // $polarPlot = new PolarPlot();
 // $polarPlot->setAxisNumber(12);
@@ -42,17 +45,20 @@ if($sid) $traitPlotter->setSid($sid);
 	</style>
 </head>
 <body>
+	<!-- array('id=1, type=polar, summary=bymonth, emphasize=2', 'id=3, type=bar, summary=byear'); -->
 	<div class="row">
 		<div class="column">
 			<h2>
 				<?php echo $traitPlotter->getSciname(); ?>
 			</h2><h3>
-				<?php echo $traitPlotter->getStateName(); ?>
+				<?php echo $traitPlotter->getTraitName(); ?>
 			</h3>
 			<?php
-				echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . '"><g>' . PHP_EOL;
+				echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter->getViewboxWidth() . ' ' . $traitPlotter->getViewboxHeight() . ' role="img"><g>' . PHP_EOL;
 				echo $traitPlotter->monthlyPolarPlot();
+				//echo $traitPlotter->summarizeTraitByYear();
 				echo '</g></svg>';
+				echo '<svg width="500" height="500" viewbox="0 0 ' . $traitPlotter2->getViewboxWidth() . ' ' . $traitPlotter2->getViewboxHeight() . ' role="img"><g>'.$traitPlotter2->display().'</g></svg>';
 			?>
 		</div>
 

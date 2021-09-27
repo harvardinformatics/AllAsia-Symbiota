@@ -23,7 +23,7 @@ class PolarPlot {
   private $PlotCenter;
   private $PlotPadding = 4;       // the distance between the end of an axis and its label, in pixels
   private $PlotMargin = 16;       // space for label text, in pixels (browser font default = 16px)
-  private $AxisNumber = 3;        // number of plot axes
+  private $AxisNumber = 3;        // number of plot axes (or start unset and use count(DataValues)?)
   private $AxisRotation = 0;      // degrees clockwise from top dead center
   private $AxisLength;
   private $AxisLabels = array();
@@ -31,10 +31,10 @@ class PolarPlot {
   private $TickScale;
   private $DataValues = array();  // Future: consider making this into a 2D array holding data series
   private $Splines = array();
-  private $SplineSmoothness = 10; // the number of iterations for the Barry-Goldman algorithm
+  private $SplineSmoothness = 8; // the number of iterations for the Barry-Goldman algorithm
   private $RadInterval;           // angle between axes, in radians
   private $RadTopPosition;        // "top" of the plot (endpoint of first axis), in radians
-  public $surpressScale = 0;      // surpresses scale drawing values
+  public $ShowScale = 1;          // surpresses drawing of scale values when zero
 
 
   ## METHODS ##
@@ -94,8 +94,12 @@ class PolarPlot {
     }
   }
 
-  public function setDataValues($d) { //check for numeric
-    if(is_array($d) && (count($d) == $this->AxisNumber)) {
+  public function setDataValues($d) {
+    if(is_array($d)) { //check for $d[] numeric?
+      if(!isset($this->AxisNumber)) { $this->setAxisNumber(count($d)); }
+      if(isset($this->AxisNumber) && (count($d) != $this->AxisNumber)) {
+        trigger_error("number of data points does not match number of axes;", E_USER_WARNING);
+      }
       $this->DataValues = $d;
       $this->setTickScale();
       $this->setSplines();
@@ -124,7 +128,7 @@ class PolarPlot {
   }
 
   public function display() {
-    if($this->surpressScale != 0) {
+    if(!$this->ShowScale) {
       return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->splineSVG();
     } else {
       return $this->axisSVG() . ' ' . $this->tickSVG() . ' ' . $this->scaleSVG() . ' ' . $this->axisLabelSVG() . ' ' . $this->splineSVG();

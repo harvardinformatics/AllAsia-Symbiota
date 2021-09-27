@@ -64,7 +64,25 @@ $ACTIVATE_EXSICCATI = 0;			//Activates exsiccati fields within data entry pages;
 $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within the Processing Toolkit menu items
 $OCCUR_SECURITY_OPTION = 1;			//Occurrence security options supported: value 1-7; 1 = Locality security, 2 = Taxon security, 4 = Full security, 3 = L & T, 5 = L & F, 6 = T & F, 7 = all
 $SEARCH_BY_TRAITS = '0';			//Activates search fields for searching by traits (if trait data have been encoded): 0 = trait search off; any number of non-zeros separated by commas (e.g., '1,6') = trait search on for the traits with these id numbers in table tmtraits.
-
+$PLOT_TRAITS = array(''); /*This controls which traits are presented in plots on the taxon profile pages. Each desired plot should be a separate array element. An array element consists of a string with three required parts and one optional part separated by commas:
+  - the internal ID number of the trait (id),
+  - the type of plot (type), and
+  - the summary method (summary).
+  - optionally, a semicolon separated list of the internal IDs of a subset of character states (limitto) can be specified to limit the plot to only the states listed.
+Available options for plot type include:
+  -'polar'
+  -'bar'
+Available options for summary method include:
+  -'bymonth' counts all occurrences in each month across all years.
+	-'byyear' counts all occurrences in each year.
+	-'bycountry' counts over the appropriate administrative division
+	-'bystate'
+	-'bycounty'.
+The 'bycountry', 'bystate', and 'bycounty' methods count over the appropriate administrative division where bycountry is a country or equivalent sovereignty as stored in the country field, 'bystate' is the State/Province/Department or equivalent first-level division as stored in the stateProvince field. stateProvince is nested by country when there is more than one country. 'bycounty' is the county/district/canton or equivalent second-level division in the county field. County is nested by the stateProvince when there is more than one, and stateProvince is nested by country when there is more than one.
+Ex.
+array('id=1, type=polar, summary=bymonth, limitto=2', 'id=3, type=bar, summary=byear');
+The above example will produce two plots on the taxon profile pages, the first is for trait with id #1 and will be a monthly polar plot only showing results from the state with id #2 (assuming state 2 is linked to trait 1). The second plot will be a barplot by year summarizing the trait with id #3.
+*/
 
 $IGSN_ACTIVATION = 0;
 
