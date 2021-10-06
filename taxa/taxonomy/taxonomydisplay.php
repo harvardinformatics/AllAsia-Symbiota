@@ -85,9 +85,6 @@ $relFilePath = $docs->getFilePath(__FILE__, $SERVER_ROOT);
 	<!-- This is inner text! -->
 	<div id="innertext">
       <h1 class="page-title">Taxonomic Tree Viewer</h1>
-      <div>
-        <p>A <span class="term" data-term="catalogNumber">term</span> with a definition.</p>
-      </div>
 		<?php
 		if($statusStr){
 			?>
