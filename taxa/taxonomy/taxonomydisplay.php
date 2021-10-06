@@ -1,6 +1,7 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/TaxonomyDisplayManager.php');
+include_once($SERVER_ROOT.'/classes/DocsUtilities.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $target = array_key_exists("target",$_REQUEST)?$_REQUEST["target"]:"";
@@ -35,6 +36,8 @@ $isEditor = false;
 if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	$isEditor = true;
 }
+$docs = new DocsUtilities();
+$relFilePath = $docs->getFilePath(__FILE__, $SERVER_ROOT);
 ?>
 <html>
 <head>
@@ -81,6 +84,7 @@ if($IS_ADMIN || array_key_exists("Taxonomy",$USER_RIGHTS)){
 	</div>
 	<!-- This is inner text! -->
 	<div id="innertext">
+      <h1 class="page-title">Taxonomic Tree Viewer</h1>
 		<?php
 		if($statusStr){
 			?>
