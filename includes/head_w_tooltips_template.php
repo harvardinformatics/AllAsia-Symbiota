@@ -19,16 +19,6 @@ if($activateJQuery){
 ?>
 <link href="<?php echo $CLIENT_ROOT; ?>/css/base.css?ver=1" type="text/css" rel="stylesheet">
 <link href="<?php echo $CLIENT_ROOT; ?>/css/symb/main.css?ver=1" type="text/css" rel="stylesheet">
-<!-- Symbiota Tooltips -->
-<link href="<?php echo $CLIENT_ROOT; ?>/css/symb/tooltips.css?ver=1" type="text/css" rel="stylesheet">
-<script src="<?php echo $CLIENT_ROOT; ?>/js/symb/symbiota.tooltips.js" defer></script>
-<script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", async function(){
-    const relFilePath = <?php echo (json_encode($relFilePath)); ?>;
-    const langTag = <?php echo (json_encode($LANG_TAG)); ?>;
-    // console.log('relfilepath ' + relFilePath);
-    const pageTooltipText = await getTooltip(relFilePath, langTag);
-    const pageTitle = document.querySelector('#innertext h1');
-    addTooltip(pageTitle.parentNode, pageTooltipText);
-  })
-</script>
+<?php
+include($SERVER_ROOT.'/includes/tooltips.php');
+?>
