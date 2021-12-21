@@ -69,4 +69,19 @@
     float: left;
     padding-right: 6px;
   }
+
+  .page-title:after, .term:after {
+    content: "";
+    display: block;
+    background: url(../../images/info2.png) no-repeat center;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+    float: right;
+    padding-right: 6px;
+  }
+
+  .term:after {
+    margin-top: -10%;
+  }
 </style>
