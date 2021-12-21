@@ -14,6 +14,7 @@ async function getTooltip(term, langTag) {
   const res = await fetch(apiUrl);
   if (res.status === 404) {
     console.log('The requested tooltip does not exist.');
+    tooltipText = 'There is no help text for this term yet.';
   } else {
     const data = await res.json();
     tooltipText = data[0].tooltip[langTag];
