@@ -13,7 +13,7 @@
  * @returns API response
  */
 async function getTooltip(path) {
-  const baseUrl = 'https://laura.rochaprado.com/symbiota-tooltips/api';
+  const baseUrl = 'https://biokic.github.io/symbiota-tooltips/api';
   const apiUrl = baseUrl + path + '.json';
   let tooltip = {};
   const res = await fetch(apiUrl);
@@ -39,20 +39,23 @@ function addTooltip(element, tooltip, langTag) {
   ttText.innerText = tooltip.tooltip[langTag];
   tooltipDiv.appendChild(ttText);
   // If there are links in tooltip, add them to the tooltip
-  if (tooltip.links !== undefined) {
-    console.log(tooltip.links.related.href);
-    console.dir(Object.keys(tooltip.links).length);
+  if (tooltip.resources !== undefined) {
+    console.log(tooltip.resources);
+    console.dir(Object.keys(tooltip.resources).length);
     ttLinks = document.createElement('p');
-    let links = tooltip.links;
+    let links = tooltip.resources;
     for (let link in links) {
+      console.log(link);
       let linkA = document.createElement('a');
       linkA.className = 'tooltip-link';
       linkA.href = links[link].href;
       linkA.innerText = links[link].meta?.name;
-      ttLinks.appendChild(linkA);
       let linkSource = document.createElement('span');
       linkSource.innerText = ' (' + links[link].meta?.source + ')';
+      let linkBr = document.createElement('br');
+      ttLinks.appendChild(linkA);
       ttLinks.appendChild(linkSource);
+      ttLinks.appendChild(linkBr);
     }
     tooltipDiv.appendChild(ttLinks);
   }
