@@ -23,42 +23,25 @@
   document.addEventListener("DOMContentLoaded", async function(){
     const relFilePath = <?php echo (json_encode($relFilePath)); ?>;
     const langTag = <?php echo (json_encode($LANG_TAG)); ?>;
-    const pageTooltipText = await getTooltip(relFilePath, langTag);
+    const pageTooltip = await getTooltip(relFilePath);
     const pageTitle = document.querySelector('#innertext h1');
+    addTooltip(pageTitle, pageTooltip, langTag);
     const terms = document.querySelectorAll('.term');
     for (const term of terms) {
-      const termTooltipText = await getTooltip(`/terms/${term.dataset.term}`, langTag);
-      tippy(term, {
-        // trigger: 'click',
-        theme: 'light',
-        placement: 'bottom',
-        allowHTML: true,
-        interactive: true,
-        interactiveBorder: 1,
-        offset: [0, 10],
-        onShow: function(instance) {
-          instance.setContent(termTooltipText);
-        }
-      });
+      const tooltipObj = await getTooltip(`/terms/${term.dataset.term}`);
+      addTooltip(term, tooltipObj, langTag);
     }
-    tippy('h1', {
-      // trigger: 'click',
-      // arrow: true,
-      theme: 'light',
-      placement: 'bottom',
-      allowHTML: true,
-      interactive: true,
-      interactiveBorder: 1,
-      offset: [20, 10],
-      onShow: function(instance) {
-        instance.setContent(pageTooltipText);
-      }
-    });
   })
 </script>
 <style>
   .page-title, .term {
     display: inline-block;
+    cursor: pointer;
+  }
+
+  .page-title:hover, .term:hover {
+    text-decoration: underline;
+    text-decoration-style: dashed;
   }
 
   .page-title:after, .term:after {
@@ -74,5 +57,16 @@
 
   .term:after {
     margin-top: -10%;
+  }
+
+  .tooltip-link:before {
+    content: "";
+    display: block;
+    background: url(../../images/link2.png) no-repeat center;
+    background-size: contain;
+    width: 20px;
+    height: 18px;
+    float: left;
+    padding-right: 6px;
   }
 </style>
