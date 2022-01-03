@@ -84,4 +84,15 @@
   .term:after {
     margin-top: -10%;
   }
+
+  .tooltip-link:before {
+    content: "";
+    display: block;
+    background: url(../../images/link2.png) no-repeat center;
+    background-size: contain;
+    width: 20px;
+    height: 18px;
+    float: left;
+    padding-right: 6px;
+  }
 </style>
