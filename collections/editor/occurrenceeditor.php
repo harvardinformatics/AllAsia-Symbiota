@@ -2,6 +2,7 @@
 include_once('../../config/symbini.php');
 if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
 else include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.en.php');
+include_once($SERVER_ROOT.'/classes/DocsUtilities.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $occId = array_key_exists('occid',$_REQUEST)?$_REQUEST['occid']:'';
@@ -433,6 +434,8 @@ if($SYMB_UID){
 else{
 	header('Location: ../../profile/index.php?refurl=../collections/editor/occurrenceeditor.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 }
+$docs = new DocsUtilities();
+$relFilePath = $docs->getFilePath(__FILE__, $SERVER_ROOT);
 ?>
 <html>
 <head>
@@ -462,6 +465,8 @@ else{
 	}
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
+  <!-- Symbiota Tooltips -->
+  <?php include($SERVER_ROOT.'/includes/tooltips.php'); ?>
 	<script src="../../js/jquery.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js?ver=140310" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -518,6 +523,7 @@ else{
 </head>
 <body>
 	<div id="innertext">
+    <h1 class="page-title">Occurrence Editor</h1>
 		<div id="titleDiv">
 			<?php
 			if($collMap) echo $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').')';
@@ -734,11 +740,11 @@ else{
 											?>
 											<div style="clear:both;">
 												<div id="catalogNumberDiv">
-													<?php echo (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number'); ?>
-													<a href="#" onclick="return dwcDoc('catalogNumber')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
+                          <span class="term" data-term="catalogNumber"><?php echo (defined('CATALOGNUMBERLABEL')?CATALOGNUMBERLABEL:'Catalog Number'); ?></span>
 													<br/>
 													<input type="text" id="catalognumber" name="catalognumber" value="<?php echo array_key_exists('catalognumber',$occArr)?$occArr['catalognumber']:''; ?>" onchange="fieldChanged('catalognumber');" <?php if($isEditor > 2) echo 'disabled'; ?> autocomplete="off" />
 												</div>
+                        <!-- NEED TERM DEFINITION -->
 												<div id="otherCatalogNumbersDiv">
 													<div id="identifierDiv" class="divTable">
 														<div class="divTableHeading">
@@ -782,8 +788,7 @@ else{
 											</div>
 											<div style="clear:both;">
 												<div id="recordedByDiv">
-													<?php echo (defined('RECORDEDBYLABEL')?RECORDEDBYLABEL:'Collector'); ?>
-													<a href="#" onclick="return dwcDoc('recordedBy')" tabindex="-1"><img class="docimg" src="../../images/qmark.png" /></a>
+                          <span class="term" data-term="recordedBy"><?php echo (defined('RECORDEDBYLABEL')?RECORDEDBYLABEL:'Collector'); ?></span>
 													<br/>
 													<input type="text" name="recordedby" maxlength="255" value="<?php echo array_key_exists('recordedby',$occArr)?$occArr['recordedby']:''; ?>" onchange="fieldChanged('recordedby');" />
 												</div>
