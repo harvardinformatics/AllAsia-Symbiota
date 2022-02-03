@@ -14,8 +14,13 @@
  */
 async function getTooltipFromFile(path) {
   const response = await fetch(path);
-  const data = await response.json();
-  return data;
+  if (response.status === 404) {
+    console.warn('Custom tooltip file not found');
+    return false;
+  } else {
+    const data = await response.json();
+    return data;
+  }
 }
 
 /**
