@@ -338,7 +338,7 @@ body {
 
 #localSecurityDiv span {
   margin-left: 40px;
-  display: none;
+  /* display: none; */
 }
 
 #localAutoDeactivatedDiv {
@@ -984,4 +984,7 @@ table {
 }
 .divTableBody {
   display: table-row-group;
+}
+.term.has-tooltip {
+  margin-top: 6px;
 }

@@ -55,14 +55,18 @@
     display: block;
     background: url(../../images/info2.png) no-repeat center;
     background-size: contain;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     float: right;
     padding-right: 6px;
   }
 
   .term.has-tooltip:after {
-    margin-top: -10%;
+    margin-top: -6%;
+  }
+
+  .divTable .has-tooltip {
+    padding-top: 10px;
   }
 
   .tooltip-link:before {
