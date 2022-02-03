@@ -1,0 +1,61 @@
+{
+  "/terms/termId": {
+    "path": "terms",
+    "id": "termId",
+    "fullterm": "Name of Term Verbatim",
+    "tooltip": {
+      "en": "Customize the text here to be displayed in the tooltip.",
+      "es": "Español",
+      "pt": "Português do Brasil"
+    },
+    "resources": {
+      "dwc": {
+        "href": "http://url.for.resource.in.darwin.core",
+        "meta": {
+          "name": "Text describing the darwin core term",
+          "source": "Source for the darwin core"
+        }
+      },
+      "symbdocs": {
+        "href": "https://biokic.github.io/symbiota-docs/",
+        "meta": {
+          "name": "Text describing a guide in Symbiota Docs",
+          "source": "Symbiota Docs, Symbiota Support Hub"
+        }
+      },
+      "customWhatever": {
+        "href": "https://any.other.custom.url",
+        "meta": {
+          "name": "Text describing a custom resource",
+          "source": "Source for resource linked here"
+        }
+      }
+    }
+  },
+  "/path/to/symbiotapage.php": {
+    "path": "path/to",
+    "id": "symbiotapage.php",
+    "fullterm": "A Symbiota Page",
+    "tooltip": {
+      "en": "Customize the text here to be displayed in the tooltip.",
+      "es": "Español",
+      "pt": "Português do Brasil"
+    },
+    "resources": {
+      "symbdocs": {
+        "href": "https://biokic.github.io/symbiota-docs/",
+        "meta": {
+          "name": "Text describing a guide in Symbiota Docs",
+          "source": "Symbiota Docs, Symbiota Support Hub"
+        }
+      },
+      "customWhatever": {
+        "href": "https://any.other.custom.url",
+        "meta": {
+          "name": "Text describing a custom resource",
+          "source": "Source for resource linked here"
+        }
+      }
+    }
+  }
+}
