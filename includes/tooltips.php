@@ -40,6 +40,9 @@
   })
 </script>
 <style>
+  .page-title {
+    width: fit-content;
+  }
   .page-title.has-tooltip, .term.has-tooltip {
     display: inline-block;
     cursor: pointer;
@@ -63,36 +66,6 @@
 
   .term.has-tooltip:after {
     margin-top: -6%;
-  }
-
-  .divTable .has-tooltip {
-    padding-top: 10px;
-  }
-
-  .tooltip-link:before {
-    content: "";
-    display: block;
-    background: url(../../images/link2.png) no-repeat center;
-    background-size: contain;
-    width: 20px;
-    height: 18px;
-    float: left;
-    padding-right: 6px;
-  }
-
-  .page-title:after, .term:after {
-    content: "";
-    display: block;
-    background: url(../../images/info2.png) no-repeat center;
-    background-size: contain;
-    width: 20px;
-    height: 20px;
-    float: right;
-    padding-right: 6px;
-  }
-
-  .term:after {
-    margin-top: -10%;
   }
 
   .tooltip-link:before {
