@@ -19,6 +19,8 @@ echo "Creating About Project page: /misc/aboutproject.php"
 cp ../misc/aboutproject_template.php ../misc/aboutproject.php
 echo "Creating Contacts page: /misc/aboutproject.php"
 cp ../misc/contacts_template.php ../misc/contacts.php
+echo "Creating Darwin Core ARchive RSS : /webservices/dwc/rss.xml"
+cp ../webservices/dwc/rss_template.xml ../webservices/dwc/rss.xml
 
 #Multilanguage support template files
 echo "Creating multilanguage translation files for header, e.g.: /content/lang/header.en.php"
