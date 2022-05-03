@@ -11,6 +11,38 @@ class TaxonController extends Controller{
    * Taxon controller instance.
    * 
    */
+
+    /**
+    * @OA\Get(
+    *	 path="/api/v2/taxa",
+    *	 operationId="/api/v2/taxa",
+    *  summary="Retrieves taxa information for the current portal (installation).",
+    *	 tags={""},
+    *	 @OA\Parameter(
+    *		 name="id",
+    *		 in="query",
+    *		 description="taxon id",
+    *		 required=false,
+    *		 @OA\Schema(type="string")
+    *	 ),
+    *	 @OA\Parameter(
+    *		 name="sciname",
+    *		 in="query",
+    *		 description="Scientific name, can be partial. Returns all taxa that match the partial name.",
+    *		 required=false,
+    *		 @OA\Schema(type="string")
+    *	 ),
+    *	 @OA\Response(
+    *		 response="200",
+    *		 description="Retrieves taxa information for the current portal (installation).",
+    *		 @OA\JsonContent()
+    *	 ),
+    *	 @OA\Response(
+    *		 response="400",
+    *		 description="Error: Bad request. ",
+    *	 ),
+    * )
+    */    
   
   //  Needs to implement authentication
   // public function showAllTaxa(){
@@ -34,6 +66,5 @@ class TaxonController extends Controller{
     $taxon = Taxon::find($id);
     return response()->json($taxon);
   }
-
 
 }
