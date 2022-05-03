@@ -25,7 +25,7 @@ class TaxonController extends Controller{
         ->where('SecurityStatus', '=', 0)
         ->paginate(100);
     } else {
-      $taxa = Taxon::where('securityStatus', '0')->paginate(100);
+      $taxa = Taxon::where('SecurityStatus', '0')->paginate(100);
     }
     return response()->json($taxa);
   }
