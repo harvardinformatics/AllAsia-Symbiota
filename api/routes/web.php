@@ -47,6 +47,6 @@ $router->group(['prefix' => 'v2'], function () use ($router) {
 	$router->delete('media/{id}', ['uses' => 'MediaController@delete']);
 	$router->put('media/{id}', ['uses' => 'MediaController@update']);
 
-	//$router->get('taxonomy',  ['uses' => 'TaxonomyController@showAllTaxa']);
-	//$router->get('taxonomy/{id}', ['uses' => 'TaxonomyController@showOneTaxon']);
+  $router->get('taxa',  ['uses' => 'TaxonController@showAllPublicTaxa']);
+  $router->get('taxa/{id}', ['uses' => 'TaxonController@showOneTaxon']);
 });

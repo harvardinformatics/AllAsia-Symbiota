@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -6,13 +7,37 @@ use Illuminate\Database\Eloquent\Model;
 class Taxon extends Model
 {
 
-	protected $table = 'taxa';
     protected $primaryKey = 'tid';
-    protected $fillable = ['kingdomName', 'rankId', 'sciName', 'unitInd1', 'unitName1', 'unitInd2', 'unitName2', 'unitInd3', 'unitName3', 'author', 'phyloSortSequence', 'reviewStatus', 'displayStatus', 'isLegitimate', 'nomenclaturalStatus', 'nomenclaturalCode', 'statusNotes', 'source', 'notes', 'hybrid', 'securityStatus', 'modifiedTimeStamp', 'initialTimeStamp'];
+    public $timestamps = false;
+    protected $fillable = [
+      'TID',
+      'kingdomName',
+      'RankId',
+      'SciName',
+      'UnitInd1',
+      'UnitName1',
+      'UnitInd2',
+      'UnitName2',
+      'unitInd3',
+      'UnitName3',
+      'Author',
+      'PhyloSortSequence',
+      'reviewStatus',
+      'displayStatus',
+      'isLegitimate',
+      'nomenclaturalStatus',
+      'nomenclaturalCode',
+      'statusNotes',
+      'Source',
+      'Notes',
+      'Hybrid',
+      'SecurityStatus',
+      'modifiedUid',
+      'modifiedTimeStamp',
+      'InitialTimeStamp'
+    ];
 
-    public function taxStatuses()
-    {
-        return $this->hasMany('App\Taxstatus', 'tid', 'TID');
-    }
-
+    protected $hidden = [];
 }
+
+
