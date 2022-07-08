@@ -692,10 +692,11 @@ class OccurrenceAttributes extends Manager {
 
 	public function getLocalFilterOptions(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT countryName AS localstr FROM lkupcountry UNION SELECT DISTINCT stateName AS localstr FROM lkupstateprovince';
+		$sql = 'SELECT geoterm FROM geographicthesaurus WHERE geolevel IN(50,60)';
+		//$sql = 'SELECT DISTINCT countryName AS localstr FROM lkupcountry UNION SELECT DISTINCT stateName AS localstr FROM lkupstateprovince';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
-			$retArr[] = $r->localstr;
+			$retArr[] = $r->geoterm;
 		}
 		$rs->free();
 		sort($retArr);
