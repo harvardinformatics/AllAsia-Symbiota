@@ -56,6 +56,45 @@ class OccurrenceEditorServices {
 		return $retArr;
 	}
 
+	public function getGeography($term, $target, $parentTerm){
+		$retArr = Array();
+		$sql = 'SELECT DISTINCT countryname AS term FROM lkupcountry WHERE countryname LIKE "'.$this->cleanInStr($term).'%" ';
+		if($target == 'state'){
+			$sql = 'SELECT DISTINCT s.statename AS term FROM lkupstateprovince s ';
+			$sqlWhere = 'WHERE s.statename LIKE "'.$this->cleanInStr($term).'%" ';
+			if($parentTerm){
+				$sql .= 'INNER JOIN lkupcountry c ON s.countryid = c.countryid ';
+				$sqlWhere .= 'AND c.countryname = "'.$this->cleanInStr($parentTerm).'" ';
+			}
+			$sql .= $sqlWhere;
+		}
+		elseif($target == 'county'){
+			$sql = 'SELECT DISTINCT c.countyname AS term FROM lkupcounty c ';
+			$sqlWhere = 'WHERE c.countyname LIKE "'.$this->cleanInStr($term).'%" ';
+			if($parentTerm){
+				$sql .= 'INNER JOIN lkupstateprovince s ON c.stateid = s.stateid ';
+				$sqlWhere .= 'AND s.statename = "'.$this->cleanInStr($parentTerm).'" ';
+			}
+			$sql .= $sqlWhere;
+		}
+		elseif($target == 'municipality'){
+			$sql = 'SELECT DISTINCT m.municipalityname AS term FROM lkupmunicipality m ';
+			$sqlWhere = 'WHERE m.municipalityname LIKE "'.$this->cleanInStr($term).'%" ';
+			if($parentTerm){
+				$sql .= 'INNER JOIN lkupstateprovince s ON m.stateid = s.stateid ';
+				$sqlWhere .= 'AND s.statename = "'.$this->cleanInStr($parentTerm).'" ';
+			}
+			$sql .= $sqlWhere;
+		}
+		$rs = $this->conn->query($sql);
+		while ($r = $rs->fetch_object()) {
+			$retArr[] = $r->term;
+		}
+		$rs->free();
+		sort($retArr);
+		return $retArr;
+	}
+
 	public function getPaleoGtsParents($term){
 		$retArr = Array();
 		$sql = 'SELECT gtsid, gtsterm, rankid, rankname, parentgtsid FROM omoccurpaleogts WHERE rankid > 10 AND gtsterm = "'.$this->cleanInStr($term).'"';

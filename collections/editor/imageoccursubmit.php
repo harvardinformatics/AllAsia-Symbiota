@@ -6,8 +6,8 @@ else include_once($SERVER_ROOT.'/content/lang/collections/editor/imageoccursubmi
 header("Content-Type: text/html; charset=".$CHARSET);
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/editor/imageoccursubmit.php?'.htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-$collid  = $_REQUEST["collid"];
-$action = array_key_exists("action",$_POST)?$_POST["action"]:"";
+$collid  = $_REQUEST['collid'];
+$action = array_key_exists('action',$_POST)?$_POST['action']:'';
 
 $occurManager = new OccurrenceEditorImages();
 $occurManager->setCollid($collid);
@@ -19,10 +19,10 @@ if($collid){
 	if($IS_ADMIN){
 		$isEditor = 1;
 	}
-	elseif(array_key_exists("CollAdmin",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollAdmin'])){
+	elseif(array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollAdmin'])){
 		$isEditor = 1;
 	}
-	elseif(array_key_exists("CollEditor",$USER_RIGHTS) && in_array($collid,$USER_RIGHTS['CollEditor'])){
+	elseif(array_key_exists('CollEditor', $USER_RIGHTS) && in_array($collid, $USER_RIGHTS['CollEditor'])){
 		$isEditor = 1;
 	}
 }
@@ -50,20 +50,14 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.$LANG['IMAGE_SUBMIT']?></title>
-  <?php
-      $activateJQuery = true;
-      if(file_exists($SERVER_ROOT.'/includes/head.php')){
-        include_once($SERVER_ROOT.'/includes/head.php');
-      }
-      else{
-        echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-        echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-      }
-    ?>
+	<?php
+	$activateJQuery = true;
+	include_once($SERVER_ROOT.'/includes/head.php');
+	?>
 	<script src="../../js/jquery.js" type="text/javascript"></script>
 	<script src="../../js/jquery-ui.js" type="text/javascript"></script>
 	<script src="../../js/symb/collections.imageoccursubmit.js?ver=1" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.autocomplete.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/shared.js?ver=141119" type="text/javascript"></script>
 	<script type="text/javascript">
 	function validateImgOccurForm(f){
@@ -116,7 +110,6 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 		<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COL_MNT']?></a> &gt;&gt;
 		<b><?php echo $LANG['OCC_IMAGE_SUBMIT']?></b>
 	</div>
-	<!-- inner text -->
 	<div id="innertext">
 		<h1><?php echo $collMap['collectionname']; ?></h1>
 		<?php
@@ -255,8 +248,8 @@ elseif(file_exists('includes/config/occurVarDefault.php')){
 		}
 		?>
 	</div>
-<?php
-include($SERVER_ROOT.'/includes/footer.php');
-?>
+	<?php
+	include($SERVER_ROOT.'/includes/footer.php');
+	?>
 </body>
 </html>
