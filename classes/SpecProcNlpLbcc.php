@@ -3102,9 +3102,10 @@ class SpecProcNlpLbcc {
 
 	protected function isStateOrProvince($sp) {
 		if($sp) {
-			$sql = "SELECT * FROM lkupstateprovince lusp WHERE lusp.stateName = '".str_replace(array("\"", "'"), "", $sp)."'";
-			if($r2s = $this->conn->query($sql)){
-				if($r2 = $r2s->fetch_object()) return true;
+			$sql = 'SELECT geothesid FROM geographicthesaurus WHERE geolevel = 60 AND geoterm = "'.str_replace(array('"', "'"), '', $sp).'"';
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()) return true;
+				$rs->free();
 			}
 		}
 		return false;
@@ -3116,9 +3117,10 @@ class SpecProcNlpLbcc {
 			if(strcasecmp($c, "FORMOSA") == 0) return true;
 			if(strcasecmp($c, "TAIWAN") == 0) return true;
 			if(preg_match("/\\bU\\.?S\\.?S\\.?R\\b\\.?/", $c)) return true;
-			$sql = "SELECT * FROM lkupcountry luc WHERE luc.countryName = '".str_replace(array("\"", "'"), "", $c)."'";
-			if($r2s = $this->conn->query($sql)){
-				if($r2 = $r2s->fetch_object()) return true;
+			$sql = 'SELECT geothesid FROM geographicthesaurus WHERE geolevel = 50 AND geoterm = "'.str_replace(array('"', "'"), '', $c).'"';
+			if($rs = $this->conn->query($sql)){
+				if($r = $rs->fetch_object()) return true;
+				$rs->free();
 			}
 		}
 		return false;
@@ -3127,26 +3129,22 @@ class SpecProcNlpLbcc {
 	protected function getStatesFromCountry($c) {
 		$cResult = array();
 		if($c) {
-			$sql = "SELECT sp.stateName ".
-				"FROM lkupstateprovince sp INNER JOIN lkupcountry c ".
-				"ON (sp.countryID = c.countryID) ".
-				"WHERE c.countryName = '".str_replace(array("\"", "'"), "", $c)."'";
-			if($r2s = $this->conn->query($sql)) {
-				while($r2 = $r2s->fetch_object()) array_push($cResult, $r2->stateName);
+			$sql = 'SELECT s.geoterm FROM geographicthesaurus s INNER JOIN geographicthesaurus c ON (s.parentID = c.geoThesID) WHERE s.geoLevel = 60 AND c.geoterm = "'.str_replace(array('"', "'"), '', $c).'"';
+			if($rs = $this->conn->query($sql)) {
+				while($r = $rs->fetch_object()) array_push($cResult, $r->geoterm);
+				$rs->free();
 			}
 		}
 		return $cResult;
 	}
 
-	protected function getCounties($state) {
+	protected function getCounties($s) {
 		$cResult = array();
-		if($state) {
-			$sql = "SELECT c.countyName ".
-				"FROM lkupcounty c INNER JOIN lkupstateprovince sp ".
-				"ON (c.stateid = sp.stateid) ".
-				"WHERE sp.stateName = '".str_replace(array("\"", "'"), "", $state)."'";
-			if($r2s = $this->conn->query($sql)) {
-				while($r2 = $r2s->fetch_object()) array_push($cResult, ucwords($r2->countyName));
+		if($s) {
+			$sql = 'SELECT co.geoterm FROM geographicthesaurus co INNER JOIN geographicthesaurus s ON (co.parentID = s.geoThesID) WHERE co.geoLevel = 70 AND s.geoterm = "'.str_replace(array('"', "'"), '', $s).'"';
+			if($rs = $this->conn->query($sql)) {
+				while($r = $rs->fetch_object()) array_push($cResult, ucwords($r->geoterm));
+				$rs->free();
 			}
 		}
 		return $cResult;
@@ -3154,12 +3152,11 @@ class SpecProcNlpLbcc {
 
 	protected function getStateFromCounty($c, $ss=null, $country="") {
 		if($c) {
-			$sql = "SELECT cr.countryName, sp.stateName FROM (lkupstateprovince sp ".
-				"INNER JOIN lkupcountry cr ON (cr.countryid = sp.countryid)) ".
-				"INNER JOIN lkupcounty c ".
-				"ON (sp.stateid = c.stateid) WHERE c.countyName = '".str_replace(array("\"", "'"), "", $c)."'";
-			if(strlen($country) > 0) $sql .= " AND cr.cr.countryName = '".str_replace(array("\"", "'"), "", $country)."'";
-			//echo "\n\nSQL: ".$sql."\n\n";
+			$sql = 'SELECT cr.geoterm AS countryName, sp.geoterm AS stateName
+				FROM geographicthesaurus cr INNER JOIN geographicthesaurus sp ON cr.geoThesID = sp.parentID
+				INNER JOIN geographicthesaurus c ON sp.geoThesID = c.parentID
+				WHERE c.geoterm = "'.str_replace(array('"', "'"), '', $c).'"';
+			if($country) $sql .= ' AND cr.geoterm = "'.str_replace(array('"', "'"), '', $country).'"';
 			if($r2s = $this->conn->query($sql)) {
 				$num_rows = $r2s->num_rows;
 				if($num_rows > 0) {
@@ -3183,6 +3180,7 @@ class SpecProcNlpLbcc {
 						}
 					}
 				}
+				$r2s->free();
 			}
 		}
 		return array();
@@ -7908,6 +7906,13 @@ class SpecProcNlpLbcc {
 
 	public function setCatalogNumber($cn){
 		$this->catalogNumber = $cn;
+	}
+
+	private function cleanInStr($str){
+		$newStr = trim($str);
+		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
+		$newStr = $this->conn->real_escape_string($newStr);
+		return $newStr;
 	}
 }
 ?>

@@ -127,16 +127,6 @@ class ImageExplorer{
 		//Set state
 		if(isset($searchCriteria['state']) && $searchCriteria['state']){
 			$stateArr = $this->cleanInArray($searchCriteria['state']);
-			/*
-			$stateArr = array();
-			$sqlState = 'SELECT statename FROM lkupstateprovince '.
-				'WHERE stateid IN('.implode(',',$this->cleanInArray($searchCriteria['state'])).')';
-			$rsState = $this->conn->query($sqlState);
-			while($rState = $rsState->fetch_object()){
-				$stateArr[] = $rState->statename;
-			}
-			$rsState->free();
-			*/
 			$sqlWhere .= 'AND o.stateProvince IN("'.implode('","',$stateArr).'") ';
 		}
 
@@ -359,7 +349,7 @@ class ImageExplorer{
 
 	public function getStates(){
 		$retArr = array();
-		$sql = 'SELECT DISTINCT statename FROM lkupstateprovince ';
+		$sql = 'SELECT DISTINCT geoterm FROM geographicthesaurus WHERE geolevel = 60 ';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
 			$retArr[] = $r->statename;
