@@ -58,37 +58,37 @@ class OccurrenceEditorServices {
 
 	public function getGeography($term, $target, $parentTerm){
 		$retArr = Array();
-		$sql = 'SELECT DISTINCT countryname AS term FROM lkupcountry WHERE countryname LIKE "'.$this->cleanInStr($term).'%" ';
+		$sql = 'SELECT geoterm FROM geographicthesaurus WHERE geoterm LIKE "'.$this->cleanInStr($term).'%" AND geolevel = 50 ';
 		if($target == 'state'){
-			$sql = 'SELECT DISTINCT s.statename AS term FROM lkupstateprovince s ';
-			$sqlWhere = 'WHERE s.statename LIKE "'.$this->cleanInStr($term).'%" ';
+			$sql = 'SELECT DISTINCT s.geoterm FROM geographicthesaurus s ';
+			$sqlWhere = 'WHERE s.geolevel = 60 AND s.geoterm LIKE "'.$this->cleanInStr($term).'%" ';
 			if($parentTerm){
-				$sql .= 'INNER JOIN lkupcountry c ON s.countryid = c.countryid ';
-				$sqlWhere .= 'AND c.countryname = "'.$this->cleanInStr($parentTerm).'" ';
+				$sql .= 'INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID ';
+				$sqlWhere .= 'AND c.geolevel = 50 AND c.geoterm = "'.$this->cleanInStr($parentTerm).'" ';
 			}
 			$sql .= $sqlWhere;
 		}
 		elseif($target == 'county'){
-			$sql = 'SELECT DISTINCT c.countyname AS term FROM lkupcounty c ';
-			$sqlWhere = 'WHERE c.countyname LIKE "'.$this->cleanInStr($term).'%" ';
+			$sql = 'SELECT DISTINCT c.geoterm FROM geographicthesaurus c ';
+			$sqlWhere = 'WHERE c.geolevel = 70 AND c.geoterm LIKE "'.$this->cleanInStr($term).'%" ';
 			if($parentTerm){
-				$sql .= 'INNER JOIN lkupstateprovince s ON c.stateid = s.stateid ';
-				$sqlWhere .= 'AND s.statename = "'.$this->cleanInStr($parentTerm).'" ';
+				$sql .= 'INNER JOIN geographicthesaurus s ON c.parentID = s.geoThesID ';
+				$sqlWhere .= 'AND s.geolevel = 60 AND s.geoterm = "'.$this->cleanInStr($parentTerm).'" ';
 			}
 			$sql .= $sqlWhere;
 		}
 		elseif($target == 'municipality'){
-			$sql = 'SELECT DISTINCT m.municipalityname AS term FROM lkupmunicipality m ';
-			$sqlWhere = 'WHERE m.municipalityname LIKE "'.$this->cleanInStr($term).'%" ';
+			$sql = 'SELECT DISTINCT m.geoterm FROM geographicthesaurus m ';
+			$sqlWhere = 'WHERE m.geolevel = 80 AND m.geoterm LIKE "'.$this->cleanInStr($term).'%" ';
 			if($parentTerm){
-				$sql .= 'INNER JOIN lkupstateprovince s ON m.stateid = s.stateid ';
-				$sqlWhere .= 'AND s.statename = "'.$this->cleanInStr($parentTerm).'" ';
+				$sql .= 'INNER JOIN geographicthesaurus s ON m.parentID = s.geoThesID ';
+				$sqlWhere .= 'AND s.geolevel = 70 AND s.geoterm = "'.$this->cleanInStr($parentTerm).'" ';
 			}
 			$sql .= $sqlWhere;
 		}
 		$rs = $this->conn->query($sql);
 		while ($r = $rs->fetch_object()) {
-			$retArr[] = $r->term;
+			$retArr[] = $r->geoterm;
 		}
 		$rs->free();
 		sort($retArr);
