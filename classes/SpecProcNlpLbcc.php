@@ -3186,14 +3186,12 @@ class SpecProcNlpLbcc {
 		return array();
 	}
 
-	protected function getCountryFromState($s) {
-		if($s) {
-			$sql = "SELECT c.countryName FROM lkupstateprovince sp INNER JOIN lkupcountry c ".
-				"ON (sp.countryid = c.countryid) WHERE sp.stateName = '".str_replace(array("\"", "'"), "", $s)."'";
-			//echo "\n\nSQL: ".$sql."\n\n";
-			if($r2s = $this->conn->query($sql)) {
-				$num_rows = $r2s->num_rows;
-				if($num_rows == 1 && $r2 = $r2s->fetch_object()) return $r2->countryName;
+	protected function getCountryFromState($state) {
+		if($state) {
+			$sql = 'SELECT c.geoTerm AS countryName FROM geographicthesaurus s INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID WHERE s.geoTerm = "Arizona"';
+			if($rs = $this->conn->query($sql)) {
+				if($r2 = $rs->fetch_object()) return $r2->countryName;
+				$rs->free();
 			}
 		}
 		return '';
@@ -5308,22 +5306,22 @@ class SpecProcNlpLbcc {
 		return '';
 	}
 
-	private function doCountyQuery($c, $state_province="") {
+	private function doCountyQuery($c, $stateProvince="") {
 		if($c) {
 			if(strlen($c) > 2 && !is_integer($c)) {
 				$result = array();
 				$c = trim($c, " \t\n\r\0\x0B,.:;!()\"\'\\~@#$%^&*_-");
 				$containsAmpersand = false;
-				$hasStateProvince = strlen($state_province) > 0;
+				$hasStateProvince = strlen($stateProvince) > 0;
 				if(preg_match("/(.+)&(.+)/", $c, $mats)) {
 					$c = trim($mats[1])." and ".trim($mats[2]);
 					$containsAmpersand = true;
 				}
-				$sql = "select lk1.countyName, lk2.stateName, lk3.countryName from lkupcounty lk1 INNER JOIN ".
-					"(lkupstateprovince lk2 inner join lkupcountry lk3 on lk2.countryid = lk3.countryid) ".
-					"on lk1.stateid = lk2.stateid ".
-					"where lk1.countyName = '".str_replace(array("\"", "'"), "", $c)."'";
-				if($hasStateProvince) $sql .= " AND lk2.stateName = '".$state_province."'";
+				$sql = 'SELECT cr.geoterm AS countryName, s.geoterm AS stateName, c.geoterm AS countyName
+					FROM geographicthesaurus cr INNER JOIN geographicthesaurus s ON cr.geoThesID = s.parentID
+					INNER JOIN geographicthesaurus c ON s.geoThesID = c.parentID
+					WHERE c.geoterm = "'.str_replace(array('"', "'"), '', $this->cleanInStr($c)).'" ';
+				if($hasStateProvince) $sql .= " AND s.geoterm = '".$this->cleanInStr($stateProvince)."'";
 				if($rs = $this->conn->query($sql)) {
 					$num_rows = $rs->num_rows;
 					if($num_rows > 0) {
@@ -7062,17 +7060,17 @@ class SpecProcNlpLbcc {
 
 	private function convertBadChars($str) {//echo "\nInput to convertBadChars: ".$str."\n";
 		if($str) {
-			if(mb_ereg(chr(195).chr(162).chr(226).chr(130).chr(172).chr(194).chr(157), $str))
+			if(@mb_ereg(chr(195).chr(162).chr(226).chr(130).chr(172).chr(194).chr(157), $str))
 				$str = mb_ereg_replace(chr(195).chr(162).chr(226).chr(130).chr(172).chr(194).chr(157), "\"", $str);
-			if(mb_ereg(chr(195).chr(162).chr(226).chr(130).chr(172).chr(226).chr(132).chr(162), $str))
+			if(@mb_ereg(chr(195).chr(162).chr(226).chr(130).chr(172).chr(226).chr(132).chr(162), $str))
 				$str = mb_ereg_replace(chr(195).chr(162).chr(226).chr(130).chr(172).chr(226).chr(132).chr(162), "'", $str);
-			if(mb_ereg(chr(195).chr(131).chr(194).chr(171), $str))
+			if(@mb_ereg(chr(195).chr(131).chr(194).chr(171), $str))
 				$str = mb_ereg_replace(chr(195).chr(131).chr(194).chr(171), "e", $str);
-			if(mb_ereg(chr(195).chr(131).chr(194).chr(175), $str))
+			if(@mb_ereg(chr(195).chr(131).chr(194).chr(175), $str))
 				$str = mb_ereg_replace(chr(195).chr(131).chr(194).chr(175), "i", $str);
-			if(mb_ereg(chr(195).chr(131).chr(226).chr(185), $str))
+			if(@mb_ereg(chr(195).chr(131).chr(226).chr(185), $str))
 				$str = mb_ereg_replace(chr(195).chr(131).chr(226).chr(185), "E", $str);
-			if(mb_ereg(chr(195).chr(131).chr(226).chr(176), $str))
+			if(@mb_ereg(chr(195).chr(131).chr(226).chr(176), $str))
 				$str = mb_ereg_replace(chr(195).chr(131).chr(226).chr(176), "E", $str);
 			$str = preg_replace(array("/([A-Z])".chr(226).chr(128).chr(158)."/", "/([a-z])".chr(226).chr(128).chr(158)."/"), array("\${1}.", "\${1},"), $str);
 			$needles = array(
