@@ -25,8 +25,8 @@ class OccurrenceAccessStats extends Manager{
 
 	public function recordAccessEventByArr($occidArr, $accessType){
 		$status = true;
-		if(isset($GLOBALS['RECORD_STATS'])){
-			if($occurAccessID = $this->insertAccessEvent($accessType, 'occid IN('.implode(',', $occidArr).')')){
+		if(isset($GLOBALS['STORE_STATISTICS'])){
+			if($occurAccessID = $this->insertAccessEvent($accessType)){
 				foreach($occidArr as $occid){
 					if(is_numeric($occid)){
 						if(!$this->insertAccessOccurrence($occurAccessID, $occid)){
@@ -41,11 +41,11 @@ class OccurrenceAccessStats extends Manager{
 
 	public function recordAccessEvent($occid, $accessType){
 		$status = false;
-		if(isset($GLOBALS['RECORD_STATS'])){
+		if(isset($GLOBALS['STORE_STATISTICS'])){
 			if(is_numeric($occid)){
 				$this->verboseMode = 1;
 				$this->setLogFH($this->logPath);
-				if($occurAccessID = $this->insertAccessEvent($accessType, 'occid = '.$occid)){
+				if($occurAccessID = $this->insertAccessEvent($accessType)){
 					$status = $this->insertAccessOccurrence($occurAccessID,$occid);
 				}
 			}
@@ -55,7 +55,7 @@ class OccurrenceAccessStats extends Manager{
 
 	public function batchRecordEventsBySql($sqlFrag, $accessType){
 		$status = true;
-		if(isset($GLOBALS['RECORD_STATS'])){
+		if(isset($GLOBALS['STORE_STATISTICS'])){
 			$this->verboseMode = 1;
 			$this->setLogFH($this->logPath);
 			if($occurAccessID = $this->insertAccessEvent($accessType, $sqlFrag)){
@@ -65,9 +65,9 @@ class OccurrenceAccessStats extends Manager{
 		return $status;
 	}
 
-	public function insertAccessEvent($accessType, $queryStr){
+	public function insertAccessEvent($accessType, $queryStr = null){
 		$occurAccessID = false;
-		if(isset($GLOBALS['RECORD_STATS'])){
+		if(isset($GLOBALS['STORE_STATISTICS'])){
 			$remoteAddr = $_SERVER['REMOTE_ADDR'];
 			$userData = @get_browser();
 			if($userData) $userData = json_encode($userData);
@@ -117,6 +117,9 @@ class OccurrenceAccessStats extends Manager{
 		}
 		return $status;
 	}
+
+	//Create summary reports and cache statistics
+
 
 	//Reports
 	public function getSummaryReport(){
