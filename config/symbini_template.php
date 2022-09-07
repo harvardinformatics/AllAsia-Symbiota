@@ -17,6 +17,7 @@ $TEMP_DIR_ROOT = $SERVER_ROOT . '/temp';				//Must be writable by Apache; will u
 $LOG_PATH = $SERVER_ROOT . '/content/logs';					//Must be writable by Apache; will use <SYMBIOTA_ROOT>/temp/logs if not specified
 
 //Path to CSS files
+$CSS_VERSION_RELEASE = '202209';
 $CSS_BASE_PATH = $CLIENT_ROOT . '/css/symb';
 $CSS_VERSION_LOCAL = '1';		//Changing this variable will force a refresh of main.css styles within users browser cache for all pages
 
