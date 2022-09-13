@@ -11,6 +11,7 @@ class OccurrenceIndividual extends Manager{
 	private $metadataArr = array();
 	private $displayFormat = 'html';
 	private $relationshipArr;
+	private $activeModules = array();
 
 	public function __construct($type='readonly') {
 		parent::__construct(null,$type);
@@ -38,6 +39,16 @@ class OccurrenceIndividual extends Manager{
 								$this->metadataArr['contact'] = $contactStr;
 								if(isset($cArr['email']) && $cArr['email']) $this->metadataArr['email'] = $cArr['email'];
 								if(isset($cArr['centralContact'])) break;
+							}
+						}
+					}
+				}
+				if($this->metadataArr['dynamicproperties']){
+					if($propArr = json_decode($this->metadataArr['dynamicproperties'], true)) {
+						if(isset($propArr['editorProps']['modules-panel'])) {
+							foreach($propArr['editorProps']['modules-panel'] as $k => $modArr) {
+								if(isset($modArr['paleo']['status'])) $this->activeModules['paleo'] = true;
+								elseif (isset($modArr['matSample']['status'])) $this->activeModules['matSample'] = true;
 							}
 						}
 					}
@@ -154,6 +165,7 @@ class OccurrenceIndividual extends Manager{
 				$this->setLoan();
 				$this->setOccurrenceRelationships();
 				$this->setReferences();
+				$this->setMaterialSamples();
 				$this->setSource();
 			}
 			//Set access statistics
@@ -296,15 +308,17 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setPaleo(){
-		$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
-			'biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid '.
-			'FROM omoccurpaleo WHERE occid = '.$this->occid;
-		$rs = $this->conn->query($sql);
-		if($rs){
-			while($r = $rs->fetch_assoc()){
-				$this->occArr = array_merge($this->occArr,$r);
+		if(isset($this->activeModules['paleo']) && $this->activeModules['paleo']){
+			$sql = 'SELECT paleoid, eon, era, period, epoch, earlyinterval, lateinterval, absoluteage, storageage, stage, localstage, biota, '.
+				'biostratigraphy, lithogroup, formation, taxonenvironment, member, bed, lithology, stratremarks, element, slideproperties, geologicalcontextid '.
+				'FROM omoccurpaleo WHERE occid = '.$this->occid;
+			$rs = $this->conn->query($sql);
+			if($rs){
+				while($r = $rs->fetch_assoc()){
+					$this->occArr = array_merge($this->occArr,$r);
+				}
+				$rs->free();
 			}
-			$rs->free();
 		}
 	}
 
@@ -421,6 +435,19 @@ class OccurrenceIndividual extends Manager{
 		}
 	}
 
+	private function setMaterialSamples(){
+		if(isset($this->activeModules['matSample']) && $this->activeModules['matSample']){
+			$sql = 'SELECT m.matSampleID, m.sampleType, m.catalogNumber, m.guid, m.sampleCondition, m.disposition, m.preservationType, m.preparationDetails, m.preparationDate,
+				m.preparedByUid, CONCAT_WS(", ",u.lastname,u.firstname) as preparedBy, m.individualCount, m.sampleSize, m.storageLocation, m.remarks, m.dynamicFields, m.recordID, m.initialTimestamp
+				FROM ommaterialsample m LEFT JOIN users u ON m.preparedByUid = u.uid WHERE m.occid = '.$this->occid;
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_assoc()){
+				$this->occArr['matSample'][$r['matSampleID']] = $r;
+			}
+			$rs->free();
+		}
+	}
+
 	private function setSource(){
 		if(isset($GLOBALS['ACTIVATE_PORTAL_INDEX']) && $GLOBALS['ACTIVATE_PORTAL_INDEX']){
 			$sql = 'SELECT o.targetOccid, o.refreshTimestamp, o.verification, i.urlRoot, i.portalName
@@ -446,58 +473,57 @@ class OccurrenceIndividual extends Manager{
 					$rs2->free();
 				}
 			}
+		}
 
-			//Format link out to source
-			if(!isset($this->occArr['source']) && $this->metadataArr['individualurl']){
-				$sourceTitle = '';
-				$iUrl = trim($this->metadataArr['individualurl']);
-				if(substr($iUrl, 0, 4) != 'http'){
-					if($pos = strpos($iUrl, ':')){
-						$this->occArr['source']['title'] = substr($iUrl, 0, $pos);
-						$iUrl = trim(substr($iUrl, $pos+1));
-					}
+		//Format link out to source
+		if(!isset($this->occArr['source']) && $this->metadataArr['individualurl']){
+			$iUrl = trim($this->metadataArr['individualurl']);
+			if(substr($iUrl, 0, 4) != 'http'){
+				if($pos = strpos($iUrl, ':')){
+					$this->occArr['source']['title'] = substr($iUrl, 0, $pos);
+					$iUrl = trim(substr($iUrl, $pos+1));
 				}
-				$displayStr = '';
-				$indUrl = '';
-				if(strpos($iUrl,'--DBPK--') !== false && $this->occArr['dbpk']){
-					$indUrl = str_replace('--DBPK--',$this->occArr['dbpk'],$iUrl);
-					$displayStr = $indUrl;
-				}
-				elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $this->occArr['catalognumber']){
-					$indUrl = str_replace('--CATALOGNUMBER--',$this->occArr['catalognumber'],$iUrl);
-					$displayStr = $this->occArr['catalognumber'];
-				}
-				elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
-					if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
-						if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
-							foreach($ocnArr as $idKey => $idArr){
-								if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
-									$displayStr = $idArr[0];
-									if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
-									$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
-									if($idKey == 'NEON sampleCode (barcode)') break;
-								}
+			}
+			$displayStr = '';
+			$indUrl = '';
+			if(strpos($iUrl,'--DBPK--') !== false && $this->occArr['dbpk']){
+				$indUrl = str_replace('--DBPK--',$this->occArr['dbpk'],$iUrl);
+				$displayStr = $indUrl;
+			}
+			elseif(strpos($iUrl,'--CATALOGNUMBER--') !== false && $this->occArr['catalognumber']){
+				$indUrl = str_replace('--CATALOGNUMBER--',$this->occArr['catalognumber'],$iUrl);
+				$displayStr = $this->occArr['catalognumber'];
+			}
+			elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
+				if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
+					if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
+						foreach($ocnArr as $idKey => $idArr){
+							if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
+								$displayStr = $idArr[0];
+								if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
+								$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$idArr[0],$iUrl);
+								if($idKey == 'NEON sampleCode (barcode)') break;
 							}
 						}
 					}
-					else{
-						$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
-						$ocnArr = explode(';',$ocn);
-						$ocnValue = trim(array_pop($ocnArr));
-						if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
-						$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
-						$displayStr = $ocnValue;
-					}
 				}
-				elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
-					$indUrl = str_replace('--OCCURRENCEID--',$this->occArr['occurrenceid'],$iUrl);
-					$displayStr = $this->occArr['occurrenceid'];
+				else{
+					$ocn = str_replace($this->occArr['othercatalognumbers'], ',', ';');
+					$ocnArr = explode(';',$ocn);
+					$ocnValue = trim(array_pop($ocnArr));
+					if(stripos($ocnValue,':')) $ocnValue = trim(array_pop(explode(':',$ocnValue)));
+					$indUrl = str_replace('--OTHERCATALOGNUMBERS--',$ocnValue,$iUrl);
+					$displayStr = $ocnValue;
 				}
-				$this->occArr['source']['type'] = 'external';
-				$this->occArr['source']['url'] = $indUrl;
-				$this->occArr['source']['displayStr'] = $displayStr;
-				$this->occArr['source']['refreshTimestamp'] = $this->metadataArr['uploaddate'];
 			}
+			elseif(strpos($iUrl,'--OCCURRENCEID--') !== false && $this->occArr['occurrenceid']){
+				$indUrl = str_replace('--OCCURRENCEID--',$this->occArr['occurrenceid'],$iUrl);
+				$displayStr = $this->occArr['occurrenceid'];
+			}
+			$this->occArr['source']['type'] = 'external';
+			$this->occArr['source']['url'] = $indUrl;
+			$this->occArr['source']['displayStr'] = $displayStr;
+			$this->occArr['source']['refreshTimestamp'] = $this->metadataArr['uploaddate'];
 		}
 	}
 
@@ -590,7 +616,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function echoTraitUnit($outArr, $label = '', $indent=0){
-		if($outArr){
+		if(isset($outArr['name'])){
 			echo '<div style="margin-left:'.$indent.'px">';
 			if(!empty($outArr['url'])) echo '<a href="'.$outArr['url'].'" target="_blank">';
 			echo '<span class="traitName">';
