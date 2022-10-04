@@ -114,7 +114,7 @@ table.styledtable tr.alt td {
 }
 
 #header::before {
-  background-image: url(images/layout/allasia_hero_image.jpg);
+  background-image: url(../..images/layout/allasia_hero_image.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
