@@ -113,7 +113,7 @@ table.styledtable tr.alt td {
 	border-bottom:1px solid #333333;
 }
 
-#header::before {
+#trheader {
   background-image: url(../..images/layout/allasia_hero_image.jpg);
   background-size: cover;
   background-repeat: no-repeat;
