@@ -114,7 +114,7 @@ table.styledtable tr.alt td {
 }
 
 #trheader {
-  background-image: url(../..images/layout/allasia_hero_image.jpg);
+  background-image: url(/allasia/portal/images/layout/allasia_hero_image.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
