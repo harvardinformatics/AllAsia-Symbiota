@@ -6,7 +6,7 @@
                 <td id="header" colspan="3">
                         <div style="clear:both; width:100%; height:170px; border-bottom:1px solid #000000;">
                                 <div style="float:left">
-                                        <div style="margin-top:30px; font-size:60px; line-height:48px;">
+                                        <div style="margin:30px 0 1em 1em; font-size:60px; line-height:48px;">
                                                 All Asia
                                         </div>
                                 </div>
