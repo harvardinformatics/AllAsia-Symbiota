@@ -6,7 +6,9 @@
                 <td id="header" colspan="3">
                         <div style="clear:both; width:100%; height:170px; border-bottom:1px solid #000000;">
                                 <div style="float:left">
-                                        <h1>All Asia</h1>
+                                        <div style="margin-top:30px; font-size:60px; line-height:48px;">
+                                                All Asia
+                                        </div>
                                 </div>
                         </div>
                         <div id="top_navbar">
