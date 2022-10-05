@@ -6,8 +6,7 @@
                 <td id="header" colspan="3">
                         <div style="clear:both; width:100%; height:170px; border-bottom:1px solid #000000;">
                                 <div style="float:left">
-                                        <h1>Bringing Asia to Digital Life</h1>
-                                        <h2>Mobilizing underrepresented Asian herbarium collections in the US to propel biodiversity discovery</h2>
+                                        <h1>All Asia</h1>
                                 </div>
                         </div>
                         <div id="top_navbar">
