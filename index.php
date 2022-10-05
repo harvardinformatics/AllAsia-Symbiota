@@ -34,18 +34,15 @@ header("Content-Type: text/html; charset=".$CHARSET);
         ?>
         <!-- This is inner text! -->
         <div id="innertext">
-                <h1></h1>
-                <div id="quicksearchdiv">
-                        <!-- -------------------------QUICK SEARCH SETTINGS--------------------------------------- -->
-                        <form name="quicksearch" id="quicksearch" action="<?php echo $CLIENT_ROOT; ?>/taxa/index.php" method="get" onsubmit="return verifyQuickSearch(this);">
-                                <div id="quicksearchtext" ><?php echo (isset($LANG['QSEARCH_SEARCH'])?$LANG['QSEARCH_SEARCH']:'Taxon Search'); ?></div>
-                                <input id="taxa" type="text" name="taxon" />
-                                <button name="formsubmit"  id="quicksearchbutton" type="submit" value="Search Terms"><?php echo (isset($LANG['QSEARCH_SEARCH_BUTTON'])?$LANG['QSEARCH_SEARCH_BUTTON']:'Search'); ?></button>
-                        </form>
-                </div>
-                <div style="padding: 0px 10px;">
-                        Description and introduction of project
-                </div>
+                <p>Asia is the largest continent on Earth, and includes the world’s tallest mountains, lowest landscapes, and habitats ranging from arctic tundra to tropical 
+                        rainforests and mangroves to deserts. The plants of this region are incredibly diverse in their identities and functions. More than one-third of the 
+                        world’s 350,000 plant species grow in Asia and include tiny alpine cushion plants, medicinal herbs, ancient crops, and some of the planet’s tallest 
+                        rainforest trees. But documentation of this diversity remains inaccessible and research about it is difficult because most herbarium specimens of 
+                        Asian plants have not been digitized. The All Asia Thematic Collections Network (TCN) will mobilize online 15 million specimens of Asian plants 
+                        currently housed in the US and around the world. The project will especially focus on digitizing specimens from the unique and critically endangered 
+                        biodiversity hotspots of Southeast Asia and the Himalaya-Hengduan region. These mobilized digital data will accelerate research to conserve 
+                        endangered plant species and understand the interacting effects of evolution and global environmental change on plant species diversity.
+                </p>
         </div>
         <?php
         include($SERVER_ROOT.'/includes/footer.php');
