@@ -1,44 +1,82 @@
 <?php
 include_once('../../../config/symbini.php');
 
-$type = array_key_exists('type',$_REQUEST)?$_REQUEST['type']:'';
-$data = array_key_exists('data',$_REQUEST)?$_REQUEST['data']:'';
-
-$endpoint = '';
-if(array_key_exists('endpoint',$data)){
-    $endpoint = $data['endpoint'];
-    unset($data['endpoint']);
+$requestType = '';
+$requestData =  new \stdClass;
+$requestData->type = false;
+$clientData = array_key_exists('data',$_REQUEST)?$_REQUEST['data']:'';
+$action = array_key_exists('action',$_REQUEST)?$_REQUEST['action']:'';
+if (isset($GBIF_TESTMODE) && $GBIF_TESTMODE){
+    $GBIF_url = 'https://api.gbif-uat.org/v1/';
+}
+else {
+    $GBIF_url = 'https://api.gbif.org/v1/';
 }
 
-$GBIFdatasetKey = '';
-if(array_key_exists('datasetkey',$data)){
-    $GBIFdatasetKey = $data['datasetkey'];
-    unset($data['datasetkey']);
-}
 
-$GBIF_url = 'https://api.gbif.org/v1/' . $endpoint;
-if(!empty($GBIFdatasetKey)){
-    $GBIF_url .= '/'.$GBIFdatasetKey . +'/endpoint';
+//TODO sanitize clientData
+
+switch ($action){
+    case "createGbifInstallation":
+        $GBIF_url .= 'installation';
+        $requestType = 'POST';
+		$requestData->organizationKey = $clientData->organizationKey;
+		$requestData->type = "SYMBIOTA_INSTALLATION";
+		$requestData->title = $clientData->title;
+        break;
+
+    case "createGbifDataset":
+        $GBIF_url .= 'dataset';
+        $requestType = 'POST';
+		$requestData->installationKey = $clientData->installationKey;
+		$requestData->publishingOrganizationKey = $clientData->publishingOrganizationKey;
+		$requestData->title  = $clientData->title;
+		$requestData->type = "OCCURRENCE";
+        break;
+
+    case "createGbifEndpoint":
+        $GBIF_url .= $clientData->datasetkey.'/dataset';
+        $requestType = 'POST';
+		$requestData->type = 'DWC_ARCHIVE';
+        $requestData->url  = $clientData->dwcUri;
+        break;
+    
+    case "datasetExists":
+        $requestType = 'GET';
+        $collectionIdentifierUrl = $_SERVER["SERVER_NAME"]."/collections/misc/collprofiles.php?collid=".$clientData->collid;
+        $GBIF_url .= "dataset?identifier=" . $clientData->url;
+        break;
+
+    default:
+        http_response_code(400); 
+        echo '{"response":"No action set"}';
+        exit;
 }
 
 $result = '';
 $loginStr = $GBIF_USERNAME.':'.$GBIF_PASSWORD;
+$requestHeaders = array(
+    'Content-Type: application/json',
+    'Accept: application/json'
+);
 
-if($type && filter_var($GBIF_url, FILTER_VALIDATE_URL)) {
-    $ch = curl_init($GBIF_url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $type);
-    if($data){
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    }
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Accept: application/json')
-    );
+$ch = curl_init($GBIF_url);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $requestType);
 
-    $result = curl_exec($ch);
+if ($requestData->type){
+    $data = json_encode($requestData, JSON_FORCE_OBJECT);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    $requestHeaders['Content-Length'] = strlen($data); 
 }
+
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+if($requestType != 'GET'){
+    curl_setopt($ch, CURLOPT_USERPWD, $loginStr);
+}
+curl_setopt($ch, CURLOPT_HTTPHEADER, $requestHeaders);
+
+$result = curl_exec($ch);
+
 
 echo str_replace('"','',$result);
 ?>

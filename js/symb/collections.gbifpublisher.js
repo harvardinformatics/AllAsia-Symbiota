@@ -52,14 +52,12 @@ function processGbifOrgKey(f){
 }
 
 function createGbifInstallation(gbifOrgKey,collName){
-	var type = 'POST';
+	let action = 'createGbifInstallation';
 	var data = JSON.stringify({
-		endpoint: 'installation',
 		organizationKey: gbifOrgKey,
-		type: "SYMBIOTA_INSTALLATION",
 		title: collName
 	});
-	var instKey = callGbifCurl(type,data);
+	var instKey = callGbifCurl(data, action);
 	if(!instKey){
 		alert("ERROR: Contact administrator, creation of GBIF installation failed using data: "+data);
 	}
@@ -67,75 +65,57 @@ function createGbifInstallation(gbifOrgKey,collName){
 }
 
 function createGbifDataset(gbifInstKey,gbifOrgKey,collName){
-	var type = 'POST';
+	let action = 'createGbifDataset';
 	var data = JSON.stringify({
-		endpoint: 'dataset',
 		installationKey: gbifInstKey,
 		publishingOrganizationKey: gbifOrgKey,
 		title: collName,
-		type: "OCCURRENCE"
 	});
-	return callGbifCurl(type,data);
+	return callGbifCurl(data,action);
 }
 
 function createGbifEndpoint(gbifDatasetKey,dwcUri){
-	var type = 'POST';
-	var data = JSON.stringify({
-		endpoint: 'dataset',
-		type: "DWC_ARCHIVE",
+	let action = "createGbifEndpoint";
+	let data = JSON.stringify({
 		url: dwcUri,
 		datasetkey: gbifDatasetKey
 	});
-	var retStr = callGbifCurl(type,url,data);
+	var retStr = callGbifCurl(type,data, action);
 	if(retStr.indexOf(" ") > -1 || retStr.length < 34 || retStr.length > 40) retStr = "";
 	return retStr;
 }
 
-function callGbifCurl(type,data){
+function callGbifCurl(data, action = null){
 	var key;
-	$.ajax({
-		type: "POST",
-		url: "rpc/getgbifcurl.php",
-		data: {type: type, data: data},
-		async: false,
-		success: function(response) {
-			key = response.trim();
-		},
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			alert(errorThrown);
+	let postbody = {action: action, data: data};
+	if(endpoint) postbody.endpoint = endpoint;
+	let request = new XMLHttpRequest();
+	request.open('POST', "rpc/getgbifcurl.php", true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+
+	request.onload = function () {
+		if (this.status == 200 ) {
+			key = this.response.value;
+		} else {
+			alert(`GBIF API RETURNED: ${this.status} ${this.response}`);
 		}
-	});
+	};
+	request.onerror = function() {
+		alert("ERROR: Something went wrong");
+	};
+	request.send(postbody);
 	return key;
 }
 
 function datasetExists(f){
-	if(f.dwcUri.value != ""){
-		var urlStr = f.dwcUri.value;
-		if(urlStr.indexOf("/content/") > 0){
-			urlStr = urlStr.substring(0,urlStr.indexOf("/content/"));
-			urlStr = "https://api.gbif.org/v1/dataset?identifier=" + urlStr + "/collections/misc/collprofiles.php?collid=" + f.collid.value;
-			$.ajax({
-				method: "GET",
-				async: false,
-				dataType: "json",
-				url: urlStr
-			})
-			.done(function( retJson ) {
-				if(retJson.count > 0){
-					var dsKey = retJson.results[0].key.trim();
-					if(dsKey.indexOf(" ") > -1 || dsKey.length < 34 || dsKey.length > 40) dsKey = "";
-					f.datasetKey.value = dsKey;
-					f.endpointKey.value = retJson.results[0].endpoints[0].key;
-					return true;
-				}
-				else{
-					return false;
-				}
-			})
-			.fail(function() {
-				alert("General error querying datasets. Is your connection to the network stable?");
-				return false;
-			});
-		}
+	if(f.collid.value != ""){
+		
+		let action = "datasetExists";
+		let data = JSON.stringify({
+			collid: f.collid.value
+		});
+		var retStr = callGbifCurl(data, action);
+		if(retStr.indexOf(" ") > -1 || retStr.length < 34 || retStr.length > 40) retStr = "";
+		return retStr;
 	}
 }
