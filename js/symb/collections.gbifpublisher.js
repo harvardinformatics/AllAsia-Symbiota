@@ -86,12 +86,13 @@ function createGbifEndpoint(gbifDatasetKey,dwcUri){
 }
 
 function callGbifCurl(data, action = null){
-	var key;
-	let postbody = {action: action, data: data};
-	if(endpoint) postbody.endpoint = endpoint;
+	let key = "";
+	let postbody = {data: data};
+	if(action) postbody.action = action;
 	let request = new XMLHttpRequest();
-	request.open('POST', "rpc/getgbifcurl.php", true);
-	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+	request.open('POST', "rpc/getgbifcurl.php", false);
+	request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+	//request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
 	request.onload = function () {
 		if (this.status == 200 ) {
@@ -103,13 +104,12 @@ function callGbifCurl(data, action = null){
 	request.onerror = function() {
 		alert("ERROR: Something went wrong");
 	};
-	request.send(postbody);
+	request.send(JSON.stringify(postbody));
 	return key;
 }
 
 function datasetExists(f){
 	if(f.collid.value != ""){
-		
 		let action = "datasetExists";
 		let data = JSON.stringify({
 			collid: f.collid.value
