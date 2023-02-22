@@ -405,18 +405,13 @@ $traitArr = $indManager->getTraitArr();
 							<?php
 						}
 						if($occArr['othercatalognumbers']){
-							if(substr($occArr['othercatalognumbers'],0,1)=='{'){
+							$char = substr($occArr['othercatalognumbers'],0,1);
+							if($char == '{' || $char == '['){
 								$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
 								foreach($otherCatArr as $catTag => $catValueArr){
 									if(!$catTag) $catTag = $LANG['OTHER_CATALOG_NUMBERS'];
 									echo '<div class="assoccatnum-div"><label>'.$catTag.':</label> '.implode('; ', $catValueArr).'</div>';
 								}
-							} elseif(substr($occArr['othercatalognumbers'],0,1)=='['){
-									$otherCatArr = json_decode($occArr['othercatalognumbers'],true);
-									foreach($otherCatArr as $catTag => $catValueArr){
-										if(!$catTag) $catTag = $LANG['OTHER_CATALOG_NUMBERS'];
-										echo '<div class="assoccatnum-div"><label>'.$catTag.':</label> '.implode('; ', $catValueArr).'</div>';
-									}
 							}
 							else{
 								?>

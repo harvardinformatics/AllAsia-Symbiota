@@ -28,16 +28,21 @@ class SchemaManager extends Manager{
 			$this->setVerboseMode(3);
 			$this->setLogFH($this->logPath);
 			if($this->setDatabaseConnection($host, $username, $database, $port)){
-				$this->logOrEcho('Connection to database established');
-				if($sqlArr = $this->readSchemaFile($this->targetSchema)){
-					print_r($sqlArr);
+				$this->logOrEcho('Connection to database established ('.date('Y-m-d H:i:s').')');
+				if($sqlArr = $this->readSchemaFile()){
+					/*
+					foreach($sqlArr as $arr){
+						print_r($arr);
+						echo '<br>';
+					}
+					return false;
+					*/
 					$this->logOrEcho('DB schema file analyzed: '. count($sqlArr) . ' statements to apply');
 					foreach($sqlArr as $cnt => $stmtArr){
-						$this->logOrEcho('Statement #' . $cnt . ' (' . date("Y-m-d H:i:s") . ')');
-						$stmtHead = '';
+						$this->logOrEcho('Statement #' . $cnt . ' (' . date('Y-m-d H:i:s') . ')');
 						$stmtType = '';
 						$targetTable = '';
-						$sqlFrag = '';
+						$sql ='';
 						foreach($stmtArr as $fragment){
 							if(substr($fragment, 0, 1) == '#'){
 								//is comment
@@ -45,29 +50,30 @@ class SchemaManager extends Manager{
 								$this->logOrEcho($fragment, 1);
 							}
 							elseif(!$stmtType){
-								$stmtHead = $fragment;
 								if(preg_match('/`([a-z]+)`/', $fragment, $m)){
 									$targetTable = $m[1];
 								}
 								$stmtType = 'undefined';
 								if(strpos($fragment, 'schemaversion') !== false) $stmtType = 'schemaversion';
-								elseif(strpos($fragment, 'CREATE TABLE') === 0) $stmtType = 'CREATE TABLE';
 								elseif(strpos($fragment, 'ALTER TABLE') === 0){
 									$stmtType = 'ALTER TABLE';
 									$this->setActiveTable($targetTable);
 								}
-								elseif(strpos($fragment, 'INSERT') === 0) $stmtType = 'INSERT';
+								elseif(strpos($fragment, '/*!') === 0) $stmtType = 'Conditional statement';
+								elseif(preg_match('/^([A-Z\s]+)/', $fragment, $m)){
+									$stmtType = $m[1];
+								}
 								$this->logOrEcho('Statement type: ' . $stmtType, 1);
 								if($targetTable) $this->logOrEcho('Target table: ' . $targetTable, 1);
+								$sql = $fragment;
 							}
 							else{
-								if($stmtType == 'ALTER TABLE') $fragment = $this->validateAlterTableFragment($fragment);
-								if($fragment) $sqlFrag .= ' ' . $fragment . '<br>';
+								if($stmtType == 'ALTER TABLE') $fragment = $this->validateAlterTableFragment($fragment, 'w');
+								if($fragment) $sql .= ' ' . $fragment;
 							}
 						}
-						if($sqlFrag){
-							$sql = $stmtHead.' '.$sqlFrag;
-							$this->logOrEcho('Statement: ' . $sql, 1);
+						if($sql){
+							//$this->logOrEcho('Statement: ' . $sql, 1);
 							if($this->conn->query($sql)){
 								$this->logOrEcho('Success!', 2);
 								if(isset($this->warningArr['updated'])){
@@ -79,9 +85,8 @@ class SchemaManager extends Manager{
 								}
 								if($this->warningArr){
 									//Add these warnings to amendment file since they should be reapplied
-									if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath);
+									if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath, 'w');
 									$this->logOrEcho('Following fragments excluded due to errors:', 2);
-									$failedSql = $stmtHead;
 									foreach($this->warningArr as $errCode => $errArr){
 										foreach($errArr as $colName => $frag){
 											if($errCode == 'exists') $this->logOrEcho($colName.' already exists ', 3);
@@ -94,8 +99,9 @@ class SchemaManager extends Manager{
 								}
 							}
 							else{
-								if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath);
+								if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath, 'w');
 								$this->logOrEcho('ERROR: ' . $this->conn->error, 2);
+								break;
 							}
 						}
 						//Reset for next statement
@@ -106,35 +112,30 @@ class SchemaManager extends Manager{
 					$this->logOrEcho('Log file: ' . $this->logPath);
 					if($this->amendmentFH) $this->logOrEcho('Amendment (failed statements needing to be applied): ' . $this->amendmentPath);
 				}
-				else{
-					$this->errorMessage = 'ERROR reading schema patch file';
-				}
 			}
 		}
 	}
 
 	private function readSchemaFile(){
 		$sqlArr = false;
-		$filename = $GLOBALS['SERVER_ROOT'] . '/config/schema-1.0/utf8/db_schema_patch-' . $this->targetSchema . '.sql';
+		$filename = $GLOBALS['SERVER_ROOT'] . '/config/schema-1.0/utf8/db_schema';
+		if($this->targetSchema != '1.0') $filename .= '_patch';
+		$filename .= '-'.$this->targetSchema.'.sql';
 		if(file_exists($filename)){
-			$fileHandler = @fopen($filename, 'r');
-			if ($fileHandler) {
+			if($fileHandler = fopen($filename, 'r')){
 				$sqlArr = array();
 				$cnt = 0;
 				while ($line = fgets($fileHandler)) {
 					$line = trim($line);
-					if($line){
-						$sqlArr[$cnt][] = $line;
-					}
-					else{
-						$cnt++;
-					}
+					if(substr($line, 0, 2) == '--') continue;
+					if($line) $sqlArr[$cnt][] = $line;
+					if(substr($line, -1) == ';') $cnt++;
 				}
 				fclose($fileHandler);
 			}
 		}
 		else{
-			$this->errorMessage = 'ABORT: db schema patch does not exist: ' . $filename;
+			$this->logOrEcho('ABORT: db schema patch does not exist: ' . $filename);
 			return false;
 		}
 		return $sqlArr;
@@ -195,7 +196,7 @@ class SchemaManager extends Manager{
 		if($host && $username && $password && $database && $port){
 			$this->conn = new mysqli($host, $username, $password, $database, $port);
 			if($this->conn->connect_error){
-				$this->errorMessage = 'Connection error: ' . $this->conn->connect_error;
+				$this->logOrEcho('Connection error: ' . $this->conn->connect_error);
 				return false;
 			}
 		}

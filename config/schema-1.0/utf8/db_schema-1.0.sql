@@ -3921,12 +3921,12 @@ CREATE TABLE `usertaxonomy` (
 
 
 -- Prime some tables with default data values
-INSERT INTO schemaversion (versionnumber) values ("1.0");
+INSERT INTO `schemaversion` (versionnumber) values ("1.0");
 
 -- Create the general admin user
-INSERT INTO users(uid,firstname,lastname,state,country,email) VALUES (1,"General","Administrator","NA","NA","NA");
-INSERT INTO userlogin(uid,username,password) VALUES (1,"admin",password("admin"));
-INSERT INTO userroles(uid,role) VALUES (1,"SuperAdmin");
+INSERT INTO `users`(uid,firstname,lastname,state,country,email) VALUES (1,"General","Administrator","NA","NA","NA");
+INSERT INTO `userlogin`(uid,username,password) VALUES (1,"admin",password("admin"));
+INSERT INTO `userroles`(uid,role) VALUES (1,"SuperAdmin");
 
 -- Prime taxonunits table
 INSERT IGNORE INTO `taxonunits`(kingdomName,rankid,rankName, dirparentrankid, reqparentrankid) 

@@ -25,6 +25,7 @@ $curentVersion = $schemaManager->getCurrentVersion();
 		?>
 		<style type="text/css">
 			label{ font-weight:bold; }
+			fieldset{ padding: 15px }
 			fieldset legend{ font-weight:bold; }
 			.info-div{ margin:10px 5px; }
 			.form-section{ margin: 5px 10px; }
@@ -39,7 +40,7 @@ $curentVersion = $schemaManager->getCurrentVersion();
 			<h1>Database Schema Manager</h1>
 			<div style="margin:15px;">
 				<label>Current version: </label>
-				<?php echo $curentVersion?$curentVersion:'not installed'; ?>
+				<?php echo $curentVersion?$curentVersion:'no schema detected'; ?>
 			</div>
 			<?php
 			if($verHistory){
@@ -56,11 +57,18 @@ $curentVersion = $schemaManager->getCurrentVersion();
 				</div>
 				<?php
 			}
-			if($IS_ADMIN){
-				if($action == 'installSchema'){
-					$schemaManager->setTargetSchema($schemaCode);
-					$schemaManager->installPatch($host, $username, $database, $port);
-				}
+			if($action && ($IS_ADMIN || !$curentVersion)){
+				?>
+				<fieldset>
+					<legend>Action Panel</legend>
+					<?php
+					if($action == 'installSchema'){
+						$schemaManager->setTargetSchema($schemaCode);
+						$schemaManager->installPatch($host, $username, $database, $port);
+					}
+					?>
+				</fieldset>
+				<?php
 			}
 			?>
 			<fieldset>
@@ -82,7 +90,7 @@ $curentVersion = $schemaManager->getCurrentVersion();
 						<input name="password" type="password" value="" required autocomplete="off">
 					</div>
 					<div class="form-section">
-						<label>Database name:</label>
+						<label>Database:</label>
 						<input name="database" type="text" value="<?php echo $database; ?>" required>
 					</div>
 					<div class="form-section">
