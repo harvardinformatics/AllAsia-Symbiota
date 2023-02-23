@@ -11,7 +11,7 @@ function processGbifOrgKey(f){
 	var dwcUri = f.dwcUri.value;
 
 	if(gbifInstOrgKey && organizationKey){
-		var submitForm = false;
+		let submitForm = false;
 		if(!installationKey){
 			installationKey = createGbifInstallation(gbifInstOrgKey,portalName);
 			if(installationKey){
@@ -53,11 +53,11 @@ function processGbifOrgKey(f){
 
 function createGbifInstallation(gbifOrgKey,collName){
 	let action = 'createGbifInstallation';
-	var data = JSON.stringify({
+	let data = JSON.stringify({
 		organizationKey: gbifOrgKey,
 		title: collName
 	});
-	var instKey = callGbifCurl(data, action);
+	let instKey = callGbifCurl(data, action);
 	if(!instKey){
 		alert("ERROR: Contact administrator, creation of GBIF installation failed using data: "+data);
 	}
@@ -66,27 +66,30 @@ function createGbifInstallation(gbifOrgKey,collName){
 
 function createGbifDataset(gbifInstKey,gbifOrgKey,collName){
 	let action = 'createGbifDataset';
-	var data = JSON.stringify({
+	let data = JSON.stringify({
 		installationKey: gbifInstKey,
 		publishingOrganizationKey: gbifOrgKey,
-		title: collName,
+		title: collName
 	});
-	return callGbifCurl(data,action);
+	let retStr = '';
+	retStr = callGbifCurl(data,action);
+	return retStr;
 }
 
 function createGbifEndpoint(gbifDatasetKey,dwcUri){
 	let action = "createGbifEndpoint";
 	let data = JSON.stringify({
-		url: dwcUri,
+		dwcUri: dwcUri,
 		datasetkey: gbifDatasetKey
 	});
-	var retStr = callGbifCurl(type,data, action);
-	if(retStr.indexOf(" ") > -1 || retStr.length < 34 || retStr.length > 40) retStr = "";
+	let retStr = '';
+	retStr = callGbifCurl(data, action);
+	if(isNaN(parseFloat(retStr))) retStr = "";
 	return retStr;
 }
 
 function callGbifCurl(data, action = null){
-	let key = "";
+	let response = "";
 	let postbody = {data: data};
 	if(action) postbody.action = action;
 	let request = new XMLHttpRequest();
@@ -95,8 +98,8 @@ function callGbifCurl(data, action = null){
 	//request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
 	request.onload = function () {
-		if (this.status == 200 ) {
-			key = this.response.value;
+		if (this.status >= 200 && this.status <= 299  ) {
+			response = this.response;
 		} else {
 			alert(`GBIF API RETURNED: ${this.status} ${this.response}`);
 		}
@@ -105,7 +108,7 @@ function callGbifCurl(data, action = null){
 		alert("ERROR: Something went wrong");
 	};
 	request.send(JSON.stringify(postbody));
-	return key;
+	return response;
 }
 
 function datasetExists(f){
@@ -114,7 +117,8 @@ function datasetExists(f){
 		let data = JSON.stringify({
 			collid: f.collid.value
 		});
-		var retStr = callGbifCurl(data, action);
+		let retStr = '';
+		retStr = callGbifCurl(data, action);
 		if(retStr.indexOf(" ") > -1 || retStr.length < 34 || retStr.length > 40) retStr = "";
 		return retStr;
 	}

@@ -2,7 +2,6 @@
 include_once('../../../config/symbini.php');
 
 $requestType = '';
-//$requestData =  new \stdClass;
 $body = file_get_contents('php://input');
 
 $action = "";
@@ -45,7 +44,7 @@ switch ($action){
 		break;
 
     case "createGbifEndpoint":
-		$GBIF_url .= $clientData->datasetkey.'/dataset';
+		$GBIF_url .= 'dataset/' . $clientData->datasetkey . "/endpoint";
 		$requestType = 'POST';
 		$requestData->type = 'DWC_ARCHIVE';
 		$requestData->url  = $clientData->dwcUri;
@@ -57,9 +56,14 @@ switch ($action){
 		$GBIF_url .= "dataset?identifier=" . $collectionIdentifierUrl;
 		break;
 
+	case "organizationExists":
+		$requestType = 'GET';
+		$GBIF_url .= "organization/" . $clientData->organizationKey;
+		break;
+
     default:
 		http_response_code(400);
-		echo '{"response":"No action set: "}';
+		echo '{"response":"No action set"}';
 		exit;
 }
 
@@ -89,4 +93,5 @@ $result = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 http_response_code($httpCode);
 echo str_replace('"','',$result);
+
 ?>
