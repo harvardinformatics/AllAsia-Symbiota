@@ -38,8 +38,10 @@ class SchemaManager extends Manager{
 					return false;
 					*/
 					$this->logOrEcho('DB schema file analyzed: '. count($sqlArr) . ' statements to apply');
-					foreach($sqlArr as $cnt => $stmtArr){
-						$this->logOrEcho('Statement #' . $cnt . ' (' . date('Y-m-d H:i:s') . ')');
+					$cnt = 0;
+					foreach($sqlArr as $lineCnt => $stmtArr){
+						$cnt++;
+						$this->logOrEcho('Statement #' . ($cnt) . ' - line '.$lineCnt.' (' . date('Y-m-d H:i:s') . ')');
 						$stmtType = '';
 						$targetTable = '';
 						$sql ='';
@@ -54,8 +56,7 @@ class SchemaManager extends Manager{
 									$targetTable = $m[1];
 								}
 								$stmtType = 'undefined';
-								if(strpos($fragment, 'schemaversion') !== false) $stmtType = 'schemaversion';
-								elseif(strpos($fragment, 'ALTER TABLE') === 0){
+								if(strpos($fragment, 'ALTER TABLE') === 0){
 									$stmtType = 'ALTER TABLE';
 									$this->setActiveTable($targetTable);
 								}
@@ -63,8 +64,7 @@ class SchemaManager extends Manager{
 								elseif(preg_match('/^([A-Z\s]+)/', $fragment, $m)){
 									$stmtType = $m[1];
 								}
-								$this->logOrEcho('Statement type: ' . $stmtType, 1);
-								if($targetTable) $this->logOrEcho('Target table: ' . $targetTable, 1);
+								$this->logOrEcho('Type: ' . $stmtType . ($targetTable ? ' '.$targetTable : ''), 1);
 								$sql = $fragment;
 							}
 							else{
@@ -75,7 +75,7 @@ class SchemaManager extends Manager{
 						if($sql){
 							//$this->logOrEcho('Statement: ' . $sql, 1);
 							if($this->conn->query($sql)){
-								$this->logOrEcho('Success!', 2);
+								$this->logOrEcho('Success!', 1);
 								if(isset($this->warningArr['updated'])){
 									$this->logOrEcho('Following adjustments applied:', 2);
 									foreach($this->warningArr['updated'] as $adjustStr){
@@ -101,16 +101,20 @@ class SchemaManager extends Manager{
 							else{
 								if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath, 'w');
 								$this->logOrEcho('ERROR: ' . $this->conn->error, 2);
-								break;
+								//break;
 							}
 						}
 						//Reset for next statement
 						unset($this->warningArr);
 						$this->warningArr = array();
+						flush();
+						ob_flush();
 					}
 					$this->logOrEcho('Finished: schema applied');
-					$this->logOrEcho('Log file: ' . $this->logPath);
-					if($this->amendmentFH) $this->logOrEcho('Amendment (failed statements needing to be applied): ' . $this->amendmentPath);
+					$logUrl = str_replace($GLOBALS['SERVER_ROOT'], $GLOBALS['CLIENT_ROOT'], $this->logPath);
+					$this->logOrEcho('Log file: <a href="' . $logUrl . '" target="_blank">' . $logUrl . '</a>');
+					$amendmentUrl = str_replace($GLOBALS['SERVER_ROOT'], $GLOBALS['CLIENT_ROOT'], $this->amendmentPath);
+					if($this->amendmentFH) $this->logOrEcho('Amendment (failed statements needing to be applied): ' . $amendmentUrl);
 				}
 			}
 		}
@@ -124,12 +128,23 @@ class SchemaManager extends Manager{
 		if(file_exists($filename)){
 			if($fileHandler = fopen($filename, 'r')){
 				$sqlArr = array();
-				$cnt = 0;
-				while ($line = fgets($fileHandler)) {
-					$line = trim($line);
-					if(substr($line, 0, 2) == '--') continue;
-					if($line) $sqlArr[$cnt][] = $line;
-					if(substr($line, -1) == ';') $cnt++;
+				$cnt = 1;
+				$index = 0;
+				$delimiter = ';';
+				while(!feof($fileHandler)) {
+					$line = trim(fgets($fileHandler));
+					if($line){
+						if(!$index) $index = $cnt;
+						if(substr($line, 0, 2) == '--') continue;
+						if(substr($line, 0, 9) == 'DELIMITER'){
+							$delimiter = trim(substr($line, 9));
+						}
+						else{
+							if($line) $sqlArr[$index][] = $line;
+						}
+						if(substr($line, -strlen($delimiter)) == $delimiter) $index = 0;
+					}
+					$cnt++;
 				}
 				fclose($fileHandler);
 			}
@@ -146,18 +161,23 @@ class SchemaManager extends Manager{
 		if($targetTable){
 			$this->activeTableArr = array();
 			$sql = 'SHOW COLUMNS FROM ' . $targetTable;
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$fieldName = strtolower($r->Field);
-				$type = $r->Type;
-				if(preg_match('/^[a-z]+/', $type, $m)){
-					$this->activeTableArr[$fieldName]['type'] = $m[1];
+			if($rs = $this->conn->query($sql)){
+				while($r = $rs->fetch_object()){
+					$fieldName = strtolower($r->Field);
+					$type = $r->Type;
+					if(preg_match('/^([a-z]+)/', $type, $m)){
+						$this->activeTableArr[$fieldName]['type'] = $m[1];
+					}
+					if(preg_match('#\(([\d]*?)\)#', $type, $n)){
+						$this->activeTableArr[$fieldName]['length'] = $n[1];
+					}
 				}
-				if(preg_match('#\(([\d]*?)\)#', $type, $n)){
-					$this->activeTableArr[$fieldName]['length'] = $n[1];
-				}
+				$rs->free();
 			}
-			$rs->free();
+			else{
+				$this->logOrEcho('ERROR: '.$this->conn->error, 2);
+				$this->logOrEcho($sql, 2);
+			}
 		}
 	}
 
@@ -182,7 +202,7 @@ class SchemaManager extends Manager{
 					$colWidth = $m[2];
 					if(isset($this->activeTableArr[$colName]['length']) && $colWidth < $this->activeTableArr[$colName]['length']){
 						$this->warningArr['updated'][$colName] = 'Field length expanded from '.$colWidth.' to '.$this->activeTableArr[$colName]['length'];
-						$fragment = preg_match_replace('/VARCHAR(\d+)/', 'VARCHAR(' . $this->activeTableArr[$colName]['length'] . ')', $fragment);
+						$fragment = preg_replace('/VARCHAR(\d+)/', 'VARCHAR(' . $this->activeTableArr[$colName]['length'] . ')', $fragment);
 					}
 				}
 			}

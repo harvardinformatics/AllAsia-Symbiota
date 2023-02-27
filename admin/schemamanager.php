@@ -43,74 +43,82 @@ $curentVersion = $schemaManager->getCurrentVersion();
 				<?php echo $curentVersion?$curentVersion:'no schema detected'; ?>
 			</div>
 			<?php
-			if($verHistory){
-				?>
-				<div style="margin:15px">
-					<table class="styledtable" style="width:300px;">
-						<tr><th>Version</th><th>Date Applied</th></tr>
+			if($IS_ADMIN || !$curentVersion){
+				if($verHistory){
+					?>
+					<div style="margin:15px">
+						<table class="styledtable" style="width:300px;">
+							<tr><th>Version</th><th>Date Applied</th></tr>
+							<?php
+							foreach($verHistory as $ver => $date){
+								echo '<tr><td>'.$ver.'</td><td>'.$date.'</td></tr>';
+							}
+							?>
+						</table>
+					</div>
+					<?php
+				}
+				if($action){
+					?>
+					<fieldset>
+						<legend>Action Panel</legend>
 						<?php
-						foreach($verHistory as $ver => $date){
-							echo '<tr><td>'.$ver.'</td><td>'.$date.'</td></tr>';
+						if($action == 'installSchema'){
+							echo 'there';
+							$schemaManager->setTargetSchema($schemaCode);
+							$schemaManager->installPatch($host, $username, $database, $port);
 						}
 						?>
-					</table>
-				</div>
-				<?php
-			}
-			if($action && ($IS_ADMIN || !$curentVersion)){
+					</fieldset>
+					<?php
+				}
 				?>
 				<fieldset>
-					<legend>Action Panel</legend>
-					<?php
-					if($action == 'installSchema'){
-						$schemaManager->setTargetSchema($schemaCode);
-						$schemaManager->installPatch($host, $username, $database, $port);
-					}
-					?>
+					<legend>Database Schema Assistant</legend>
+					<div class="info-div">Enter database criteria that will be used to apply database schema patch.
+					The database user must have full DDL pivileges (e.g. create/alter tables, routines, indexes, etc.)
+					We recommend creating a backup of the database before applying any database patches.</div>
+					<form name="databaseMaintenanceForm" action="schemamanager.php" method="post">
+						<div class="form-section">
+							<label>Host:</label>
+							<input name="database" type="text" value="<?php echo $host; ?>" required>
+						</div>
+						<div class="form-section">
+							<label>Username:</label>
+							<input name="username" type="text" value="<?php echo $username; ?>" required autocomplete="off">
+						</div>
+						<div class="form-section">
+							<label>Password: </label>
+							<input name="password" type="password" value="" required autocomplete="off">
+						</div>
+						<div class="form-section">
+							<label>Database:</label>
+							<input name="database" type="text" value="<?php echo $database; ?>" required>
+						</div>
+						<div class="form-section">
+							<label>Port:</label>
+							<input name="port" type="text" value="<?php echo $port; ?>" required>
+						</div>
+						<div class="form-section">
+							<label>Schema: </label>
+							<select name="schemaCode">
+								<option value="1.0" <?php echo !$curentVersion || $curentVersion < 1 ? 'selected' : ''; ?>>Base Schema 1.0</option>
+								<option value="1.1"<?php echo $curentVersion == 1.0 ? 'selected' : ''; ?>>Schema Patch 1.1</option>
+								<option value="1.2"<?php echo $curentVersion == 1.1 ? 'selected' : ''; ?>>Schema Patch 1.2</option>
+								<option value="2.0"<?php echo $curentVersion == 1.2 ? 'selected' : ''; ?>>Schema Patch 2.0</option>
+							</select>
+						</div>
+						<div class="form-section">
+							<button name="action" type="submit" value="installSchema">Install</button>
+						</div>
+					</form>
 				</fieldset>
 				<?php
 			}
+			else{
+				echo '<div>Not Authorized</div>';
+			}
 			?>
-			<fieldset>
-				<legend>Database Schema Assistant</legend>
-				<div class="info-div">Enter database criteria that will be used to apply database schema patch.
-				The database user must have full DDL pivileges (e.g. create/alter tables, routines, indexes, etc.)
-				We recommend creating a backup of the database before applying any database patches.</div>
-				<form name="databaseMaintenanceForm" action="schemamanager.php" method="post">
-					<div class="form-section">
-						<label>Host:</label>
-						<input name="database" type="text" value="<?php echo $host; ?>" required>
-					</div>
-					<div class="form-section">
-						<label>Username:</label>
-						<input name="username" type="text" value="<?php echo $username; ?>" required autocomplete="off">
-					</div>
-					<div class="form-section">
-						<label>Password: </label>
-						<input name="password" type="password" value="" required autocomplete="off">
-					</div>
-					<div class="form-section">
-						<label>Database:</label>
-						<input name="database" type="text" value="<?php echo $database; ?>" required>
-					</div>
-					<div class="form-section">
-						<label>Port:</label>
-						<input name="port" type="text" value="<?php echo $port; ?>" required>
-					</div>
-					<div class="form-section">
-						<label>Schema: </label>
-						<select name="schemaCode">
-							<option value="1.0" <?php echo !$curentVersion || $curentVersion < 1 ? 'selected' : ''; ?>>Base Schema 1.0</option>
-							<option value="1.1"<?php echo $curentVersion == 1.0 ? 'selected' : ''; ?>>Schema Patch 1.1</option>
-							<option value="1.2"<?php echo $curentVersion == 1.1 ? 'selected' : ''; ?>>Schema Patch 1.2</option>
-							<option value="2.0"<?php echo $curentVersion == 1.2 ? 'selected' : ''; ?>>Schema Patch 2.0</option>
-						</select>
-					</div>
-					<div class="form-section">
-						<button name="action" type="submit" value="installSchema">Install</button>
-					</div>
-				</form>
-			</fieldset>
 		</div>
 		<?php
 		include($SERVER_ROOT.'/includes/footer.php');
