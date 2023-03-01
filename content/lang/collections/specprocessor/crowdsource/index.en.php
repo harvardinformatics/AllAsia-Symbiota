@@ -16,6 +16,7 @@ $LANG['ONLY_PROCESSED_SPECIMENS_ELIGIBLE'] = 'Only specimens processed as a volu
 $LANG['LOGIN'] = 'Login';
 $LANG['TO_VIEW_CURRENT'] = 'to View Current Stats';
 $LANG['YOUR_STATS_BY_COLL'] = 'Your Stats by Collections';
+$LANG['COLLECTION'] = 'Collection';
 $LANG['SPEC_COUNTS'] = 'Specimen<br/>Count';
 $LANG['PENDING_POINTS'] = 'Pending<br/>Points';
 $LANG['APPROVED_POINTS'] = 'Approved<br/>Points';
