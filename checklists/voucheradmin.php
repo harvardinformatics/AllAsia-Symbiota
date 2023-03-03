@@ -58,7 +58,7 @@ $clMetaArr = $clManager->getClMetadata();
 		var tabIndex = <?php echo $tabIndex; ?>;
 		var footprintwktExists = <?php echo ($clManager->getClFootprintWkt()?'true':'false') ?>;
 	</script>
-	<script type="text/javascript" src="../js/symb/checklists.voucheradmin.js?ver=180411"></script>
+	<script type="text/javascript" src="../js/symb/checklists.voucheradmin.js?ver=1"></script>
 	<style type="text/css">
 		li{margin:5px;}
 	</style>
@@ -228,7 +228,7 @@ if($clid && $isEditor){
 		?>
 		<div id="tabs" style="margin-top:25px;">
 			<ul>
-				<li><a href="nonvoucheredtab.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.$displayMode; ?>"><span><?php echo $LANG['NEWVOUCH'];?></span></a></li>
+				<li><a href="nonvoucheredtab.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.$displayMode; ?>"><span><?php echo $LANG['NON_VOUCHERED'];?></span></a></li>
 				<li><a href="vamissingtaxa.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.($tabIndex==1?$displayMode:0).'&excludevouchers='.(isset($_POST['excludevouchers'])?$_POST['excludevouchers']:''); ?>"><span><?php echo $LANG['MISSINGTAXA'];?></span></a></li>
 				<li><a href="vaconflicts.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos; ?>"><span><?php echo $LANG['VOUCHCONF'];?></span></a></li>
 				<?php
