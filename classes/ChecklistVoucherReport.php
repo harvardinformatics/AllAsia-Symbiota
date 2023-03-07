@@ -352,7 +352,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$clidStr = $this->clid;
 			if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
 			$fileName = $this->getExportFileName().'.csv';
-			$sql = 'SELECT DISTINCT t.tid AS taxonID, ctl.habitat AS habitat, ctl.abundance, ctl.notes, ctl.source, ctl.internalnotes,
+			$sql = 'SELECT DISTINCT ctl.clid, t.tid AS taxonID, ctl.habitat AS habitat, ctl.abundance, ctl.notes, ctl.source, ctl.internalnotes,
 				IFNULL(ctl.familyoverride, ts.family) AS family, t.sciName AS scientificName, t.author AS scientificNameAuthorship
 				FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
 				INNER JOIN fmchklsttaxalink ctl ON ctl.tid = t.tid
@@ -374,11 +374,13 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 				while($row = $rs->fetch_assoc()){
 					if($rowOut){
 						if($rowOut['taxonID'] == $row['taxonID']){
-							if($row['habitat']) $rowOut['habitat'] .= ($rowOut['habitat']?'; ':'').$row['habitat'];
-							if($row['abundance']) $rowOut['abundance'] .= ($rowOut['abundance']?'; ':'').$row['abundance'];
-							if($row['notes']) $rowOut['notes'] .= ($rowOut['notes']?'; ':'').$row['notes'];
-							if($row['source']) $rowOut['source'] .= ($rowOut['source']?'; ':'').$row['source'];
-							if($row['internalnotes']) $rowOut['internalnotes'] .= ($rowOut['internalnotes']?'; ':'').$row['internalnotes'];
+							if($row['clid'] == $this->clid){
+								$rowOut['habitat'] = strip_tags($row['habitat']);
+								$rowOut['abundance'] = strip_tags($row['abundance']);
+								$rowOut['notes'] = strip_tags($row['notes']);
+								$rowOut['source'] = strip_tags($row['source']);
+								$rowOut['internalnotes'] = strip_tags($row['internalnotes']);
+							}
 						}
 						else{
 							$this->encodeArr($rowOut);
