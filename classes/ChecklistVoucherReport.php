@@ -372,14 +372,13 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 				fputcsv($out, $headerArr);
 				$rowOut = null;
 				while($row = $rs->fetch_assoc()){
+					foreach($row as $k => $v){
+						$row[$k] = strip_tags($v);
+					}
 					if($rowOut){
 						if($rowOut['taxonID'] == $row['taxonID']){
 							if($row['clid'] == $this->clid){
-								$rowOut['habitat'] = strip_tags($row['habitat']);
-								$rowOut['abundance'] = strip_tags($row['abundance']);
-								$rowOut['notes'] = strip_tags($row['notes']);
-								$rowOut['source'] = strip_tags($row['source']);
-								$rowOut['internalnotes'] = strip_tags($row['internalnotes']);
+								$rowOut = $row;
 							}
 						}
 						else{
