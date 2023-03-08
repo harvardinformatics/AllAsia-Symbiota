@@ -23,8 +23,8 @@ $LANG['APPROVED_POINTS'] = 'Puntaje<br/>Aprobada';
 $LANG['OPEN_RECORDS'] = 'Puntaje<br/>Abierta';
 $LANG['NOTE_EDITOR'] = '<b>Atenci&oacute;n:</b> Se ha identificado a usted como editor oficial para
 						una o m&acute;s colecciones.Su puntaje no se va incluir en la pizarra de
-						puntaje m&acute;s alta para especimenes de una colecci&oacute;n donde usted tiene
-						derechos del editor.La Puntaje m&acute;s alta solamente cuenta por especimenes
+						puntaje m&aacute;s alta para especimenes de una colecci&oacute;n donde usted tiene
+						derechos del editor.La Puntaje m&aacute;s alta solamente cuenta por especimenes
 						ingresadas como voluntario.';
 
 ?>
