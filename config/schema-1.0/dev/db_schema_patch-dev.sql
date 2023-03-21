@@ -593,7 +593,6 @@ ALTER TABLE `omoccurdeterminations`
   ADD COLUMN `recordID` VARCHAR(45) NULL AFTER `sortSequence`,
   CHANGE COLUMN `identifiedBy` `identifiedBy` VARCHAR(255) NOT NULL DEFAULT '' ,
   CHANGE COLUMN `dateIdentified` `dateIdentified` VARCHAR(45) NOT NULL DEFAULT '' ,
-  CHANGE COLUMN `sourceIdentifier` `identificationID` VARCHAR(45) NULL DEFAULT NULL ,
   ADD INDEX `FK_omoccurdets_agentID_idx` (`identifiedByAgentID` ASC);
 
 ALTER TABLE `omoccurdeterminations` 
