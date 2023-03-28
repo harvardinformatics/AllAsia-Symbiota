@@ -1,4 +1,4 @@
-INSERT IGNORE INTO schemaversion (versionnumber) values ("1.3");
+INSERT IGNORE INTO schemaversion (versionnumber) values ("3.0");
 
 ALTER TABLE `agents` 
   CHANGE COLUMN `taxonomicgroups` `taxonomicGroups` VARCHAR(900) NULL DEFAULT NULL ,
@@ -465,7 +465,8 @@ CREATE TABLE `omcrowdsourceproject` (
   `modifiedUid` INT UNSIGNED NULL,
   `modifiedTimestamp` DATETIME NULL,
   `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
-  PRIMARY KEY (`csProjID`));
+  PRIMARY KEY (`csProjID`)
+);
 
 ALTER TABLE `omcrowdsourceproject` 
   ADD INDEX `FK_croudsourceproj_uid_idx` (`modifiedUid` ASC) ;
@@ -546,7 +547,8 @@ CREATE TABLE `omoccurarchive` (
   INDEX `IX_occurarchive_recordID` (`recordID` ASC),
   INDEX `FK_occurarchive_uid_idx` (`createdUid` ASC),
   UNIQUE INDEX `UQ_occurarchive_occid` (`occid` ASC),
-  CONSTRAINT `FK_occurarchive_uid` FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE);
+  CONSTRAINT `FK_occurarchive_uid` FOREIGN KEY (`createdUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE CASCADE
+);
 
 INSERT INTO omoccurarchive(archiveObj, occid, recordID)
 SELECT archiveObj, occid, guid FROM guidoccurrences WHERE archiveObj IS NOT NULL;
@@ -698,7 +700,7 @@ CREATE TABLE `omoccurloansattachment` (
   PRIMARY KEY (`attachmentid`),
   KEY `FK_occurloansattachment_loanid_idx` (`loanid`),
   KEY `FK_occurloansattachment_exchangeid_idx` (`exchangeid`)
-) ;
+);
 
 ALTER TABLE `omoccurloansattachment`
   ADD CONSTRAINT `FK_occurloansattachment_exchangeid` FOREIGN KEY (`exchangeid`) REFERENCES `omoccurexchange` (`exchangeid`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -976,7 +978,12 @@ ALTER TABLE `users`
   CHANGE COLUMN `validated` `validated` INT NOT NULL DEFAULT 0 ,
   CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
 
-
+ALTER TABLE `users` 
+  ADD UNIQUE INDEX `UQ_users_username` (`username` ASC);
+  
+ALTER TABLE `users` 
+  RENAME INDEX `Index_email` TO `IX_users_email`;
+  
 UPDATE users u INNER JOIN userlogin l ON u.uid = l.uid
 SET u.username = l.username, u.password = l.password, u.lastLoginDate = l.lastlogindate
 WHERE u.username IS NULL;
@@ -1021,7 +1028,8 @@ CREATE TABLE `ommaterialsample` (
   INDEX `FK_ommatsample_occid_idx` (`occid` ASC),
   INDEX `FK_ommatsample_prepUid_idx` (`preparedByUid` ASC),
   CONSTRAINT `FK_ommatsample_occid` FOREIGN KEY (`occid`)   REFERENCES `omoccurrences` (`occid`)   ON DELETE CASCADE  ON UPDATE CASCADE,
-  CONSTRAINT `FK_ommatsample_prepUid`   FOREIGN KEY (`preparedByUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE  ON UPDATE CASCADE);
+  CONSTRAINT `FK_ommatsample_prepUid`   FOREIGN KEY (`preparedByUid`)   REFERENCES `users` (`uid`)   ON DELETE CASCADE  ON UPDATE CASCADE
+);
 
 ALTER TABLE `ommaterialsample`
   ADD UNIQUE INDEX `UQ_ommatsample_recordID` (`recordID`);
@@ -1099,7 +1107,8 @@ CREATE TABLE `ommaterialsampleextended` (
   INDEX `FK_matsampleextend_matSampleID_idx` (`matSampleID` ASC),
   INDEX `IX_matsampleextend_fieldName` (`fieldName` ASC),
   INDEX `IX_matsampleextend_fieldValue` (`fieldValue` ASC),
-  CONSTRAINT `FK_matsampleextend_matSampleID`  FOREIGN KEY (`matSampleID`)   REFERENCES `ommaterialsample` (`matSampleID`)   ON DELETE CASCADE   ON UPDATE CASCADE);
+  CONSTRAINT `FK_matsampleextend_matSampleID`  FOREIGN KEY (`matSampleID`)   REFERENCES `ommaterialsample` (`matSampleID`)   ON DELETE CASCADE   ON UPDATE CASCADE
+);
 
 
 INSERT INTO ctcontrolvocab(title,tableName,fieldName, limitToList)
