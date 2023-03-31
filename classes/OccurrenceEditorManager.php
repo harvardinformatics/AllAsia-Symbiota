@@ -489,7 +489,7 @@ class OccurrenceEditorManager {
 				}
 				elseif($customField == 'username'){
 					//Used when Modified By comes from custom field search within basic query form
-					$customField = 'ul.username';
+					$customField = 'u.username';
 				}
 				else{
 					$customField = 'o.'.$customField;
@@ -751,8 +751,8 @@ class OccurrenceEditorManager {
 		if(strpos($this->sqlWhere,'id.identifierValue')){
 			$sql .= 'LEFT JOIN omoccuridentifiers id ON o.occid = id.occid ';
 		}
-		if(strpos($this->sqlWhere,'ul.username')){
-			$sql .= 'LEFT JOIN omoccuredits ome ON o.occid = ome.occid LEFT JOIN userlogin ul ON ome.uid = ul.uid ';
+		if(strpos($this->sqlWhere,'u.username')){
+			$sql .= 'LEFT JOIN omoccuredits ome ON o.occid = ome.occid LEFT JOIN users u ON ome.uid = u.uid ';
 		}
 		if(strpos($this->sqlWhere,'exn.ometid')){
 			$sql .= 'INNER JOIN omexsiccatiocclink exocc ON o.occid = exocc.occid INNER JOIN omexsiccatinumbers exn ON exocc.omenid = exn.omenid ';

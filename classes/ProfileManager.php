@@ -41,8 +41,7 @@ class ProfileManager extends Manager{
 		unset($_SESSION['userparams']);
 		if($this->userName){
 			if(!$this->authSql){
-				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname FROM users u INNER JOIN userlogin l ON u.uid = l.uid '.
-					'WHERE ((l.username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
+				$this->authSql = 'SELECT uid, firstname, lastname FROM users WHERE ((username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
 				if($pwdStr) $this->authSql .= 'AND (l.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
 			$result = $this->conn->query($this->authSql);
@@ -83,51 +82,29 @@ class ProfileManager extends Manager{
 	}
 
 	public function getPerson(){
-		$sqlStr = 'SELECT u.uid, u.firstname, u.lastname, u.title, u.institution, u.department, u.address, u.city, u.state, u.zip, u.country, u.phone, u.email, '.
-			'u.url, u.guid, u.notes, ul.username, ul.lastlogindate '.
-			'FROM users u LEFT JOIN userlogin ul ON u.uid = ul.uid '.
-			'WHERE (u.uid = '.$this->uid.')';
+		$sqlStr = 'SELECT uid, firstname, lastname, title, institution, department, address, city, state, zip, country, phone, email, '.
+			'url, guid, notes, username, lastlogindate FROM users WHERE (uid = '.$this->uid.')';
 		$person = new Person();
-		//echo $sqlStr;
-		$badUserNameArr = array();
-		$result = $this->conn->query($sqlStr);
-		if($row = $result->fetch_object()){
-			$person->setUid($row->uid);
-			$person->setUserName($row->username);
-			$person->setLastLoginDate($row->lastlogindate);
-			$person->setFirstName($row->firstname);
-			$person->setLastName($row->lastname);
-			$person->setTitle($row->title);
-			$person->setInstitution($row->institution);
-			$person->setDepartment($row->department);
-			$person->setCity($row->city);
-			$person->setState($row->state);
-			$person->setZip($row->zip);
-			$person->setCountry($row->country);
-			$person->setPhone($row->phone);
-			$person->setEmail($row->email);
-			$person->setGUID($row->guid);
+		$rs = $this->conn->query($sqlStr);
+		if($r = $rs->fetch_object()){
+			$person->setUid($r->uid);
+			$person->setUserName($r->username);
+			$person->setLastLoginDate($r->lastlogindate);
+			$person->setFirstName($r->firstname);
+			$person->setLastName($r->lastname);
+			$person->setTitle($r->title);
+			$person->setInstitution($r->institution);
+			$person->setDepartment($r->department);
+			$person->setCity($r->city);
+			$person->setState($r->state);
+			$person->setZip($r->zip);
+			$person->setCountry($r->country);
+			$person->setPhone($r->phone);
+			$person->setEmail($r->email);
+			$person->setGUID($r->guid);
 			$this->setUserTaxonomy($person);
-			while($row = $result->fetch_object()){
-				//Old code allowed folks to maintain more than one login names. This code will make sure the most recently active one is used
-				if($row->lastlogindate && (!$person->getLastLoginDate() || $row->lastlogindate > $person->getLastLoginDate())){
-					$badUserNameArr[] = $person->getUserName();
-					$person->setUserName($row->username);
-					$person->setLastLoginDate($row->lastlogindate);
-				}
-				else{
-					$badUserNameArr[] = $row->userName;
-				}
-			}
 		}
-		if($badUserNameArr){
-			//Delete the none active logins
-			$sql = 'DELETE FROM userlogin WHERE username IN("'.implode('","',$badUserNameArr).'")';
-			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR removing extra logins: '.$this->conn->error;
-			}
-		}
-		$result->free();
+		$rs->free();
 		return $person;
 	}
 
@@ -188,7 +165,7 @@ class ProfileManager extends Manager{
 			$uid = 0;
 			$email = '';
 			$un = $this->cleanInStr($un);
-			$sql = 'SELECT u.uid, u.email FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE (l.username = "'.$un.'") OR (u.email = "'.$un.'")';
+			$sql = 'SELECT uid, email FROM users WHERE (username = "'.$un.'") OR (email = "'.$un.'")';
 			$rs = $this->conn->query($sql);
 			if($row = $rs->fetch_object()){
 				$uid = $row->uid;
@@ -265,7 +242,11 @@ class ProfileManager extends Manager{
 		//Add to users table
 		$fields = 'INSERT INTO users (';
 		$values = 'VALUES (';
-		$fields .= 'firstname ';
+		$fields .= 'username ';
+		$values .= '"'.$this->cleanInStr($person->getUserName()).'"';
+		$fields .= ', password ';
+		$values .= '"'.$this->cleanInStr($person->getPassword()).'"';
+		$fields .= ', firstname ';
 		$values .= '"'.$this->cleanInStr($person->getFirstName()).'"';
 		$fields .= ', lastname';
 		$values .= ', "'.$this->cleanInStr($person->getLastName()).'"';
@@ -311,20 +292,11 @@ class ProfileManager extends Manager{
 		if($this->conn->query($sql)){
 			$person->setUid($this->conn->insert_id);
 			$this->uid = $person->getUid();
-			//Add userlogin
-			$sql = 'INSERT INTO userlogin (uid, username, password) '.
-				'VALUES ('.$person->getUid().', "'.$this->cleanInStr($person->getUserName()).'", PASSWORD("'.$this->cleanInStr($person->getPassword()).'"))';
-			if($this->conn->query($sql)){
-				$status = true;
-				//authenicate
-				$this->userName = $person->getUserName();
-				$this->displayName = $person->getFirstName();
-				$this->reset();
-				$this->authenticate();
-			}
-			else{
-				$this->errorStr = 'FAILED: Unable to create user.<div style="margin-left:55px;">Please contact system administrator for assistance.</div>';
-			}
+			$this->userName = $person->getUserName();
+			$this->displayName = $person->getFirstName();
+			$this->reset();
+			$this->authenticate();
+			$status = true;
 		}
 		return $status;
 	}
@@ -332,14 +304,12 @@ class ProfileManager extends Manager{
 	public function lookupUserName($emailAddr){
 		$status = false;
 		$from = '';
-		if (array_key_exists("SYSTEM_EMAIL", $GLOBALS) && !empty($GLOBALS["SYSTEM_EMAIL"])){
+		if (array_key_exists('SYSTEM_EMAIL', $GLOBALS) && !empty($GLOBALS['SYSTEM_EMAIL'])){
 			$from = 'Reset Request <'.$GLOBALS["SYSTEM_EMAIL"].'>';
 		}
 		if(!$this->validateEmailAddress($emailAddr)) return false;
 		$loginStr = '';
-		$sql = 'SELECT u.uid, ul.username, concat_ws("; ",u.lastname,u.firstname) '.
-			'FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid '.
-			'WHERE (u.email = "'.$emailAddr.'")';
+		$sql = 'SELECT uid, username, concat_ws("; ", lastname, firstname) FROM users WHERE (email = "'.$emailAddr.'")';
 		$rs = $this->conn->query($sql);
 		while($row = $rs->fetch_object()){
 			if($loginStr) $loginStr .= '; ';
@@ -402,7 +372,7 @@ class ProfileManager extends Manager{
 			if(!$this->validateUserName($newLogin)) return false;
 
 			//Test if login exists
-			$sqlTestLogin = 'SELECT uid FROM userlogin WHERE (username = "'.$newLogin.'") ';
+			$sqlTestLogin = 'SELECT uid FROM users WHERE (username = "'.$newLogin.'") ';
 			$rs = $this->conn->query($sqlTestLogin);
 			if($rs->num_rows){
 				$this->errorStr = 'Login '.$newLogin.' is already being used by another user. Please try a new login.';
@@ -420,7 +390,7 @@ class ProfileManager extends Manager{
 				}
 				if($status){
 					//Change login
-					$sql = 'UPDATE userlogin SET username = "'.$newLogin.'" WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
+					$sql = 'UPDATE users SET username = "'.$newLogin.'" WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
 					//echo $sql;
 					$this->resetConnection();
 					if($this->conn->query($sql)){
@@ -443,13 +413,11 @@ class ProfileManager extends Manager{
 		if(!$this->validateEmailAddress($email)) return false;
 		//Check to see if userlogin already exists
 		$status = true;
-	   	$sql = 'SELECT u.email, ul.username '.
-			'FROM users u INNER JOIN userlogin ul ON u.uid = ul.uid '.
-			'WHERE (ul.username = "'.$this->userName.'" OR u.email = "'.$email.'" )';
-		$result = $this->conn->query($sql);
-		while($row = $result->fetch_object()){
+	   	$sql = 'SELECT email, username FROM users WHERE (username = "'.$this->userName.'" OR email = "'.$email.'" )';
+		$rs = $this->conn->query($sql);
+		while($r = $rs->fetch_object()){
 			$status = false;
-			if($row->username == $this->userName){
+			if($r->username == $this->userName){
 				$this->errorStr = 'login_exists';
 				break;
 			}
@@ -457,7 +425,7 @@ class ProfileManager extends Manager{
 				$this->errorStr = 'email_registered';
 			}
 		}
-		$result->free();
+		$rs->free();
 		return $status;
 	}
 
@@ -787,8 +755,8 @@ class ProfileManager extends Manager{
 	public function setToken($token){
 		$this->token = $token;
 		$this->authSql = 'SELECT u.uid, u.firstname, u.lastname '.
-			'FROM users u INNER JOIN userlogin l ON u.uid = l.uid INNER JOIN useraccesstokens t ON u.uid = t.uid '.
-			'WHERE (l.username = "'.$this->userName.'" OR u.email = "'.$this->userName.'") AND (t.token = "'.$this->token.'") ';
+			'FROM users u INNER JOIN useraccesstokens t ON u.uid = t.uid '.
+			'WHERE (u.username = "'.$this->userName.'" OR u.email = "'.$this->userName.'") AND (t.token = "'.$this->token.'") ';
 	}
 
 	public function setRememberMe($test){
@@ -809,7 +777,7 @@ class ProfileManager extends Manager{
 				$this->userName = $GLOBALS['USERNAME'];
 			}
 			elseif($this->uid){
-				$sql = 'SELECT username FROM userlogin WHERE (uid = '.$this->uid.') ';
+				$sql = 'SELECT username FROM users WHERE (uid = '.$this->uid.') ';
 				//echo $sql;
 				$rs = $this->conn->query($sql);
 				if($r = $rs->fetch_object()){
@@ -823,7 +791,7 @@ class ProfileManager extends Manager{
 
 	public function getUserName($uid){
 		$un = '';
-		$sql = 'SELECT username FROM userlogin WHERE uid = '.$uid.' ';
+		$sql = 'SELECT username FROM users WHERE uid = '.$uid.' ';
 		//echo $sql;
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -1004,12 +972,12 @@ class ProfileManager extends Manager{
 	public function getUid($un){
 		$uid = '';
 		$un = $this->cleanInStr($un);
-		$sql = 'SELECT u.uid FROM users u INNER JOIN userlogin l ON u.uid = l.uid WHERE l.username = "'.$un.'" OR u.email = "'.$un.'" ';
+		$sql = 'SELECT uid FROM users WHERE username = "'.$un.'" OR email = "'.$un.'" ';
 		//echo $sql;
-		$result = $this->conn->query($sql);
-		if($row = $result->fetch_object()){
-			$uid = $row->uid;
-			$result->free();
+		$rs = $this->conn->query($sql);
+		if($r = $rs->fetch_object()){
+			$uid = $r->uid;
+			$rs->free();
 		}
 		return $uid;
 	}
