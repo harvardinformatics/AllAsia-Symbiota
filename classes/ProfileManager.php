@@ -58,7 +58,7 @@ class ProfileManager extends Manager{
 				if($this->rememberMe) $this->setTokenCookie();
 				if(!isset($GLOBALS['SYMB_UID']) || !$GLOBALS['SYMB_UID']){
 					$this->resetConnection();
-					$sql = 'UPDATE userlogin SET lastlogindate = NOW() WHERE (uid = '.$this->uid.')';
+					$sql = 'UPDATE users SET lastLoginDate = NOW() WHERE (uid = '.$this->uid.')';
 					$this->conn->query($sql);
 				}
 			}
@@ -147,11 +147,11 @@ class ProfileManager extends Manager{
 		if($newPwd){
 			$this->resetConnection();
 			if($isSelf){
-				$sqlTest = 'SELECT ul.uid FROM userlogin ul WHERE (ul.uid = '.$this->uid.') AND (ul.password = PASSWORD("'.$this->cleanInStr($oldPwd).'"))';
+				$sqlTest = 'SELECT uid FROM users WHERE (uid = '.$this->uid.') AND (password = PASSWORD("'.$this->cleanInStr($oldPwd).'"))';
 				$rsTest = $this->conn->query($sqlTest);
 				if(!$rsTest->num_rows) return false;
 			}
-			$sql = 'UPDATE userlogin ul SET ul.password = PASSWORD("'.$this->cleanInStr($newPwd).'") WHERE (uid = '.$this->uid.')';
+			$sql = 'UPDATE users SET password = PASSWORD("'.$this->cleanInStr($newPwd).'") WHERE (uid = '.$this->uid.')';
 			$successCnt = $this->conn->query($sql);
 			if($successCnt > 0) $success = true;
 		}
@@ -189,7 +189,7 @@ class ProfileManager extends Manager{
 				$status = $this->sendEmail($email, $subject, $body, $from);
 				if($status){
 					$this->resetConnection();
-					$sql = 'UPDATE userlogin SET password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (uid = '.$uid.')';
+					$sql = 'UPDATE users SET password = PASSWORD("'.$this->cleanInStr($newPassword).'") WHERE (uid = '.$uid.')';
 					if($this->conn->query($sql)) $status = $email;
 					else{
 						$status = false;
@@ -411,7 +411,7 @@ class ProfileManager extends Manager{
 
 	public function checkLogin($email){
 		if(!$this->validateEmailAddress($email)) return false;
-		//Check to see if userlogin already exists
+		//Check to see if user login already exists
 		$status = true;
 	   	$sql = 'SELECT email, username FROM users WHERE (username = "'.$this->userName.'" OR email = "'.$email.'" )';
 		$rs = $this->conn->query($sql);

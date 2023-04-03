@@ -1834,10 +1834,9 @@ class OccurrenceEditorManager {
 	public function getIdentificationRanking(){
 		//Get Identification ranking
 		$retArr = array();
-		$sql = 'SELECT v.ovsid, v.ranking, v.notes, l.username '.
-			'FROM omoccurverification v LEFT JOIN userlogin l ON v.uid = l.uid '.
+		$sql = 'SELECT v.ovsid, v.ranking, v.notes, u.username '.
+			'FROM omoccurverification v LEFT JOIN users u ON v.uid = u.uid '.
 			'WHERE v.category = "identification" AND v.occid = '.$this->occid;
-		//echo "<div>".$sql."</div>";
 		$rs = $this->conn->query($sql);
 		//There can only be one identification ranking per specimen
 		if($r = $rs->fetch_object()){

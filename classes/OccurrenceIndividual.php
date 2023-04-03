@@ -68,16 +68,8 @@ class OccurrenceIndividual extends Manager{
 	public function setGuid($guid){
 		$guid = $this->cleanInStr($guid);
 		if(!$this->occid){
-			$sql = 'SELECT occid FROM guidoccurrences WHERE guid = "'.$guid.'"';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$this->occid = $r->occid;
-			}
-			$rs->free();
-		}
-		if(!$this->occid){
 			//Check occurrence recordID
-			$sql = 'SELECT occid FROM omoccurrences WHERE occurrenceid = "'.$guid.'"';
+			$sql = 'SELECT occid FROM omoccurrences WHERE (occurrenceid = "'.$guid.'") OR (recordID = "'.$guid.'") ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->occid = $r->occid;
@@ -86,7 +78,7 @@ class OccurrenceIndividual extends Manager{
 		}
 		if(!$this->occid){
 			//Check image recordID
-			$sql = 'SELECT i.occid FROM guidimages g INNER JOIN images i ON g.imgid = i.imgid WHERE g.guid = "'.$guid.'" AND i.occid IS NOT NULL ';
+			$sql = 'SELECT occid FROM images WHERE recordID = "'.$guid.'"';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->occid = $r->occid;
@@ -95,7 +87,7 @@ class OccurrenceIndividual extends Manager{
 		}
 		if(!$this->occid){
 			//Check identification recordID
-			$sql = 'SELECT d.occid FROM guidoccurdeterminations g INNER JOIN omoccurdeterminations d ON g.detid = d.detid WHERE g.guid = "'.$guid.'" ';
+			$sql = 'SELECT occid FROM omoccurdeterminations WHERE recordID = "'.$guid.'" ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->occid = $r->occid;
@@ -636,7 +628,7 @@ class OccurrenceIndividual extends Manager{
 	public function getCommentArr($isEditor){
 		$retArr = array();
 		if($this->occid){
-			$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp FROM omoccurcomments c INNER JOIN userlogin u ON c.uid = u.uid WHERE (c.occid = '.$this->occid.') ';
+			$sql = 'SELECT c.comid, c.comment, u.username, c.reviewstatus, c.initialtimestamp FROM omoccurcomments c INNER JOIN users u ON c.uid = u.uid WHERE (c.occid = '.$this->occid.') ';
 			if(!$isEditor) $sql .= 'AND c.reviewstatus IN(1,3) ';
 			$sql .= 'ORDER BY c.initialtimestamp';
 			//echo $sql.'<br/><br/>';
