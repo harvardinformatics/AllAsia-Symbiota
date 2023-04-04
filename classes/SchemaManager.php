@@ -91,8 +91,8 @@ class SchemaManager extends Manager{
 								$this->logOrEcho('Success!', 1);
 								if(isset($this->warningArr['updated'])){
 									$this->logOrEcho('Following adjustments applied:', 2);
-									foreach($this->warningArr['updated'] as $adjustStr){
-										$this->logOrEcho($adjustStr, 3);
+									foreach($this->warningArr['updated'] as $colName => $adjustStr){
+										$this->logOrEcho($colName . ': ' . $adjustStr, 3);
 									}
 									unset($this->warningArr['updated']);
 								}
@@ -108,14 +108,16 @@ class SchemaManager extends Manager{
 											$failedSql .= $frag;
 										}
 									}
+									$failedSql = trim($failedSql, ', ') . ';';
 									fwrite($this->amendmentFH, '# '.$targetTable."\n");
-									fwrite($this->amendmentFH, $failedSql."\n\n");
+									fwrite($this->amendmentFH, $failedSql . "\n\n");
 								}
 							}
 							else{
+								$sql = trim($sql,', ') . ';';
 								if(!$this->amendmentFH) $this->amendmentFH = fopen($this->amendmentPath, 'w');
 								fwrite($this->amendmentFH, '# ERROR: '.$this->conn->error."\n\n");
-								fwrite($this->amendmentFH, $sql."\n\n");
+								fwrite($this->amendmentFH, $sql . "\n\n");
 								$this->logOrEcho('ERROR: ' . $this->conn->error, 2);
 								$this->logOrEcho('SQL: ' . $sql, 2);
 								//break;
