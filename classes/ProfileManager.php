@@ -41,8 +41,8 @@ class ProfileManager extends Manager{
 		unset($_SESSION['userparams']);
 		if($this->userName){
 			if(!$this->authSql){
-				$this->authSql = 'SELECT uid, firstname, lastname FROM users WHERE ((username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
-				if($pwdStr) $this->authSql .= 'AND (l.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
+				$this->authSql = 'SELECT uid, firstname, lastname FROM users u WHERE ((username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
+				if($pwdStr) $this->authSql .= 'AND (u.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
 			$result = $this->conn->query($this->authSql);
 			if($row = $result->fetch_object()){
@@ -1001,4 +1001,3 @@ class ProfileManager extends Manager{
 		return $statusStr;
 	}
 }
-?>
