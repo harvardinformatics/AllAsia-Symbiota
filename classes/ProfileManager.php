@@ -44,23 +44,25 @@ class ProfileManager extends Manager{
 				$this->authSql = 'SELECT uid, firstname, lastname FROM users WHERE ((username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
 				if($pwdStr) $this->authSql .= 'AND (l.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
-			$result = $this->conn->query($this->authSql);
-			if($row = $result->fetch_object()){
-				$this->uid = $row->uid;
-				$this->displayName = $row->firstname;
-				if(strlen($this->displayName) > 15) $this->displayName = $this->userName;
-				if(strlen($this->displayName) > 15) $this->displayName = substr($this->displayName,0,10).'...';
+			if($rs = $this->conn->query($this->authSql)){
+				if($r = $rs->fetch_object()){
+					$this->uid = $r->uid;
+					$this->displayName = $r->firstname;
+					if(strlen($this->displayName) > 15) $this->displayName = $this->userName;
+					if(strlen($this->displayName) > 15) $this->displayName = substr($this->displayName,0,10).'...';
 
-				$authStatus = true;
-				$this->reset();
-				$this->setUserRights();
-				$this->setUserParams();
-				if($this->rememberMe) $this->setTokenCookie();
-				if(!isset($GLOBALS['SYMB_UID']) || !$GLOBALS['SYMB_UID']){
-					$this->resetConnection();
-					$sql = 'UPDATE users SET lastLoginDate = NOW() WHERE (uid = '.$this->uid.')';
-					$this->conn->query($sql);
+					$authStatus = true;
+					$this->reset();
+					$this->setUserRights();
+					$this->setUserParams();
+					if($this->rememberMe) $this->setTokenCookie();
+					if(!isset($GLOBALS['SYMB_UID']) || !$GLOBALS['SYMB_UID']){
+						$this->resetConnection();
+						$sql = 'UPDATE users SET lastLoginDate = NOW() WHERE (uid = '.$this->uid.')';
+						$this->conn->query($sql);
+					}
 				}
+				$rs->free();
 			}
 		}
 		return $authStatus;

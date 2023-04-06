@@ -29,26 +29,20 @@ class SchemaManager extends Manager{
 		if($this->targetSchema){
 			set_time_limit(7200);
 			$basePath = $GLOBALS['SERVER_ROOT'] . '/content/logs/install/';
+			$t = time();
 			if($this->targetSchema == 'baseInstall'){
-				$this->logPath = $basePath . 'baseSchema_'.date('Y-m-d').'.log';
-				$this->amendmentPath = $basePath . 'baseSchema_' . time() . '_failed.sql';
+				$this->logPath = $basePath . 'baseSchema_' . $t . '.log';
+				$this->amendmentPath = $basePath . 'baseSchema_' . $t . '_failed.sql';
 			}
 			else{
-				$this->logPath = $basePath . 'db_schema_patch-' . $this->targetSchema. '_'.date('Y-m-d').'.log';
-				$this->amendmentPath = $basePath . 'db_schema_patch-' . $this->targetSchema. '_' . time() . '_failed.sql';
+				$this->logPath = $basePath . 'db_schema_patch-' . $this->targetSchema. '_' . $t . '.log';
+				$this->amendmentPath = $basePath . 'db_schema_patch-' . $this->targetSchema. '_' . $t . '_failed.sql';
 			}
 			$this->setVerboseMode(3);
 			$this->setLogFH($this->logPath);
 			if($this->setDatabaseConnection()){
 				$this->logOrEcho('Connection to database established ('.date('Y-m-d H:i:s').')');
 				if($sqlArr = $this->readSchemaFile()){
-					/*
-					foreach($sqlArr as $arr){
-						print_r($arr);
-						echo '<br>';
-					}
-					return false;
-					*/
 					$this->logOrEcho('DB schema file analyzed: '. count($sqlArr) . ' statements to apply');
 					$cnt = 0;
 					foreach($sqlArr as $lineCnt => $stmtArr){
