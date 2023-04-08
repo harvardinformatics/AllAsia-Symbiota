@@ -353,7 +353,6 @@ class DwcArchiverOccurrence extends Manager{
 			$sql = 'SELECT DISTINCT '.trim($sqlFrag,', ');
 		}
 		$sql .= ' FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.
-			'INNER JOIN guidoccurrences g ON o.occid = g.occid '.
 			'LEFT JOIN taxa t ON o.tidinterpreted = t.TID ';
 		if($this->includePaleo) $sql .= 'LEFT JOIN omoccurpaleo paleo ON o.occid = paleo.occid ';
 		//if($fullSql) $sql .= ' ORDER BY c.collid ';
@@ -463,7 +462,7 @@ class DwcArchiverOccurrence extends Manager{
 			if($relOccidArr){
 				$this->setServerDomain();
 				//Replace GUID identifiers with occurrenceID values
-				$sql = 'SELECT occid, occurrenceid FROM omoccurrences WHERE occid IN('.implode(',',array_keys($relOccidArr)).') AND occurrenceid IS NOT NULL';
+				$sql = 'SELECT occid, occurrenceid, recordID FROM omoccurrences WHERE occid IN('.implode(',',array_keys($relOccidArr)).')';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					foreach($relOccidArr[$r->occid] as $k => $targetAssocID){
@@ -471,22 +470,13 @@ class DwcArchiverOccurrence extends Manager{
 							$url = $r->occurrenceid;
 							if(substr($url, 0, 4) != 'http') $url = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->occurrenceid;
 							$assocArr[$targetAssocID]['resourceurl'] = $url;
-							unset($relOccidArr[$r->occid][$k]);
+						}
+						elseif($r->recordID){
+							$assocArr[$targetAssocID]['resourceurl'] = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->guid;
 						}
 					}
 				}
 				$rs->free();
-				if($relOccidArr){
-					//Get recordID/occurrenceID guids for specimens live managed records
-					$sql = 'SELECT occid, guid FROM guidoccurrences WHERE occid IN('.implode(',',array_keys($relOccidArr)).')';
-					$rs = $this->conn->query($sql);
-					while($r = $rs->fetch_object()){
-						foreach($relOccidArr[$r->occid] as $targetAssocID){
-							$assocArr[$targetAssocID]['resourceurl'] = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->guid;
-						}
-					}
-					$rs->free();
-				}
 			}
 			//Create output strings
 			$retStr = '';

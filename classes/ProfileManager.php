@@ -41,7 +41,7 @@ class ProfileManager extends Manager{
 		unset($_SESSION['userparams']);
 		if($this->userName){
 			if(!$this->authSql){
-				$this->authSql = 'SELECT uid, firstname, lastname FROM users u WHERE ((username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
+				$this->authSql = 'SELECT u.uid, u.firstname, u.lastname FROM users u WHERE ((u.username = "'.$this->userName.'") OR (u.email = "'.$this->userName.'")) ';
 				if($pwdStr) $this->authSql .= 'AND (u.password = PASSWORD("'.$this->cleanInStr($pwdStr).'")) ';
 			}
 			if($rs = $this->conn->query($this->authSql)){
@@ -63,6 +63,9 @@ class ProfileManager extends Manager{
 					}
 				}
 				$rs->free();
+			}
+			else{
+				$this->errorMessage = 'ERROR: contact system administrator (fatal SQL statement) ';
 			}
 		}
 		return $authStatus;
@@ -858,11 +861,11 @@ class ProfileManager extends Manager{
 
 	public function generateAccessPacket(){
 		$pkArr = Array();
-		$sql = 'SELECT ul.role, ul.tablename, ul.tablepk, c.CollectionName, c.CollectionCode, c.InstitutionCode, fc.`Name`, fp.projname '.
-			'FROM userroles AS ul LEFT JOIN omcollections AS c ON ul.tablepk = c.CollID '.
-			'LEFT JOIN fmchecklists AS fc ON ul.tablepk = fc.CLID '.
-			'LEFT JOIN fmprojects AS fp ON ul.tablepk = fp.pid '.
-			'WHERE ul.uid = '.$this->uid.' ';
+		$sql = 'SELECT r.role, r.tablename, r.tablepk, c.CollectionName, c.CollectionCode, c.InstitutionCode, fc.`Name`, p.projname '.
+			'FROM userroles r LEFT JOIN omcollections c ON r.tablepk = c.CollID '.
+			'LEFT JOIN fmchecklists fc ON r.tablepk = fc.CLID '.
+			'LEFT JOIN fmprojects p ON r.tablepk = p.pid '.
+			'WHERE r.uid = '.$this->uid.' ';
 		//echo $sql;
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
