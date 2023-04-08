@@ -293,7 +293,7 @@ class DwcArchiverOccurrence extends Manager{
 		$this->occurDefArr['terms']['collID'] = 'https://symbiota.org/terms/collID';
 		$this->occurDefArr['fields']['collID'] = 'c.collID';
 		$this->occurDefArr['terms']['recordID'] = 'https://symbiota.org/terms/recordID';
-		$this->occurDefArr['fields']['recordID'] = 'g.guid AS recordID';
+		$this->occurDefArr['fields']['recordID'] = 'o.recordID';
 		$this->occurDefArr['terms']['references'] = 'http://purl.org/dc/terms/references';
 		$this->occurDefArr['fields']['references'] = '';
 		if($this->schemaType == 'pensoft'){
@@ -462,17 +462,18 @@ class DwcArchiverOccurrence extends Manager{
 			if($relOccidArr){
 				$this->setServerDomain();
 				//Replace GUID identifiers with occurrenceID values
-				$sql = 'SELECT occid, occurrenceid, recordID FROM omoccurrences WHERE occid IN('.implode(',',array_keys($relOccidArr)).')';
+				$sql = 'SELECT occid, occurrenceID, recordID FROM omoccurrences WHERE occid IN('.implode(',',array_keys($relOccidArr)).')';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
 					foreach($relOccidArr[$r->occid] as $k => $targetAssocID){
-						if($r->occurrenceid){
-							$url = $r->occurrenceid;
-							if(substr($url, 0, 4) != 'http') $url = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->occurrenceid;
-							$assocArr[$targetAssocID]['resourceurl'] = $url;
+						if($r->occurrenceID){
+							$assocArr[$targetAssocID]['resourceurl'] = $r->occurrenceID;
+							if(substr($r->occurrenceID, 0, 4) != 'http'){
+								$assocArr[$targetAssocID]['resourceurl'] = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->occurrenceID;
+							}
 						}
 						elseif($r->recordID){
-							$assocArr[$targetAssocID]['resourceurl'] = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->guid;
+							$assocArr[$targetAssocID]['resourceurl'] = $this->serverDomain.$GLOBALS['CLIENT_ROOT'].'/collections/individual/index.php?guid='.$r->recordID;
 						}
 					}
 				}
