@@ -114,37 +114,39 @@ class ProfileManager extends Manager{
 	}
 
 	public function updateProfile($person){
-		$success = false;
+		$status = false;
 		if($person){
 			$this->resetConnection();
-			$sql = 'UPDATE users SET '.
-				'firstname = '.($person->getFirstName()?'"'.$this->cleanInStr($person->getFirstName()).'"':'NULL').','.
-				'lastname = '.($person->getLastName()?'"'.$this->cleanInStr($person->getLastName()).'"':'NULLL').','.
-				'title = '.($person->getTitle()?'"'.$this->cleanInStr($person->getTitle()).'"':'NULL').','.
-				'institution = '.($person->getInstitution()?'"'.$this->cleanInStr($person->getInstitution()).'"':'NULL').','.
-				'department = '.($person->getDepartment()?'"'.$this->cleanInStr($person->getDepartment()).'"':'NULL').','.
-				'city = '.($person->getCity()?'"'.$this->cleanInStr($person->getCity()).'"':'NULL').','.
-				'state = '.($person->getState()?'"'.$this->cleanInStr($person->getState()).'"':'NULL').','.
-				'zip = '.($person->getZip()?'"'.$this->cleanInStr($person->getZip()).'"':'NULL').','.
-				'country = '.($person->getCountry()?'"'.$this->cleanInStr($person->getCountry()).'"':'NULL').','.
-				'phone = '.($person->getPhone()?'"'.$this->cleanInStr($person->getPhone()).'"':'NULL').','.
-				'email = '.($person->getEmail()?'"'.$this->cleanInStr($person->getEmail()).'"':'NULL').','.
-				'guid = '.($person->getGUID()?'"'.$this->cleanInStr($person->getGUID()).'"':'NULL').' '.
-				'WHERE (uid = '.$person->getUid().')';
-			$success = $this->conn->query($sql);
+			$sql = 'UPDATE users SET firstname = ?, lastname = ?, title = ?, institution = ?, department = ?, city = ?, state = ?, zip = ?, country = ?, phone = ?, email = ?, guid = ? WHERE (uid = ?)';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param('ssssssssssssi', $person->getFirstName(), $person->getLastName(), $person->getTitle(), $person->getInstitution(), $person->getDepartment(),
+					$person->getCity(), $person->getState(), $person->getZip(), $person->getCountry(), $person->getPhone(), $person->getEmail(), $person->getGUID(), $person->getUid());
+				$stmt->execute();
+				if($stmt->affected_rows || !$stmt->error) $status = true;
+				else $this->errorMessage = 'ERROR updating user profile: '.$stmt->error;
+				$stmt->close();
+			}
+			else $this->errorMessage = 'ERROR preparing statement user profile update: '.$this->conn->error;
 		}
-		return $success;
+		return $status;
 	}
 
 	public function deleteProfile($reset = 0){
-		$success = false;
+		$status = false;
 		if($this->uid){
 			$this->resetConnection();
-			$sql = 'DELETE FROM users WHERE (uid = '.$this->uid.')';
-			$success = $this->conn->query($sql);
+			$sql = 'DELETE FROM users WHERE (uid = ?)';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param('i', $this->uid);
+				$stmt->execute();
+				if($stmt->affected_rows || !$stmt->error) $status = true;
+				else $this->errorMessage = 'ERROR deleting user profile: '.$stmt->error;
+				$stmt->close();
+			}
+			else $this->errorMessage = 'ERROR preparing statement for user profile delete: '.$this->conn->error;
 		}
 		if($reset) $this->reset();
-		return $success;
+		return $status;
 	}
 
 	public function changePassword ($newPwd, $oldPwd = "", $isSelf = 0) {
@@ -222,19 +224,11 @@ class ProfileManager extends Manager{
 	public function register($postArr){
 		$status = false;
 
-		$firstName = $postArr['firstname'];
-		$lastName = $postArr['lastname'];
-		if($postArr['institution'] && !trim(strpos($postArr['institution'],' ')) && preg_match('/[a-z]+[A-Z]+[a-z]+[A-Z]+/',$postArr['institution'])){
-			if($postArr['title'] && !trim(strpos($postArr['title'],' ')) && preg_match('/[a-z]+[A-Z]+[a-z]+[A-Z]+/',$postArr['title'])){
-				return false;
-			}
-		}
-
 		$person = new Person();
 		$person->setPassword($postArr['pwd']);
 		$person->setUserName($this->userName);
-		$person->setFirstName($firstName);
-		$person->setLastName($lastName);
+		$person->setFirstName($postArr['firstname']);
+		$person->setLastName($postArr['lastname']);
 		$person->setTitle($postArr['title']);
 		$person->setInstitution($postArr['institution']);
 		$person->setCity($postArr['city']);
@@ -244,65 +238,26 @@ class ProfileManager extends Manager{
 		$person->setEmail($postArr['emailaddr']);
 		$person->setGUID($postArr['guid']);
 
-		//Add to users table
-		$fields = 'INSERT INTO users (';
-		$values = 'VALUES (';
-		$fields .= 'username ';
-		$values .= '"'.$this->cleanInStr($person->getUserName()).'"';
-		$fields .= ', password ';
-		$values .= '"'.$this->cleanInStr($person->getPassword()).'"';
-		$fields .= ', firstname ';
-		$values .= '"'.$this->cleanInStr($person->getFirstName()).'"';
-		$fields .= ', lastname';
-		$values .= ', "'.$this->cleanInStr($person->getLastName()).'"';
-		if($person->getTitle()){
-			$fields .= ', title';
-			$values .= ', "'.$this->cleanInStr($person->getTitle()).'"';
-		}
-		if($person->getInstitution()){
-			$fields .= ', institution';
-			$values .= ', "'.$this->cleanInStr($person->getInstitution()).'"';
-		}
-		if($person->getDepartment()){
-			$fields .= ', department';
-			$values .= ', "'.$this->cleanInStr($person->getDepartment()).'"';
-		}
-		if($person->getCity()){
-			$fields .= ', city';
-			$values .= ', "'.$this->cleanInStr($person->getCity()).'"';
-		}
-		$fields .= ', state';
-		$values .= ', "'.$this->cleanInStr($person->getState()).'"';
-		$fields .= ', country';
-		$values .= ', "'.$this->cleanInStr($person->getCountry()).'"';
-		if($person->getZip()){
-			$fields .= ', zip';
-			$values .= ', "'.$this->cleanInStr($person->getZip()).'"';
-		}
-		if($person->getPhone()){
-			$fields .= ', phone';
-			$values .= ', "'.$this->cleanInStr($person->getPhone()).'"';
-		}
-		if($person->getEmail()){
-			$fields .= ', email';
-			$values .= ', "'.$this->cleanInStr($person->getEmail()).'"';
-		}
-		if($person->getGUID()){
-			$fields .= ', guid';
-			$values .= ', "'.$person->getGUID().'"';
-		}
-
-		$sql = $fields.') '.$values.')';
+		$sql = 'INSERT INTO users(username, password, firstName, lastName, title, institution, department, city, state, zip, phone, email, guid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$this->resetConnection();
-		if($this->conn->query($sql)){
-			$person->setUid($this->conn->insert_id);
-			$this->uid = $person->getUid();
-			$this->userName = $person->getUserName();
-			$this->displayName = $person->getFirstName();
-			$this->reset();
-			$this->authenticate();
-			$status = true;
+		if($stmt = $this->conn->prepare($sql)) {
+			$stmt->bind_param('sssssssssssss', $person->getUserName(), $person->getPassword(), $person->getFirstName(), $person->getLastName(), $person->getTitle(), $person->getInstitution(),
+				$person->getDepartment(), $person->getCity(), $person->getState(), $person->getZip(), $person->getPhone(), $person->getEmail(), $person->getGUID());
+			$stmt->execute();
+			if($stmt->affected_rows){
+				$person->setUid($this->conn->insert_id);
+				$this->uid = $person->getUid();
+				$this->userName = $person->getUserName();
+				$this->displayName = $person->getFirstName();
+				$this->reset();
+				$this->authenticate();
+				$status = true;
+			}
+			elseif($stmt->error) $this->errorMessage = 'ERROR inserting new user: '.$stmt->error;
+			$stmt->close();
 		}
+		else $this->errorMessage = 'ERROR inserting new user: '.$this->conn->error;
+
 		return $status;
 	}
 
@@ -395,19 +350,25 @@ class ProfileManager extends Manager{
 				}
 				if($status){
 					//Change login
-					$sql = 'UPDATE users SET username = "'.$newLogin.'" WHERE (uid = '.$this->uid.') AND (username = "'.$this->userName.'")';
+					$sql = 'UPDATE users SET username = ? WHERE (uid = ?) AND (username = ?)';
 					//echo $sql;
 					$this->resetConnection();
-					if($this->conn->query($sql)){
-						if($isSelf){
-							$this->userName = $newLogin;
-							$this->authenticate();
+					if($stmt = $this->conn->prepare($sql)){
+						$stmt->bind_param('sis', $newLogin, $this->uid, $this->userName);
+						$stmt->execute();
+						if($stmt->affected_rows || !$stmt->error){
+							if($isSelf){
+								$this->userName = $newLogin;
+								$this->authenticate();
+							}
 						}
+						else{
+							$this->errorMessage = 'ERROR updating login name: '.$stmt->error;
+							$status = false;
+						}
+						$stmt->close();
 					}
-					else{
-						$this->errorStr = 'ERROR saving new login: '.$this->conn->error;
-						$status = false;
-					}
+					else $this->errorMessage = 'ERROR preparing statement for updating login name: '.$this->conn->error;
 				}
 			}
 		}
@@ -510,39 +471,38 @@ class ProfileManager extends Manager{
 		return $statusStr;
 	}
 
-	public function addUserTaxonomy($taxon,$editorStatus,$geographicScope,$notes){
+	public function addUserTaxonomy($taxon, $editorStatus, $geographicScope, $notes){
 		$statusStr = 'SUCCESS adding taxonomic relationship';
 
 		$tid = 0;
-		$taxon = $this->cleanInStr($taxon);
-		$editorStatus = $this->cleanInStr($editorStatus);
-		$geographicScope = $this->cleanInStr($geographicScope);
-		$notes = $this->cleanInStr($notes);
-		$modDate = date('Y-m-d H:i:s');
 		//Get tid for taxon
-		$sql1 = 'SELECT tid FROM taxa WHERE sciname = "'.$taxon.'"';
-		$rs1 = $this->conn->query($sql1);
-		while($r1 = $rs1->fetch_object()){
-			$tid = $r1->tid;
+		$sql1 = 'SELECT tid FROM taxa WHERE sciname = ?';
+		if($stmt1 = $this->conn->prepare($sql1)){
+			$stmt1->bind_param('s', $taxon);
+			$stmt1->execute();
+			$stmt1->bind_result($tid);
+			$stmt1->close();
 		}
-		$rs1->close();
 		if($tid){
-			$sql2 = 'INSERT INTO usertaxonomy(uid, tid, taxauthid, editorstatus, geographicScope, notes, modifiedUid, modifiedtimestamp) '.
-				'VALUES('.$this->uid.','.$tid.',1,"'.$editorStatus.'","'.$geographicScope.'","'.$notes.'",'.$GLOBALS['SYMB_UID'].',"'.$modDate.'") ';
-			//echo $sql;
+			$sql = 'INSERT INTO usertaxonomy(uid, tid, taxauthid, editorstatus, geographicScope, notes, modifiedUid, modifiedtimestamp) VALUES(?,?,?,?,?,?,?,?)';
 			$this->resetConnection();
-			if($this->conn->query($sql2)){
-				if($this->uid == $GLOBALS['SYMB_UID']){
-					$this->userName = $GLOBALS['USERNAME'];
-					$this->authenticate();
+			if($stmt = $this->conn->prepare($sql)) {
+				$taxAuthID = 1;
+				$symbUid = $GLOBALS['SYMB_UID'];
+				$modDate = date('Y-m-d H:i:s');
+
+				$stmt->bind_param('iiisssis', $this->uid, $tid, $taxAuthID, $editorStatus, $geographicScope, $notes, $symbUid, $modDate);
+				$stmt->execute();
+				if($stmt->affected_rows || !$stmt->error){
+					if($this->uid == $GLOBALS['SYMB_UID']){
+						$this->userName = $GLOBALS['USERNAME'];
+						$this->authenticate();
+					}
 				}
+				elseif($stmt->error) $this->errorMessage = 'ERROR adding taxonomic relationship: '.$stmt->error;
+				$stmt->close();
 			}
-			else{
-				$statusStr = 'ERROR adding taxonomic relationship: '.$this->conn->error;
-			}
-		}
-		else{
-			$statusStr = 'ERROR adding taxonomic relationship: unable to obtain tid for '.$taxon;
+			else $this->errorMessage = 'ERROR preparing statement for adding taxonomic relationship: '.$this->conn->error;
 		}
 		return $statusStr;
 	}
@@ -976,13 +936,12 @@ class ProfileManager extends Manager{
 
 	public function getUid($un){
 		$uid = '';
-		$un = $this->cleanInStr($un);
-		$sql = 'SELECT uid FROM users WHERE username = "'.$un.'" OR email = "'.$un.'" ';
-		//echo $sql;
-		$rs = $this->conn->query($sql);
-		if($r = $rs->fetch_object()){
-			$uid = $r->uid;
-			$rs->free();
+		$sql = 'SELECT uid FROM users WHERE username = ? OR email = ? ';
+		if($stmt = $this->conn->prepare($sql)){
+			$stmt->bind_param('ss', $un, $un);
+			$stmt->execute();
+			$stmt->bind_result($uid);
+			$stmt->close();
 		}
 		return $uid;
 	}
