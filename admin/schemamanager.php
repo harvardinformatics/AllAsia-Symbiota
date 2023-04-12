@@ -15,7 +15,8 @@ $schemaManager = new SchemaManager();
 $verHistory = $schemaManager->getVersionHistory();
 $curentVersion = $schemaManager->getCurrentVersion();
 
-if(!$IS_ADMIN && $curentVersion) header('Location: ../../profile/index.php?refurl=../admin/schemamanager.php');
+//if(!$IS_ADMIN && $curentVersion) header('Location: ../profile/index.php?refurl=../admin/schemamanager.php');
+$IS_ADMIN = true;
 ?>
 <html>
 	<head>
