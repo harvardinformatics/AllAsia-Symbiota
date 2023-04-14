@@ -923,9 +923,10 @@ class ProfileManager extends Manager{
 		$cArr = array();
 		if(array_key_exists('CollAdmin',$USER_RIGHTS)) $cArr = $USER_RIGHTS['CollAdmin'];
 		if(array_key_exists('CollEditor',$USER_RIGHTS)) $cArr = array_merge($cArr,$USER_RIGHTS['CollEditor']);
-		if(!$cArr || !preg_match('/^[\d,]$/', $cArr)) return $retArr;
+		$collidStr = implode(',',$cArr);
+		if(!$collidStr || !preg_match('/^[\d,]+$/', $collidStr)) return $retArr;
 
-		$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, colltype FROM omcollections WHERE collid IN('.implode(',',$cArr).') ORDER BY collectionname';
+		$sql = 'SELECT collid, institutioncode, collectioncode, collectionname, colltype FROM omcollections WHERE collid IN('.$collidStr.') ORDER BY collectionname';
 		if($rs = $this->conn->query($sql)){
 			while($r = $rs->fetch_object()){
 				$retArr[$r->collid]['collectionname'] = $r->collectionname;

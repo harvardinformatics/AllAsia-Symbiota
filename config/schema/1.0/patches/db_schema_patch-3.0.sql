@@ -1157,7 +1157,7 @@ INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvI
 INSERT INTO ctcontrolvocabterm(cvID, term, resourceUrl, activeStatus) SELECT cvID, "sampleDesignation", "http://data.ggbn.org/schemas/ggbn/terms/sampleDesignation", 1 FROM ctcontrolvocab WHERE tableName = "ommaterialsampleextended" AND fieldName = "fieldName";
 
 
-$Rename for archive various deprecated tables 
+#Rename for archive various deprecated tables 
 ALTER TABLE `guidimages` 
   RENAME TO  `deprecated_guidimages` ;
 
