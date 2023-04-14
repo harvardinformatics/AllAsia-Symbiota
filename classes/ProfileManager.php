@@ -192,7 +192,7 @@ class ProfileManager extends Manager{
 		return $status;
 	}
 
-	public function deleteProfile($reset = 0){
+	public function deleteProfile(){
 		$status = false;
 		if($this->uid){
 			$this->resetConnection();
@@ -206,7 +206,7 @@ class ProfileManager extends Manager{
 			}
 			else $this->errorMessage = 'ERROR preparing statement for user profile delete: '.$this->conn->error;
 		}
-		if($reset) $this->reset();
+		if($status && $this->uid == $GLOBALS['SYMB_UID']) $this->reset();
 		return $status;
 	}
 
@@ -325,7 +325,7 @@ class ProfileManager extends Manager{
 				$this->uid = $stmt->insert_id;
 				$this->displayName = $firstName;
 				$this->reset();
-				$this->authenticate();
+				$this->authenticate($pwd);
 				$status = true;
 			}
 			elseif($stmt->error) $this->errorMessage = 'ERROR inserting new user: '.$stmt->error;
