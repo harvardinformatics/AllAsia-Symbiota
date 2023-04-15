@@ -360,7 +360,7 @@ class ChecklistVoucherAdmin extends Manager {
 				$taxa = $r->tid;
 			}
 		}
-		$sql = 'INSERT INTO fmvouchers(clid,tid,occid) VALUES ('.$this->clid.','.$taxa.','.$occid.')';
+		$sql = 'INSERT INTO fmvouchers(clTaxaid, occid) SELECT clTaxaID, '.$occid.' FROM fmchklsttaxalink WHERE (clid = '.$this->clid.' AND tid = '.$taxa.')';
 		if($this->conn->query($sql)){
 			return 1;
 		}
@@ -411,14 +411,16 @@ class ChecklistVoucherAdmin extends Manager {
 					$sql = 'INSERT INTO fmchklsttaxalink(clid,tid) VALUES('.$this->clid.','.$tid.')';
 					$tidsUsed[] = $tid;
 					//echo $sql;
-					if(!$this->conn->query($sql)){
-						trigger_error('Unable to add taxon; '.$this->conn->error,E_USER_WARNING);
+					if($this->conn->query($sql)){
+						if($linkVouchers){
+							$sql = 'INSERT INTO fmvouchers(clTaxaID, occid) VALUES ('.$this->conn->insert_id.','.$this->clid.')';
+							if(!$this->conn->query($sql)){
+								trigger_error('Unable to link taxon voucher; '.$this->conn->error,E_USER_WARNING);
+							}
+						}
 					}
-				}
-				if($linkVouchers){
-					$sql = 'INSERT INTO fmvouchers(clid,occid,tid) VALUES ('.$this->clid.','.$occid.','.$tid.')';
-					if(!$this->conn->query($sql)){
-						trigger_error('Unable to link taxon voucher; '.$this->conn->error,E_USER_WARNING);
+					else{
+						trigger_error('Unable to add taxon; '.$this->conn->error,E_USER_WARNING);
 					}
 				}
 			}
@@ -429,9 +431,8 @@ class ChecklistVoucherAdmin extends Manager {
 		$occidArr = $postArr['occid'];
 		$removeTidArr = array();
 		foreach($occidArr as $occid){
-			//Get checklist tid
-			$tidChecklist = 0;
-			$sql = 'SELECT tid FROM fmvouchers WHERE (clid = '.$this->clid.') AND (occid = '.$occid.')';
+			//Get checklist tids
+			$sql = 'SELECT c.tid FROM fmvouchers v INNER JOIN fmchklsttaxalink c ON v.cltaxaid = c.cltaxaid WHERE (c.clid = '.$this->clid.') AND (v.occid = '.$occid.')';
 			$rs = $this->conn->query($sql);
 			if($r = $rs->fetch_object()){
 				$removeTidArr[] = $r->tid;
@@ -448,7 +449,7 @@ class ChecklistVoucherAdmin extends Manager {
 			//Make sure target name is already linked to checklist
 			$sql2 = 'INSERT IGNORE INTO fmchklsttaxalink(tid, clid, morphospecies, familyoverride, habitat, abundance, notes, explicitExclude, source, internalnotes, dynamicProperties) '.
 				'SELECT '.$tidVoucher.' as tid, c.clid, c.morphospecies, c.familyoverride, c.habitat, c.abundance, c.notes, c.explicitExclude, c.source, c.internalnotes, c.dynamicProperties '.
-				'FROM fmchklsttaxalink c INNER JOIN fmvouchers v ON c.tid = v.tid AND c.clid = v.clid '.
+				'FROM fmchklsttaxalink c INNER JOIN fmvouchers v ON c.cltaxaid = v.cltaxaid '.
 				'WHERE (c.clid = '.$this->clid.') AND (v.occid = '.$occid.')';
 			$this->conn->query($sql2);
 			//Transfer voucher to new name
@@ -457,8 +458,8 @@ class ChecklistVoucherAdmin extends Manager {
 		}
 		if(array_key_exists('removetaxa',$postArr)){
 			//Remove taxa where all vouchers have been removed
-			$sql4 = 'DELETE c.* FROM fmchklsttaxalink c LEFT JOIN fmvouchers v ON c.clid = v.clid AND c.tid = v.tid '.
-				'WHERE (c.clid = '.$this->clid.') AND (c.tid IN('.implode(',', $removeTidArr).')) AND (v.clid IS NULL)';
+			$sql4 = 'DELETE c.* FROM fmchklsttaxalink c LEFT JOIN fmvouchers v ON c.cltaxaid = v.cltaxaid '.
+				'WHERE (c.clid = '.$this->clid.') AND (c.tid IN('.implode(',', $removeTidArr).')) AND (v.cltaxaid IS NULL)';
 			$this->conn->query($sql4);
 		}
 	}
@@ -466,7 +467,7 @@ class ChecklistVoucherAdmin extends Manager {
 	public function vouchersExist(){
 		$bool = false;
 		if($this->clid){
-			$sql = 'SELECT tid FROM fmvouchers WHERE (clid = '.$this->clid.') LIMIT 1';
+			$sql = 'SELECT c.tid FROM fmvouchers v INNER JOIN fmchklsttaxalink c ON v.cltaxaid = c.cltaxaid WHERE (c.clid = '.$this->clid.') LIMIT 1';
 			$rs = $this->conn->query($sql);
 			if($rs->num_rows) $bool = true;
 			$rs->free();
@@ -542,8 +543,11 @@ class ChecklistVoucherAdmin extends Manager {
 			}
 			if($retArr){
 				//Tag collection most likely to be target
-				$sql = 'SELECT o.collid, COUNT(v.occid) as cnt FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
-					'WHERE v.clid = '.$this->clid.' AND o.collid IN('.implode(',', array_keys($retArr)).') GROUP BY o.collid ORDER BY cnt DESC';
+				$sql = 'SELECT o.collid, COUNT(v.occid) as cnt
+					FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid
+					INNER JOIN fmchklsttaxalink c ON v.cltaxaid = c.cltaxaid
+					WHERE c.clid = '.$this->clid.' AND o.collid IN('.implode(',', array_keys($retArr)).')
+					GROUP BY o.collid ORDER BY cnt DESC';
 				if($rs = $this->conn->query($sql)){
 					if($r = $rs->fetch_object()) $retArr['target'] = $r->collid;
 					$rs->free();

@@ -186,7 +186,6 @@ ALTER TABLE `fmchklsttaxalink`
   CHANGE COLUMN `internalnotes` `internalNotes` VARCHAR(250) NULL DEFAULT NULL ,
   CHANGE COLUMN `InitialTimeStamp` `initialTimestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ;
 
-
 ALTER TABLE `fmvouchers` 
   DROP PRIMARY KEY;
 
@@ -198,6 +197,14 @@ ALTER TABLE `fmvouchers`
   ADD COLUMN `clTaxaID` INT UNSIGNED NULL AFTER `clVoucherID`,
   ADD INDEX `FK_fmvouchers_occ_idx` (`occid` ASC),
   ADD INDEX `FK_fmvouchers_tidclid_idx` (`clTaxaID` ASC);
+
+UPDATE fmvouchers v INNER JOIN fmchklsttaxalink c ON v.clid = c.clid AND v.tid = c.tid
+  SET v.clTaxaID = c.clTaxaID
+  WHERE v.clTaxaID IS NULL;
+
+ALTER TABLE `fmvouchers` 
+  CHANGE COLUMN `clTaxaID` `clTaxaID` INT(10) UNSIGNED NOT NULL ,
+  CHANGE COLUMN `CLID` `CLID` INT(10) UNSIGNED NULL ;
 
 ALTER TABLE `fmvouchers` 
   ADD CONSTRAINT `FK_fmvouchers_occ`  FOREIGN KEY (`occid`)  REFERENCES `omoccurrences` (`occid`)  ON DELETE CASCADE  ON UPDATE CASCADE,
