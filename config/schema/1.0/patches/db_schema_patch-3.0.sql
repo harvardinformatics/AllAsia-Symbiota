@@ -166,9 +166,11 @@ DROP TABLE IF EXISTS `fmchklsttaxastatus`;
 
 DROP TABLE IF EXISTS `fmcltaxacomments`;
 
+UPDATE fmchklsttaxalink SET morphospecies = '' WHERE morphospecies IS NULL;
+
 ALTER TABLE `fmchklsttaxalink` 
   ADD COLUMN `clTaxaID` INT UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
-  CHANGE COLUMN `morphospecies` `morphospecies` VARCHAR(45) NULL DEFAULT '' ,
+  CHANGE COLUMN `morphospecies` `morphospecies` VARCHAR(45) NOT NULL DEFAULT '' ,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`clTaxaID`),
   ADD UNIQUE INDEX `UQ_chklsttaxalink` (`CLID` ASC, `TID` ASC, `morphospecies` ASC);
@@ -190,15 +192,18 @@ ALTER TABLE `fmvouchers`
   DROP PRIMARY KEY;
 
 ALTER TABLE `fmvouchers` 
-  ADD COLUMN `clVoucherID` INT UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
-  ADD PRIMARY KEY (`clVoucherID`);
+  ADD COLUMN `voucherID` INT UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
+  ADD PRIMARY KEY (`voucherID`);
 
 ALTER TABLE `fmvouchers` 
-  ADD COLUMN `clTaxaID` INT UNSIGNED NULL AFTER `clVoucherID`,
+  ADD COLUMN `clTaxaID` INT UNSIGNED NULL AFTER `voucherID`,
   ADD INDEX `FK_fmvouchers_occ_idx` (`occid` ASC),
   ADD INDEX `FK_fmvouchers_tidclid_idx` (`clTaxaID` ASC);
 
-UPDATE fmvouchers v INNER JOIN fmchklsttaxalink c ON v.clid = c.clid AND v.tid = c.tid
+ALTER TABLE `fmvouchers` 
+  ADD UNIQUE INDEX `UQ_fmvouchers_clTaxaID_occid` (`clTaxaID` ASC, `occid` ASC);
+
+UPDATE IGNORE fmvouchers v INNER JOIN fmchklsttaxalink c ON v.clid = c.clid AND v.tid = c.tid
   SET v.clTaxaID = c.clTaxaID
   WHERE v.clTaxaID IS NULL;
 

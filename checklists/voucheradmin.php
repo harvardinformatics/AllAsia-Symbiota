@@ -26,8 +26,9 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 	elseif($action == 'DeleteVariables'){
 		$statusStr = $clManager->deleteQueryVariables();
 	}
-	elseif($action == 'Add Vouchers'){
-		$clManager->linkVouchers($_POST['occids']);
+	elseif($action == 'addVouchers'){
+		$statusStr = $clManager->linkVouchers($_POST['occids']);
+		$statusStr .= ' vouchers linked';
 	}
 	elseif($action == 'submitVouchers'){
 		$useCurrentTaxonomy = false;
@@ -37,7 +38,7 @@ if($IS_ADMIN || (array_key_exists("ClAdmin",$USER_RIGHTS) && in_array($clid,$USE
 		$clManager->linkTaxaVouchers($_POST['occids'], $useCurrentTaxonomy, $linkVouchers);
 	}
 	elseif($action == 'resolveconflicts'){
-		$clManager->batchAdjustChecklist($_POST);
+		$clManager->batchTransferConflicts($_POST['occid'], (array_key_exists('removetaxa',$_POST) ? true : false));
 	}
 }
 $clManager->setCollectionVariables();
@@ -60,7 +61,9 @@ $clMetaArr = $clManager->getClMetadata();
 	</script>
 	<script type="text/javascript" src="../js/symb/checklists.voucheradmin.js?ver=1"></script>
 	<style type="text/css">
-		li{margin:5px;}
+		li{ margin:5px; }
+		.family-div{ font-weight: bold; }
+		.taxa-block{ margin: 10px; text-decoration: italic; }
 	</style>
 </head>
 <body>
