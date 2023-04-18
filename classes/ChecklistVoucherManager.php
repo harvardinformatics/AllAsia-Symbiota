@@ -178,32 +178,32 @@ class ChecklistVoucherManager extends  ChecklistVoucherAdmin{
 	public function getVoucherData(){
 		$voucherData = Array();
 		if($this->tid && $this->clid){
-			$clTaxaID = $this->getClTaxaID($this->tid);
-			$sql = 'SELECT v.occid, CONCAT_WS(" ",o.recordedby,o.recordnumber) AS collector, o.catalognumber, o.sciname, o.eventdate, v.notes, v.editornotes
-				FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid
-				WHERE (v.clTaxaID = '.$clTaxaID.')';
-			$result = $this->conn->query($sql);
-			while($row = $result->fetch_object()){
-				$occId = $row->occid;
-				$voucherData[$occId]['collector'] = $row->collector;
-				$voucherData[$occId]['catalognumber'] = $row->catalognumber;
-				$voucherData[$occId]['sciname'] = $row->sciname;
-				$voucherData[$occId]['eventdate'] = $row->eventdate;
-				$voucherData[$occId]['notes'] = $row->notes;
-				$voucherData[$occId]['editornotes'] = $row->editornotes;
+			if($clTaxaID = $this->getClTaxaID($this->tid)){
+				$sql = 'SELECT v.voucherID, o.occid, CONCAT_WS(" ",o.recordedby,o.recordnumber) AS collector, o.catalognumber, o.sciname, o.eventdate, v.notes, v.editornotes
+					FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid
+					WHERE (v.clTaxaID = '.$clTaxaID.')';
+				$rs = $this->conn->query($sql);
+				while($r = $rs->fetch_object()){
+					$voucherData[$r->voucherID]['occid'] = $r->occid;
+					$voucherData[$r->voucherID]['collector'] = $r->collector;
+					$voucherData[$r->voucherID]['catalognumber'] = $r->catalognumber;
+					$voucherData[$r->voucherID]['sciname'] = $r->sciname;
+					$voucherData[$r->voucherID]['eventdate'] = $r->eventdate;
+					$voucherData[$r->voucherID]['notes'] = $r->notes;
+					$voucherData[$r->voucherID]['editornotes'] = $r->editornotes;
+				}
+				$rs->free();
 			}
-			$result->free();
 		}
 		return $voucherData;
 	}
 
-	public function editVoucher($occid, $notes, $editorNotes){
+	public function editVoucher($voucherID, $notes, $editorNotes){
 		$statusStr = '';
-		if($this->tid && $this->clid && is_numeric($occid)){
-			$clTaxaID = $this->getClTaxaID($this->tid);
-			$sql = 'UPDATE fmvouchers SET notes = '.($notes?'"'.$this->cleanInStr($notes).'"':'NULL').
-				',editornotes = '.($editorNotes?'"'.$this->cleanInStr($editorNotes).'"':'NULL').
-				' WHERE (occid = '.$occid.') AND (clTaxaID = '.$clTaxaID.')';
+		if(is_numeric($voucherID)){
+			if(!$notes) $notes = null;
+			if(!$editorNotes) $editorNotes = null;
+			$sql = 'UPDATE fmvouchers SET notes = ?, editornotes = ? WHERE (voucherID = ?)';
 			if(!$this->conn->query($sql)){
 				$statusStr = 'ERROR editing voucher: '.$this->conn->error;
 			}
@@ -212,17 +212,17 @@ class ChecklistVoucherManager extends  ChecklistVoucherAdmin{
 	}
 
 	public function addVoucher($vOccId, $vNotes, $vEditNotes){
-		$vNotes = $this->cleanInStr($vNotes);
-		$vEditNotes = $this->cleanInStr($vEditNotes);
+		$status = false;
 		if(is_numeric($vOccId) && $this->clid){
 			$status = $this->addVoucherRecord($vOccId, $vNotes, $vEditNotes);
 			if(!$status){
 				$tid = $this->getTidInterpreted($vOccId);
-				if($this->insertChecklistTaxaLink($tid, $this->clid)){
-					return $this->addVoucherRecord($vOccId, $vNotes, $vEditNotes);
+				if($clTaxaID = $this->insertChecklistTaxaLink($tid, $this->clid)){
+					$status = $this->insertVoucher($clTaxaID, $vOccId, $vNotes, $vEditNotes);
 				}
 			}
 		}
+		return $status;
 	}
 
 	private function addVoucherRecord($vOccId, $vNotes, $vEditNotes){
@@ -251,15 +251,20 @@ class ChecklistVoucherManager extends  ChecklistVoucherAdmin{
 		return false;
 	}
 
-	public function removeVoucher($delOid){
-		$statusStr = '';
-		if(is_numeric($delOid)){
-			$sqlDel = 'DELETE FROM fmvouchers WHERE occid = '.$delOid.' AND (TID = '.$this->tid.') AND (CLID = '.$this->clid.')';
-			if(!$this->conn->query($sqlDel)){
-				$statusStr = 'ERROR deleting voucher: '.$this->conn->error;
+	public function deleteVoucher($voucherID){
+		$status = false;
+		if(is_numeric($clTaxaID)){
+			$sql = 'DELETE FROM fmvouchers WHERE (voucherID = ?)';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param('i', $voucherID);
+				$stmt->execute();
+				if($stmt->affected_rows && !$stmt->error) $status = true;
+				elseif($stmt->error) $this->errorMessage = 'ERROR deleting vouchers: '.$stmt->error;
+				$stmt->close();
 			}
+			else $this->errorMessage = 'ERROR preparing statement for voucher deletion: '.$this->conn->error;
 		}
-		return $statusStr;
+		return $status;
 	}
 
 	//Setters and getters

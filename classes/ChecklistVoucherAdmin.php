@@ -460,7 +460,9 @@ class ChecklistVoucherAdmin extends Manager {
 	protected function insertVoucher($clTaxaID, $occid, $editorNotes = null, $notes = null){
 		$status = false;
 		if(is_numeric($clTaxaID) && is_numeric($occid)){
-			$sql = 'INSERT INTO fmvouchers(clTaxaID, occid) VALUES (?,?,?,?)';
+			if($editorNotes == '') $editorNotes = null;
+			if($notes == '') $notes = null;
+			$sql = 'INSERT INTO fmvouchers(clTaxaID, occid, editorNotes, notes) VALUES (?,?,?,?)';
 			if($stmt = $this->conn->prepare($sql)) {
 				$stmt->bind_param('iiss', $clTaxaID, $occid, $editorNotes, $notes);
 				$stmt->execute();
