@@ -15,9 +15,10 @@ CREATE TABLE `adminconfig` (
   `initialTimestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (`configID`),
   INDEX `FK_adminConfig_uid_idx` (`modifiedUid` ASC),
-  INDEX `FK_adminConfig_attrName` (`attributeName` ASC),
+  UNIQUE INDEX `UQ_adminconfig_name` (`attributeName` ASC),
   CONSTRAINT `FK_adminConfig_uid`  FOREIGN KEY (`modifiedUid`)  REFERENCES `users` (`uid`)  ON DELETE RESTRICT  ON UPDATE RESTRICT
 );
+
     
 --
 -- Table structure for table `adminlanguages`
