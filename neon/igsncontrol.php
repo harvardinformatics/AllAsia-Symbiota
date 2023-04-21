@@ -53,6 +53,13 @@ if($isEditor){
 			}
 			return true;
 		}
+
+		function checkMarkAsSubmitted(cbElem){
+			let f = cbElem.form;
+			if(cbElem.checked){
+				if(f.recTarget.value != "notsubmitted") alert("Only 'Not Submitted' records can be tagged as Submitted to NEON");
+			}
+		}
 	</script>
 	<style type="text/css">
 		fieldset{ padding:15px }
@@ -172,7 +179,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							<div style="float:left;"><button name="action" type="submit" value="syncIGSNs" onclick="return verifySync(this.form)">Synchronize Records</button></div>
 							<div style="float:left;margin-left:20px">
 								<button name="action" type="submit" value="export" style="margin-bottom:0px">Export Report</button><br>
-								<span style="margin-left:15px"><input name="markAsSubmitted" type="checkbox" value="1" checked> mark as submitted</span>
+								<span style="margin-left:15px"><input name="markAsSubmitted" type="checkbox" value="1" onchange="checkMarkAsSubmitted(this)"> mark as submitted</span>
 							</div>
 							<div style="float:left;margin-left:20px">
 								<button name="action" type="submit" value="refresh" style="margin-bottom:0px">Rerfresh Statistics</button>

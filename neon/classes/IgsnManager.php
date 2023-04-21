@@ -134,7 +134,7 @@ class IgsnManager{
 				if($r->igsnPushedToNEON > 9 && $r->igsnPushedToNEON < 99) $igsnPushedToNEON = ++$r->igsnPushedToNEON;
 				echo 'Data return error: '.$url.'<br>';
 			}
-			$this->updateIgsnStatus($igsnPushedToNEON, $r->occid);
+			$this->updateIgsnStatus($igsnPushedToNEON, array($r->occid));
 			$totalCnt++;
 			if($totalCnt%100 == 0){
 				echo '<li style="margin-left: 15px">'.$totalCnt.' checked</li>';
@@ -148,18 +148,23 @@ class IgsnManager{
 		return $finalIgsn;
 	}
 
-	private function updateIgsnStatus($igsnPushedToNEON, $condition){
-		if(is_numeric($igsnPushedToNEON)){
-			$sql = '';
-			if(is_numeric($condition)){
-				$sql = 'UPDATE NeonSample SET igsnPushedToNEON = '.$igsnPushedToNEON.' WHERE occid = '.$condition;
+	private function updateIgsnStatus($igsnPushedToNEON, $occidArr, $cond = ''){
+		if(is_numeric($igsnPushedToNEON) && $occidArr){
+			$cnt = count($occidArr);
+			$sqlFrag = trim(str_repeat('?,', $cnt), ',');
+			$bindStr = 's' . str_repeat('i', $cnt);
+			$sql = 'UPDATE NeonSample SET igsnPushedToNEON = ? WHERE occid IN('.$sqlFrag.') ';
+			if($cond) $sql .= $cond;
+			if($stmt = $this->conn->prepare($sql)){
+				if($stmt->bind_param($bindStr, $igsnPushedToNEON, ...$occidArr)){
+					$stmt->execute();
+					if($stmt->error) $this->errorStr = '<li>ERROR updating igsnPushedToNEON field: '.$stmt->error.'</li>';
+					elseif(!$stmt->affected_rows) $this->errorStr = '<li>Unable to update igsnPushedToNEON</li>';
+					$stmt->close();
+				}
+				else $this->errorStr = '<li>ERROR updating igsnPushedToNEON: '.$this->conn->error.'</li>';
 			}
-			else{
-				$sql = 'UPDATE omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid SET s.igsnPushedToNEON = '.$igsnPushedToNEON.' '.$condition;
-			}
-			if(!$this->conn->multi_query($sql)){
-				echo '<li>ERROR updating igsnPushedToNEON field: '.$this->conn->error.'</li>';
-			}
+			else $this->errorStr = '<li>ERROR preparing update of igsnPushedToNEON: '.$this->conn->error.'</li>';
 		}
 	}
 
@@ -168,7 +173,7 @@ class IgsnManager{
 		$this->conn->query($sql);
 	}
 
-	public function exportReport($recTarget, $startIndex, $limit, $markAsAubmitted){
+	public function exportReport($recTarget, $startIndex, $limit, $markAsSubmitted){
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		$fieldMap = array('sampleID' => 's.sampleID', 'sampleCode' => 's.sampleCode', 'sampleFate' => '"archived" AS sampleFate',
 			'sampleClass' => 's.sampleClass', 'archiveGuid' => 'o.occurrenceID', 'catalogueNumber' => 'o.catalogNumber',
@@ -179,37 +184,40 @@ class IgsnManager{
 			'sex' => '"" AS sex', 'reproductiveCondition' => '"" AS reproductiveCondition', 'lifeStage' => '"" AS lifeStage', 'identifiedBy' => '"" AS identifiedBy',
 			'accessionNumber' => '"" AS accessionNumber', 'remarks' => '"" AS remarks', 'archiveLaboratoryName' => '"" AS archiveLaboratoryName'
 		);
-		$sql = 'SELECT '.implode(', ',$fieldMap).' FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid INNER JOIN omcollections c ON c.collid = o.collid ';
-		$sqlWhere = 'WHERE (o.occurrenceID LIKE "NEON%") AND o.collid NOT IN(81,84,93) ';
-		if($startIndex) $sqlWhere .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
+		$sql = 'SELECT o.occid, '.implode(', ',$fieldMap).'
+			FROM omoccurrences o INNER JOIN NeonSample s ON o.occid = s.occid INNER JOIN omcollections c ON c.collid = o.collid
+			WHERE (o.occurrenceID LIKE "NEON%") AND o.collid NOT IN(81,84,93) ';
+		if($startIndex) $sql .= 'AND (o.occurrenceID > "'.$this->cleanInStr($startIndex).'") ';
 		if($recTarget == 'unsynchronized'){
-			$sqlWhere .= 'AND (s.igsnPushedToNEON = 0) ';
+			$sql .= 'AND (s.igsnPushedToNEON = 0) ';
 		}
 		elseif($recTarget == 'unchecked'){
-			$sqlWhere .= 'AND (s.igsnPushedToNEON = 3) ';
+			$sql .= 'AND (s.igsnPushedToNEON = 3) ';
 		}
 		else{
 			//$recTarget == notsubmitted
-			$sqlWhere .= 'AND (s.igsnPushedToNEON IS NULL) ';
+			$sql .= 'AND (s.igsnPushedToNEON IS NULL) ';
 		}
-		$sqlWhere .= 'ORDER BY o.occurrenceID ';
+		$sql .= 'ORDER BY o.occurrenceID ';
 		if(!is_numeric($limit)) $limit = 1000;
-		$sqlWhere .= 'LIMIT '.$limit;
-		if($recTarget == 'notsubmitted' && $markAsAubmitted) $this->updateIgsnStatus(3, $sqlWhere);
-		$sql .= $sqlWhere;
+		$sql .= 'LIMIT '.$limit;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
+			$occidArr = array();
 			$fileName = 'biorepoIGSNReport_'.date('Y-m-d').'.csv';
 			header ('Content-Type: text/csv');
 			header ('Content-Disposition: attachment; filename="'.$fileName.'"');
 			$out = fopen('php://output', 'w');
 			fputcsv($out, array_keys($fieldMap));
 			while($row = $rs->fetch_assoc()){
+				if($markAsSubmitted) $occidArr[] = $row['occid'];
+				unset($row['occid']);
 				$this->encodeArr($row);
 				fputcsv($out, $row);
 			}
 			$rs->free();
 			fclose($out);
+			if($occidArr) $this->updateIgsnStatus(3, $occidArr, 'AND (igsnPushedToNEON IS NULL) ');
 			return true;
 		}
 		return false;
