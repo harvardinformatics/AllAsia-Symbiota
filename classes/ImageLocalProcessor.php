@@ -27,8 +27,8 @@ class ImageLocalProcessor {
 	private $webPixWidth = '';
 	private $tnPixWidth = '';
 	private $lgPixWidth = '';
-	private $webFileSizeLimit = 300000;
-	private $lgFileSizeLimit = 3000000;
+	private $webFileSizeLimit = 500000;
+	private $lgFileSizeLimit = 10000000;
 	private $jpgQuality= 80;
 	private $webImg = 1;			// 1 = evaluate source and import, 2 = import source and use as is, 3 = map to source
 	private $tnImg = 1;				// 1 = create from source, 2 = import source, 3 = map to source, 0 = exclude
