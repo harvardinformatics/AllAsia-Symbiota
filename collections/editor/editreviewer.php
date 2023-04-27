@@ -125,10 +125,24 @@ $navStr .= '</div>';
 			}
 
 			function validateEditForm(f){
-				if(f.applytask.value == "" && f.rstatus.value == 0){
-					alert("<?php echo $LANG['NO_ACTION']; ?>");
-					return false;
+				if(validateEditSelection(f)){
+					if(f.applytask.value == "" && f.rstatus.value == 0){
+						alert("<?php echo $LANG['NO_ACTION']; ?>");
+						return false;
+					}
+					return true;
 				}
+				return false;
+			}
+
+			function validateDelete(f){
+				if(validateEditSelection(f)){
+					return confirm("<?php echo $LANG['SURE_DELETE_HISTORY']; ?>");
+				}
+				return false;
+			}
+
+			function validateEditSelection(f){
 				var elements = document.getElementsByName("id[]");
 				for(i = 0; i < elements.length; i++){
 					var elem = elements[i];
@@ -136,13 +150,6 @@ $navStr .= '</div>';
 				}
 			   	alert("<?php echo $LANG['PLEASE_CHECK_EDIT']; ?>");
 		      	return false;
-			}
-
-			function validateDelete(f){
-				 if(validateEditForm(f)){
-					 return confirm("<?php echo $LANG['SURE_DELETE_HISTORY']; ?>");
-				 }
-				 return false;
 			}
 
 			function printFriendlyMode(status){
@@ -331,7 +338,7 @@ $navStr .= '</div>';
 									<div style="margin:5px 0px 10px 10px;">* <?php echo $LANG['PERMANENTLY_CLEAR']; ?></div>
 								</div>
 								<div style="margin:5px 0px 10px 15px;">
-									<button name="formsubmit" type="submit" value="downloadSelectedEdits" onclick="return validateEditForm(this.form);" ><?php echo $LANG['DOWNLOAD_SELECTED']; ?></button>
+									<button name="formsubmit" type="submit" value="downloadSelectedEdits" onclick="return validateEditSelection(this.form);" ><?php echo $LANG['DOWNLOAD_SELECTED']; ?></button>
 								</div>
 								<div style="margin:5px 0px 10px 15px;">
 									<button name="formsubmit" type="submit" value="downloadAllRecords"><?php echo $LANG['DOWNLOAD_ALL']; ?></button>
