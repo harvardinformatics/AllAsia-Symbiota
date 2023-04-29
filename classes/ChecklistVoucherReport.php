@@ -140,7 +140,6 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		$retArr = Array();
 		if($sqlFrag = $this->getSqlFrag()){
 			$sql = 'SELECT DISTINCT t.tid, t.sciname, o.sciname AS occur_sciname '.$this->getMissingTaxaBaseSql($sqlFrag).' LIMIT 1000 ';
-			//echo '<div>'.$sql.'</div>'; exit;
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$sciStr = $r->sciname;
@@ -185,7 +184,6 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			//Set missing taxa count
 			if($cnt<1000){
 				$sqlB = 'SELECT COUNT(DISTINCT ts.tidaccepted) as cnt '.$sqlBase;
-				//echo '<div>'.$sqlB.'</div>'; exit;
 				$rsB = $this->conn->query($sqlB);
 				if($r = $rsB->fetch_object()){
 					$this->missingTaxaCount = $r->cnt;
@@ -199,10 +197,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 
 	public function getConflictVouchers(){
 		$retArr = Array();
-		$clidStr = $this->clid;
-		if($this->childClidArr){
-			$clidStr .= ','.implode(',',$this->childClidArr);
-		}
+		$clidStr = $this->getClidFullStr();
 		$sql = 'SELECT DISTINCT cl.tid, cl.clid, TRIM(CONCAT_WS(" ",t.sciname,cl.morphoSpecies)) AS listid, o.recordedby, o.recordnumber, o.sciname, o.identifiedby, o.dateidentified, o.occid '.
 			'FROM taxstatus ts1 INNER JOIN omoccurrences o ON ts1.tid = o.tidinterpreted '.
 			'INNER JOIN fmvouchers v ON o.occid = v.occid '.
@@ -251,8 +246,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 	}
 
 	private function getMissingTaxaBaseSql($sqlFrag){
-		$clidStr = $this->clid;
-		if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
+		$clidStr = $this->getClidFullStr();
 		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.collid '.
 			'INNER JOIN taxstatus ts ON o.tidinterpreted = ts.tid '.
 			'INNER JOIN taxa t ON ts.tidaccepted = t.tid ';
@@ -307,8 +301,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 	}
 
 	private function getProblemTaxaSql($sqlFrag){
-		//$clidStr = $this->clid;
-		//if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
+		//$clidStr = $this->getClidFullStr();
 		$retSql = 'FROM omoccurrences o LEFT JOIN omcollections c ON o.collid = c.CollID '.
 			$this->getTableJoinFrag($sqlFrag).
 			'WHERE ('.$sqlFrag.') AND (o.tidinterpreted IS NULL) AND (o.sciname IS NOT NULL) ';
@@ -319,10 +312,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 
 	private function getVoucherOccidStr(){
 		$idArr = array();
-		$clidStr = $this->clid;
-		if($this->childClidArr){
-			$clidStr .= ','.implode(',',$this->childClidArr);
-		}
+		$clidStr = $this->getClidFullStr();
 		$sql = 'SELECT DISTINCT v.occid FROM fmvouchers v INNER JOIN fmchklsttaxalink c ON v.clTaxaID = c.clTaxaID WHERE c.clid IN('.$clidStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -334,10 +324,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 
 	private function getVoucherTidStr(){
 		$idArr = array();
-		$clidStr = $this->clid;
-		if($this->childClidArr){
-			$clidStr .= ','.implode(',',$this->childClidArr);
-		}
+		$clidStr = $this->getClidFullStr();
 		$sql = 'SELECT DISTINCT tid FROM fmchklsttaxalink WHERE clid IN('.$clidStr.')';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -360,11 +347,10 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 
 	public function downloadChecklistCsv(){
 		if($this->clid){
-			$clidStr = $this->clid;
-			if($this->childClidArr) $clidStr .= ','.implode(',',$this->childClidArr);
+			$clidStr = $this->getClidFullStr();
 			$fileName = $this->getExportFileName().'.csv';
 			$sql = 'SELECT DISTINCT ctl.clid, t.tid AS taxonID, IFNULL(ctl.familyoverride, ts.family) AS family,
-				t.sciName AS base-scientificName, TRIM(CONCAT_WS(" ",t.sciName,ctl.morphoSpecies)) AS scientificName, t.author AS scientificNameAuthorship,
+				t.sciName AS scientificNameBase, TRIM(CONCAT_WS(" ",t.sciName,ctl.morphoSpecies)) AS scientificName, t.author AS scientificNameAuthorship,
 				ctl.habitat AS habitat, ctl.abundance, ctl.notes, ctl.source, ctl.internalNotes
 				FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid
 				INNER JOIN fmchklsttaxalink ctl ON ctl.tid = t.tid
@@ -417,7 +403,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 
 			$fieldArr = array('t.tid AS taxonID');
 			$fieldArr[] = 'IFNULL(ctl.familyoverride,ts.family) AS family';
-			$fieldArr[] = 't.sciname AS base-scientificName';
+			$fieldArr[] = 't.sciname AS scientificNameBase';
 			$fieldArr[] = 'TRIM(CONCAT_WS(" ", t.sciname, ctl.morphoSpecies)) as sciname';
 			$fieldArr[] = 't.author AS scientificNameAuthorship';
 			$fieldArr[] = 'ctl.habitat AS cl_habitat';
@@ -427,11 +413,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			$fieldArr[] = 'ctl.internalnotes';
 			$fieldArr = array_merge($fieldArr,$this->getOccurrenceFieldArr());
 
-			$clidStr = $this->clid;
-			if($this->childClidArr){
-				$clidStr .= ','.implode(',',$this->childClidArr);
-			}
-
+			$clidStr = $this->getClidFullStr();
 			$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
 				'FROM taxa t INNER JOIN taxstatus ts ON t.tid = ts.tid '.
 				'INNER JOIN fmchklsttaxalink ctl ON ctl.tid = t.tid '.
@@ -449,7 +431,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 			if($sqlFrag = $this->getSqlFrag()){
 				$fieldArr = array('t.tid AS taxonID');
 				$fieldArr[] = 'IFNULL(ctl.familyoverride,ts.family) AS family';
-				$fieldArr[] = 't.sciname AS base-scientificName';
+				$fieldArr[] = 't.sciname AS scientificNameBase';
 				$fieldArr[] = 'TRIM(CONCAT_WS(" ", t.sciname, ctl.morphoSpecies)) as sciname';
 				$fieldArr[] = 't.author AS scientificNameAuthorship';
 				$fieldArr[] = 'ctl.habitat AS cl_habitat';
@@ -459,11 +441,7 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 				$fieldArr[] = 'ctl.internalnotes';
 				$fieldArr = array_merge($fieldArr,$this->getOccurrenceFieldArr());
 
-				$clidStr = $this->clid;
-				if($this->childClidArr){
-					$clidStr .= ','.implode(',',$this->childClidArr);
-				}
-
+				$clidStr = $this->getClidFullStr();
 				$sql = 'SELECT DISTINCT '.implode(',',$fieldArr).', o.localitysecurity, o.collid '.
 					'FROM fmchklsttaxalink ctl INNER JOIN taxa t ON ctl.tid = t.tid '.
 					'INNER JOIN taxstatus ts ON ctl.tid = ts.tid '.
@@ -481,7 +459,6 @@ class ChecklistVoucherReport extends ChecklistVoucherAdmin {
 		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header ('Content-Type: text/csv');
 		header ('Content-Disposition: attachment; filename="'.$fileName.'"');
-		//echo $sql; exit;
 		$rs = $this->conn->query($sql);
 		if($rs->num_rows){
 			$headerArr = array();
