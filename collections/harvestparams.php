@@ -228,7 +228,7 @@ $attribSearch = new OccurrenceAttributeSearch();
 							<input type="text" id="radius" name="radius" size="5" value="" onchange="cleanNumericInput(this);">
 						</div>
 						<div>
-							<label for="radiusunits"><?php echo $LANG['DIRECTION'] ?>:</label>
+							<label for="radiusunits"><?php echo $LANG['DISTANCE_UNIT'] ?>:</label>
 							<select id="radiusunits" name="radiusunits">
 								<option value="km"><?php echo $LANG['LL_P-RADIUS_KM']; ?></option>
 								<option value="mi"><?php echo $LANG['LL_P-RADIUS_MI']; ?></option>
