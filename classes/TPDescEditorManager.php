@@ -124,7 +124,6 @@ class TPDescEditorManager extends TPEditorManager{
 				$paramType .= 'ii';
 				$sql = 'UPDATE taxadescrprofile SET ' . $sqlFrag . ' modifiedUid = ?, modifiedTimestamp = NOW() WHERE (tdProfileID = ?)';
 				if($stmt = $this->conn->prepare($sql)){
-					print_r($paramArr);
 					$stmt->bind_param($paramType, ...$paramArr);
 					$stmt->execute();
 					if($stmt->affected_rows) $status = true;
