@@ -213,7 +213,7 @@ class TPDescEditorManager extends TPEditorManager{
 			if(isset($postArr['sourceurl'])){
 				$postArr['urlTemplate'] = $postArr['sourceurl'];
 			}
-			$this->updateDescriptionProfile($postArr);
+			if($this->updateDescriptionProfile($postArr)) $status = true;
 		}
 		return $status;
 	}
