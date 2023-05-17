@@ -1,7 +1,7 @@
 <?php
 /*
 ------------------
-Language: English
+Language: Français (French)
 ------------------
 */
 
@@ -95,24 +95,19 @@ $LANG['VERBAT_COORDS'] = 'Coordonnées Textuelles';
 $LANG['VERBATIM_DATE'] = 'Date Textuelle';
 $LANG['VERBATIM_DEPTH'] = 'Profondeur Textuelle';
 $LANG['VERBATIM_ELE'] = 'Élévation Textuelle';
-$LANG['CUSTOM_FIELD_1'] = 'Champ Personnalisé 1';
+$LANG['CUSTOM_FIELD'] = 'Champ Personnalisé';
 $LANG['SELECT_FIELD_NAME'] = 'Sélectionnez Nom du Champ';
+$LANG['AND'] = 'et';
+$LANG['OR'] = 'ou';
 $LANG['EQUALS'] = 'ÉQUIVAUT À';
 $LANG['NOT_EQUALS'] = 'PAS ÉGAL';
-$LANG['STARTS_WITH'] = 'COMMENCE AVEC';
-$LANG['CONTAINS'] = "CONTIENT";
-$LANG['DOESNT_CONTAIN'] = "NE CONTIENT PAS";
-$LANG['GREATER_THAN'] = 'PLUS GRAND QUE';
-$LANG['LESS_THAN'] = 'MOINS QUE';
-$LANG['IS_NULL'] = 'EST NULL';
-$LANG['IS_NOT_NULL'] = 'EST NON NULLE';
-$LANG['CUSTOM_FIELD_2'] = 'Champ Personnalisé 2';
-$LANG['CUSTOM_FIELD_3'] = 'Champ Personnalisé 3';
-$LANG['CUSTOM_FIELD_4'] = 'Champ Personnalisé 4';
-$LANG['CUSTOM_FIELD_5'] = 'Champ Personnalisé 5';
-$LANG['CUSTOM_FIELD_6'] = 'Champ Personnalisé 6';
-$LANG['CUSTOM_FIELD_7'] = 'Champ Personnalisé 7';
-$LANG['CUSTOM_FIELD_8'] = 'Champ Personnalisé 8';
+$LANG['STARTS'] = 'COMMENCE AVEC';
+$LANG['LIKE'] = "CONTIENT";
+$LANG['NOT_LIKE'] = "NE CONTIENT PAS";
+$LANG['GREATER'] = 'PLUS GRAND QUE';
+$LANG['LESS'] = 'MOINS QUE';
+$LANG['NULL'] = 'EST NULL';
+$LANG['NOTNULL'] = 'EST NON NULLE';
 $LANG['SHOW_RECS_ALL'] = 'Afficher enregistrements pour tous utilisateurs (contrôle administrateur)';
 $LANG['COPY_SEARCH'] = 'Copier la recherche en tant que lien';
 $LANG['GO_LABEL_PRINT'] = "Aller au Module d'Impression d'Étiquettes";
