@@ -139,7 +139,7 @@ class TaxonomyHarvester extends Manager{
 		$tid = 0;
 		$sciName = $taxonArr['sciname'];
 		if($sciName){
-			//$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20'.,$adjustedName).'&offset=0&limit=10';
+			//$url = 'https://api.catalogueoflife.org/nameusage/search?content=SCIENTIFIC_NAME&q='.str_replace(' ','%20',$sciName).'&offset=0&limit=10';
 			$url = 'https://webservice.catalogueoflife.org/col/webservice?response=full&format=json&name='.str_replace(' ','%20',$sciName);
 			//echo $url.'<br/>';
 			$retArr = $this->getContentString($url);
@@ -147,16 +147,16 @@ class TaxonomyHarvester extends Manager{
 			$resultArr = json_decode($content,true);
 			$numResults = $resultArr['number_of_results_returned'];
 			if($numResults){
+				//Evaluate and rank each result to determine which is the best suited target
 				$adjustedName = $sciName;
 				if(isset($taxonArr['rankid']) && $taxonArr['rankid'] > 220) $adjustedName = trim($taxonArr['unitname1'].' '.$taxonArr['unitname2'].' '.$taxonArr['unitname3']);
 				$targetKey = 0;
 				$submitArr = array();
-				$rankArr = array();
+				$rankingArr = array();
 				foreach($resultArr['result'] as $k => $tArr){
-					//Evaluate and rank each result to determine which is the best suited target
-					$rankArr[$k] = 0;
+					$rankingArr[$k] = 0;
 					if($sciName != $tArr['name'] && $adjustedName != $tArr['name']){
-						unset($rankArr[$k]);
+						unset($rankingArr[$k]);
 						continue;
 					}
 					$this->setColClassification($tArr,$taxonArr);
@@ -164,7 +164,7 @@ class TaxonomyHarvester extends Manager{
 					$taxonKingdom = $this->getColParent($tArr, 'Kingdom');
 					if($this->kingdomName && $taxonKingdom && $this->kingdomName != $taxonKingdom){
 						//Skip if kingdom doesn't match target kingdom
-						unset($rankArr[$k]);
+						unset($rankingArr[$k]);
 						$msg = $sciName;
 						$id = '';
 						if(isset($resultArr['result'][$k]['id'])){
@@ -177,15 +177,15 @@ class TaxonomyHarvester extends Manager{
 					}
 					if($taxonArr['unitind3'] && isset($tArr['infraspeciesMarker']) && $taxonArr['unitind3'] != $tArr['infraspeciesMarker']){
 						//Skip because it's not the correct infraspecific rank
-						unset($rankArr[$k]);
+						unset($rankingArr[$k]);
 						continue;
 					}
-					if($this->defaultFamily && $this->defaultFamily == $this->getColParent($tArr, 'Family')) $rankArr[$k] += 2;
-					if($tArr['name_status'] == 'accepted name')  $rankArr[$k] += 2;
+					if($this->defaultFamily && $this->defaultFamily == $this->getColParent($tArr, 'Family')) $rankingArr[$k] += 2;
+					if($tArr['name_status'] == 'accepted name')  $rankingArr[$k] += 2;
 					if(isset($tArr['author']) && $tArr['author']){
 						if(stripos($tArr['author'],'nom. illeg.') !== false){
 							//Skip if name is an illegal homonym
-							unset($rankArr[$k]);
+							unset($rankingArr[$k]);
 							continue;
 						}
 						//Gets 2 points if author is the same, 1 point if 80% similar
@@ -194,18 +194,29 @@ class TaxonomyHarvester extends Manager{
 							$author2 = str_replace(array(' ','.'), '', $tArr['author']);
 							$percent = 0;
 							similar_text($author1, $author2, $percent);
-							if($author1 == $author2) $rankArr[$k] += 2;
-							elseif($percent > 80) $rankArr[$k] += 1;
+							if($author1 == $author2) $rankingArr[$k] += 2;
+							elseif($percent > 80) $rankingArr[$k] += 1;
 						}
 					}
 					$submitArr[$k] = $resultArr['result'][$k];
 				}
-				if($rankArr){
-					asort($rankArr);
-					end($rankArr);
-					$targetKey = key($rankArr);
-					if(isset($rankArr[0]) && $rankArr[$targetKey] == $rankArr[0]) $targetKey = 0;
+				if($rankingArr){
+					asort($rankingArr);
+					end($rankingArr);
+					$targetKey = key($rankingArr);
+					if(isset($rankingArr[0]) && $rankingArr[$targetKey] == $rankingArr[0]) $targetKey = 0;
 				}
+				//If taxon has an accepted taxon that is the same taxon with a subgeneric linkage, use the taxon object to be submitted
+				if(isset($submitArr[$targetKey]['accepted_name'])){
+					if(preg_match('/^([A-Z]{1}[a-z]+)\s{1}\(\D+\)\s{1}([a-z .]+)/', $submitArr[$targetKey]['accepted_name']['name'], $m)){
+						$acceptedBaseName = $m[1].' '.$m[2];
+						if($submitArr[$targetKey]['name'] == $acceptedBaseName){
+							$submitArr[0] = $submitArr[$targetKey]['accepted_name'];
+							$targetKey = 0;
+						}
+					}
+				}
+				//Process selected result
 				$this->logOrEcho('<i>'.$sciName.'</i> found within Catalog of Life',2);
 				if(array_key_exists($targetKey, $submitArr) && $submitArr[$targetKey]){
 					$tid = $this->addColTaxonByResult($submitArr[$targetKey]);
