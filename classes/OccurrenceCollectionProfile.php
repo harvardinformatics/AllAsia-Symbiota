@@ -521,21 +521,23 @@ class OccurrenceCollectionProfile extends OmCollections
 	public function updateStatistics($verbose = false)
 	{
 		$occurMaintenance = new OccurrenceMaintenance();
-		if ($verbose) {
+		$occurMaintenance->setCollidStr($this->collid);
+		if($verbose){
 			echo '<ul>';
 			$occurMaintenance->setVerbose(true);
 			echo '<li>General cleaning in preparation for collecting stats...</li>';
 			flush();
 			ob_flush();
 		}
-		$occurMaintenance->generalOccurrenceCleaning($this->collid);
-		if ($verbose) {
+		$occurMaintenance->generalOccurrenceCleaning();
+		//$occurMaintenance->batchUpdateGeoreferenceIndex();
+		if($verbose){
 			echo '<li>Updating statistics...</li>';
 			flush();
 			ob_flush();
 		}
-		$occurMaintenance->updateCollectionStats($this->collid, true);
-		if ($verbose) {
+		$occurMaintenance->updateCollectionStatsFull();
+		if($verbose){
 			echo '<li>Finished updating collection statistics</li>';
 			flush();
 			ob_flush();
@@ -616,7 +618,8 @@ class OccurrenceCollectionProfile extends OmCollections
 				echo '<li style="margin-left:15px;">Cleaning statistics for: ' . $r->collectionname . '</li>';
 				flush();
 				ob_flush();
-				$occurMaintenance->updateCollectionStats($r->collid, true);
+				$occurMaintenance->setCollidStr($r->collid);
+				$occurMaintenance->updateCollectionStatsFull();
 			}
 			$rs->free();
 			echo '<li>Statistics update complete!</li>';

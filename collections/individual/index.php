@@ -95,8 +95,8 @@ if(isset($_SERVER['HTTP_ACCEPT'])){
 
 if($SYMB_UID){
 	//Form action submitted
-	if(array_key_exists('delvouch',$_GET) && $occid){
-		if(!$indManager->deleteVoucher($occid,$_GET['delvouch'])){
+	if(array_key_exists('delvouch',$_GET)){
+		if(!$indManager->deleteVoucher($_GET['delvouch'])){
 			$statusStr = $indManager->getErrorMessage();
 		}
 	}
@@ -1395,7 +1395,7 @@ $traitArr = $indManager->getTraitArr();
 					<?php
 					ob_flush();
 					flush();
-					$rawArchArr = $indManager->checkArchive();
+					$rawArchArr = $indManager->checkArchive($guid);
 					if($rawArchArr && $rawArchArr['obj']){
 						$archArr = $rawArchArr['obj'];
 						if($isEditor){
