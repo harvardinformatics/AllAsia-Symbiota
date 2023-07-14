@@ -1082,6 +1082,7 @@ class OccurrenceHarvester{
 			$oldID = '';
 			$newID = '';
 			if($this->currentDetArr){
+				$incommingIsCurrentExists = false;
 				foreach($this->currentDetArr as $detID => $cdArr){
 					$deleteDet = true;
 					if($cdArr['enteredByUid'] && $cdArr['enteredByUid'] != 50){
@@ -1092,22 +1093,31 @@ class OccurrenceHarvester{
 							if($cdArr['sciname'] == $idArr['sciname'] && $cdArr['identifiedBy'] == $idArr['identifiedBy'] && $cdArr['dateIdentified'] == $idArr['dateIdentified']){
 								$identArr[$idKey]['updateDetID'] = $detID;
 								$deleteDet = false;
-								break;
 							}
+							if(!empty($idArr['isCurrent'])) $incommingIsCurrentExists = true;
 						}
 					}
-					if($deleteDet) $this->deleteDetermination($cdKey);
-					if($cdArr['isCurrent'] && (!$oldID || !empty($cdArr['securityStatus']))) $oldID = $cdArr['sciname'];
+					if($deleteDet) $this->deleteDetermination($detID);
+					else{
+						if(!empty($cdArr['isCurrent']) && $incommingIsCurrentExists) $this->updateDetermination(array('updateDetID' => $detID, 'isCurrent' => 0));
+					}
+					if($cdArr['isCurrent']){
+						if(!$oldID || !empty($cdArr['securityStatus'])) $oldID = $cdArr['sciname'];
+					}
 				}
 			}
-			//Check old IDs against new IDs
+			//Check old IDs against new IDs and unset existing isCurrent determinations
 			foreach($identArr as $idArr){
 				if(!$oldID){
 					if($idArr['identifiedBy'] == 'manifest' || $idArr['identifiedBy'] == 'sampleID') $oldID = $idArr['sciname'];
 				}
-				if(!empty($idArr['isCurrent']) && (!$newID || !empty($cdArr['securityStatus']))) $newID = $idArr['sciname'];
+				if(!empty($idArr['isCurrent'])){
+					if(!$newID || !empty($cdArr['securityStatus'])) $newID = $idArr['sciname'];
+				}
 			}
-			if($oldID && $newID && $oldID != $newID) $this->setSampleErrorMessage('occid:'.$occid, 'Curatorial Check: possible ID conflict');
+			if($oldID && $newID && $oldID != $newID){
+				$this->setSampleErrorMessage('occid:'.$occid, 'Curatorial Check: possible ID conflict');
+			}
 			foreach($identArr as $idArr){
 				if(($idArr['identifiedBy'] != 'manifest' && $idArr['identifiedBy'] != 'sampleID') || (isset($idArr['isCurrent']) && $idArr['isCurrent'])){
 					if(empty($idArr['updateDetID'])) $this->insertDetermination($occid, $idArr);
@@ -1171,47 +1181,105 @@ class OccurrenceHarvester{
 	private function updateDetermination($idArr){
 		$status = true;
 		$detID = $idArr['updateDetID'];
-		$scientificName = $idArr['sciname'];
-		$tidInterpreted = null;
-		if(isset($idArr['tidInterpreted']) && $idArr['tidInterpreted']) $tidInterpreted = $idArr['tidInterpreted'];
-		$identifiedBy = $idArr['identifiedBy'];
-		$dateIdentified = 's.d.';
-		if(isset($idArr['dateIdentified']) && $idArr['dateIdentified']) $dateIdentified = $idArr['dateIdentified'];
-		$scientificNameAuthorship = null;
-		if(isset($idArr['scientificNameAuthorship']) && $idArr['scientificNameAuthorship']) $scientificNameAuthorship = $idArr['scientificNameAuthorship'];
-		$family = null;
-		if(isset($idArr['family']) && $idArr['family']) $family = $idArr['family'];
-		$taxonRemarks = null;
-		if(isset($idArr['taxonRemarks']) && $idArr['taxonRemarks']) $taxonRemarks = $idArr['taxonRemarks'];
-		$identificationRemarks = null;
-		if(isset($idArr['identificationRemarks']) && $idArr['identificationRemarks']) $identificationRemarks = $idArr['identificationRemarks'];
-		$identificationReferences = null;
-		if(isset($idArr['identificationReferences']) && $idArr['identificationReferences']) $identificationReferences = $idArr['identificationReferences'];
-		$identificationQualifier = null;
-		if(isset($idArr['identificationQualifier']) && $idArr['identificationQualifier']) $identificationQualifier = $idArr['identificationQualifier'];
-		$securityStatus = 0;
-		if(isset($idArr['securityStatus']) && $idArr['securityStatus']) $securityStatus = 1;
-		$securityStatusReason = null;
-		if(isset($idArr['securityStatusReason']) && $idArr['securityStatusReason']) $securityStatusReason = $idArr['securityStatusReason'];
-		$isCurrent = 0;
-		if(isset($idArr['isCurrent']) && $idArr['isCurrent']) $isCurrent = 1;
-		$enteredByUid = 50;
-		$sql = 'UPDATE omoccurdeterminations SET sciname = ?, tidInterpreted = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
-			identificationRemarks = ?, identificationReferences = ?, identificationQualifier = ?, securityStatus = ?, securityStatusReason = ?, isCurrent = ?, enteredByUid = ?
-			WHERE detID = ?';
-		if($stmt = $this->conn->prepare($sql)) {
-			$stmt->bind_param('sissssssssisiii', $scientificName, $tidInterpreted, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
-				$identificationRemarks, $identificationReferences, $identificationQualifier, $securityStatus, $securityStatusReason, $isCurrent, $enteredByUid, $detID);
-			$stmt->execute();
-			if($stmt->error){
-				echo '<li style="margin-left:30px">ERROR updating identification within omoccurdetermination: '.$stmt->error.'</li>';
-				$status = false;
+		unset($idArr['updateDetID']);
+		if($detID){
+			$sqlFrag = '';
+			$typeStr = '';
+			$paramArr = array();
+			if(!empty($idArr['sciname'])){
+				$sqlFrag .= 'sciname = ?, ';
+				$typeStr .= 's';
+				$paramArr[] = $idArr['sciname'];
 			}
-			$stmt->close();
-		}
-		else{
-			echo '<li style="margin-left:30px">ERROR preparing statement for updating within omoccurdetermination: '.$this->conn->error.'</li>';
-			$status = false;
+			if(isset($idArr['tidInterpreted'])){
+				$sqlFrag .= 'tidInterpreted = ?, ';
+				$typeStr .= 'i';
+				if($idArr['tidInterpreted']) $paramArr[] = $idArr['tidInterpreted'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['identifiedBy'])){
+				$sqlFrag .= 'identifiedBy = ?, ';
+				$typeStr .= 's';
+				$paramArr[] = $idArr['identifiedBy'];
+			}
+			if(isset($idArr['dateIdentified'])){
+				$sqlFrag .= 'dateIdentified = ?, ';
+				$typeStr .= 's';
+				if($idArr['dateIdentified']) $paramArr[] = $idArr['dateIdentified'];
+				else $paramArr[] = 's.d.';
+			}
+			if(isset($idArr['scientificNameAuthorship'])){
+				$sqlFrag .= 'scientificNameAuthorship = ?, ';
+				$typeStr .= 's';
+				if($idArr['scientificNameAuthorship']) $paramArr[] = $idArr['scientificNameAuthorship'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['family'])){
+				$sqlFrag .= 'family = ?, ';
+				$typeStr .= 's';
+				if($idArr['family']) $paramArr[] = $idArr['family'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['taxonRemarks'])){
+				$sqlFrag .= 'taxonRemarks = ?,';
+				$typeStr .= 's';
+				if($idArr['taxonRemarks']) $paramArr[] = $idArr['taxonRemarks'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['identificationRemarks'])){
+				$sqlFrag .= 'identificationRemarks = ?, ';
+				$typeStr .= 's';
+				if($idArr['identificationRemarks']) $paramArr[] = $idArr['identificationRemarks'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['identificationReferences'])){
+				$sqlFrag .= 'identificationReferences = ?, ';
+				$typeStr .= 's';
+				if($idArr['identificationReferences']) $paramArr[] = $idArr['identificationReferences'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['identificationQualifier'])){
+				$sqlFrag .= 'identificationQualifier = ?, ';
+				$typeStr .= 's';
+				if($idArr['identificationQualifier']) $paramArr[] = $idArr['identificationQualifier'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['securityStatus'])){
+				$sqlFrag .= 'securityStatus = ?, ';
+				$typeStr .= 'i';
+				if($idArr['securityStatus']) $paramArr[] = 1;
+				else $paramArr[] = 0;
+			}
+			if(isset($idArr['securityStatusReason'])){
+				$sqlFrag .= 'securityStatusReason = ?, ';
+				$typeStr .= 's';
+				if($idArr['securityStatusReason']) $paramArr[] = $idArr['securityStatusReason'];
+				else $paramArr[] = null;
+			}
+			if(isset($idArr['isCurrent'])){
+				$sqlFrag .= 'isCurrent = ?, ';
+				$typeStr .= 'i';
+				if($idArr['isCurrent']) $paramArr[] = 1;
+				else $paramArr[] = 0;
+			}
+			if($sqlFrag){
+				$typeStr .= 'i';
+				$paramArr[] = $detID;
+				$sql = 'UPDATE omoccurdeterminations SET '.trim($sqlFrag,', ').' WHERE detID = ?';
+				if($stmt = $this->conn->prepare($sql)) {
+					$stmt->bind_param($typeStr, ...$paramArr);
+					$stmt->execute();
+					if($stmt->error){
+						echo '<li style="margin-left:30px">ERROR updating identification within omoccurdetermination: '.$stmt->error.'</li>';
+						$status = false;
+					}
+					$stmt->close();
+				}
+				else{
+					echo '<li style="margin-left:30px">ERROR preparing statement for updating within omoccurdetermination: '.$this->conn->error.'</li>';
+					$status = false;
+				}
+			}
 		}
 		return $status;
 	}
@@ -1259,9 +1327,14 @@ class OccurrenceHarvester{
 
 	private function deleteDetermination($detid){
 		if(is_numeric($detid)){
-			$sql = '';
-			if(!$this->conn->query($sql)){
-				$this->errorStr = 'ERROR deteling determination (#'.$detid.'):'.$this->conn->error;
+			$sql = 'DELETE FROM omoccurdeterminations WHERE detid = ?';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param('i', $detid);
+				$stmt->execute();
+				if($stmt->error){
+					$this->errorStr = 'ERROR deteling determination (#'.$detid.'):'.$this->conn->error;
+				}
+				$stmt->close();
 			}
 		}
 	}
@@ -1469,10 +1542,22 @@ class OccurrenceHarvester{
 			SET o.tidInterpreted = t.tid
 			WHERE o.tidInterpreted IS NULL AND o.family = ts.family';
 		if(!$this->conn->query($sql)){
-			echo 'ERROR updating tidInterpreted with family match: '.$sql;
+			echo 'ERROR updating occurrence tidInterpreted with family match: '.$sql;
+		}
+		$sql = 'UPDATE omoccurdeterminations d INNER JOIN taxa t ON d.sciname = t.sciname
+			INNER JOIN omoccurrences o ON d.occid = o.occid
+			INNER JOIN taxstatus ts ON t.tid = ts.tid
+			SET d.tidInterpreted = t.tid
+			WHERE d.tidInterpreted IS NULL AND o.family = ts.family';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating determination tidInterpreted with family match: '.$sql;
 		}
 
 		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname SET o.tidinterpreted = t.tid WHERE (o.tidinterpreted IS NULL)';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating tidInterpreted: '.$sql;
+		}
+		$sql = 'UPDATE omoccurdeterminations d INNER JOIN taxa t ON d.sciname = t.sciname SET d.tidinterpreted = t.tid WHERE (d.tidinterpreted IS NULL)';
 		if(!$this->conn->query($sql)){
 			echo 'ERROR updating tidInterpreted: '.$sql;
 		}
@@ -1484,7 +1569,7 @@ class OccurrenceHarvester{
 			SET o.scientificNameAuthorship = t.author, o.tidinterpreted = t.tid, o.family = ts.family
 			WHERE (o.collid = 29) AND (o.scientificNameAuthorship IS NULL) AND (o.family IS NULL) AND (ts.taxauthid = 1)';
 		if(!$this->conn->query($sql)){
-			echo 'ERROR updating taxonomy codes: '.$sql;
+			echo 'ERROR updating occurrence taxonomy codes: '.$sql;
 		}
 		$sql = 'UPDATE omoccurrences o INNER JOIN omoccurdeterminations d ON o.occid = d.occid
 			INNER JOIN NeonSample s ON d.occid = s.occid
@@ -1493,7 +1578,7 @@ class OccurrenceHarvester{
 			SET d.scientificNameAuthorship = t.author, d.tidinterpreted = t.tid, d.family = ts.family
 			WHERE (o.collid = 29) AND (d.scientificNameAuthorship IS NULL) AND (d.family IS NULL) AND (ts.taxauthid = 1)';
 		if(!$this->conn->query($sql)){
-			echo 'ERROR updating taxonomy codes: '.$sql;
+			echo 'ERROR updating determination taxonomy codes: '.$sql;
 		}
 
 		//Run custon stored procedure that preforms some special assignment tasks
@@ -1616,10 +1701,11 @@ class OccurrenceHarvester{
 	}
 
 	private function setSampleErrorMessage($id, $msg){
-		$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ","'.$this->cleanInStr($msg).'") ';
+		$sql = 'UPDATE NeonSample SET errorMessage = CONCAT_WS("; ", "'.$this->cleanInStr($msg).'", errorMessage) ';
 		if(!$msg) $sql = 'UPDATE NeonSample SET errorMessage = NULL ';
-		if(substr($id, 6) == 'occid:') $sql .= 'WHERE (occid = '.substr($id, 6).')';
-		else $sql .= 'WHERE (samplePK = '.$id.')';
+		if(substr($id, 0, 6) == 'occid:') $sql .= 'WHERE (occid = '.substr($id, 6).') ';
+		else $sql .= 'WHERE (samplePK = '.$id.') ';
+		if(!$msg) $sql .= 'AND errorMessage NOT LIKE "Curatorial Check:%"';
 		$this->conn->query($sql);
 	}
 
