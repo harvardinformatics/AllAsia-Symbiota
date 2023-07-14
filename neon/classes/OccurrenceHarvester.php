@@ -974,7 +974,7 @@ class OccurrenceHarvester{
 					$this->setDatasetIndexing($siteID,$occid);
 				}
 				else{
-					$this->errorStr = 'ERROR creating new occurrence record: '.$this->conn->error;
+					$this->errorStr = 'ERROR updating/creating new occurrence record: '.$this->conn->error;
 					return false;
 				}
 			}
@@ -1096,11 +1096,7 @@ class OccurrenceHarvester{
 							}
 						}
 					}
-					if($deleteDet){
-						//$this->deleteDetermination($cdKey);
-						//Following code below will be used to temporarily test evaluation of removing old determinations
-						$this->conn->query('UPDATE omoccurdeterminations SET identifiedBy = CONCAT_WS(" - ", identifiedBy, "DELETE") WHERE detid = '.$detID);
-					}
+					if($deleteDet) $this->deleteDetermination($cdKey);
 					if($cdArr['isCurrent'] && (!$oldID || !empty($cdArr['securityStatus']))) $oldID = $cdArr['sciname'];
 				}
 			}
@@ -1128,6 +1124,8 @@ class OccurrenceHarvester{
 	private function insertDetermination($occid, $idArr){
 		$status = true;
 		$scientificName = $idArr['sciname'];
+		$tidInterpreted = null;
+		if(isset($idArr['tidInterpreted']) && $idArr['tidInterpreted']) $tidInterpreted = $idArr['tidInterpreted'];
 		$identifiedBy = $idArr['identifiedBy'];
 		$dateIdentified = 's.d.';
 		if(isset($idArr['dateIdentified']) && $idArr['dateIdentified']) $dateIdentified = $idArr['dateIdentified'];
@@ -1150,11 +1148,11 @@ class OccurrenceHarvester{
 		$isCurrent = 0;
 		if(isset($idArr['isCurrent']) && $idArr['isCurrent']) $isCurrent = 1;
 		$enteredByUid = 50;
-		$sql = 'INSERT INTO omoccurdeterminations(occid, sciname, identifiedBy, dateIdentified, scientificNameAuthorship, family, taxonRemarks,
+		$sql = 'INSERT INTO omoccurdeterminations(occid, sciname, tidInterpreted, identifiedBy, dateIdentified, scientificNameAuthorship, family, taxonRemarks,
 			identificationRemarks, identificationReferences, identificationQualifier, securityStatus, securityStatusReason, isCurrent, enteredByUid)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 		if($stmt = $this->conn->prepare($sql)) {
-			$stmt->bind_param('isssssssssisii', $occid, $scientificName, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
+			$stmt->bind_param('isissssssssisii', $occid, $scientificName, $tidInterpreted, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
 				$identificationRemarks, $identificationReferences, $identificationQualifier, $securityStatus, $securityStatusReason, $isCurrent, $enteredByUid);
 			$stmt->execute();
 			if($stmt->error){
@@ -1174,6 +1172,8 @@ class OccurrenceHarvester{
 		$status = true;
 		$detID = $idArr['updateDetID'];
 		$scientificName = $idArr['sciname'];
+		$tidInterpreted = null;
+		if(isset($idArr['tidInterpreted']) && $idArr['tidInterpreted']) $tidInterpreted = $idArr['tidInterpreted'];
 		$identifiedBy = $idArr['identifiedBy'];
 		$dateIdentified = 's.d.';
 		if(isset($idArr['dateIdentified']) && $idArr['dateIdentified']) $dateIdentified = $idArr['dateIdentified'];
@@ -1196,11 +1196,11 @@ class OccurrenceHarvester{
 		$isCurrent = 0;
 		if(isset($idArr['isCurrent']) && $idArr['isCurrent']) $isCurrent = 1;
 		$enteredByUid = 50;
-		$sql = 'UPDATE omoccurdeterminations SET sciname = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
+		$sql = 'UPDATE omoccurdeterminations SET sciname = ?, tidInterpreted = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
 			identificationRemarks = ?, identificationReferences = ?, identificationQualifier = ?, securityStatus = ?, securityStatusReason = ?, isCurrent = ?, enteredByUid = ?
 			WHERE detID = ?';
 		if($stmt = $this->conn->prepare($sql)) {
-			$stmt->bind_param('sssssssssisiii', $scientificName, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
+			$stmt->bind_param('sissssssssisiii', $scientificName, $tidInterpreted, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
 				$identificationRemarks, $identificationReferences, $identificationQualifier, $securityStatus, $securityStatusReason, $isCurrent, $enteredByUid, $detID);
 			$stmt->execute();
 			if($stmt->error){
@@ -1219,6 +1219,8 @@ class OccurrenceHarvester{
 	private function updateOccurrence($occid, $idArr){
 		$status = true;
 		$scientificName = $idArr['sciname'];
+		$tidInterpreted = null;
+		if(isset($idArr['tidInterpreted']) && $idArr['tidInterpreted']) $tidInterpreted = $idArr['tidInterpreted'];
 		$identifiedBy = $idArr['identifiedBy'];
 		$dateIdentified = 's.d.';
 		if(isset($idArr['dateIdentified']) && $idArr['dateIdentified']) $dateIdentified = $idArr['dateIdentified'];
@@ -1235,11 +1237,11 @@ class OccurrenceHarvester{
 		$identificationQualifier = null;
 		if(isset($idArr['identificationQualifier']) && $idArr['identificationQualifier']) $identificationQualifier = $idArr['identificationQualifier'];
 		$sql = 'UPDATE omoccurrences
-			SET sciname = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
+			SET sciname = ?, tidInterpreted = ?, identifiedBy = ?, dateIdentified = ?, scientificNameAuthorship = ?, family = ?, taxonRemarks = ?,
 			identificationRemarks = ?, identificationReferences = ?, identificationQualifier = ?
 			WHERE occid = ?';
 		if($stmt = $this->conn->prepare($sql)) {
-			$stmt->bind_param('sssssssssi', $scientificName, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
+			$stmt->bind_param('sissssssssi', $scientificName, $tidInterpreted, $identifiedBy, $dateIdentified, $scientificNameAuthorship, $family, $taxonRemarks,
 				$identificationRemarks, $identificationReferences, $identificationQualifier, $occid);
 			$stmt->execute();
 			if($stmt->error){
@@ -1460,7 +1462,16 @@ class OccurrenceHarvester{
 	}
 
 	private function adjustTaxonomy($occidArr){
-		//Update tidInterpreted index value
+		// Update tidInterpreted index
+		// These statements should no longer be needed since tids are explicitly set upon harvest, but we'll keep to ensure that nothing falls through the cracks
+		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname
+			INNER JOIN taxstatus ts ON t.tid = ts.tid
+			SET o.tidInterpreted = t.tid
+			WHERE o.tidInterpreted IS NULL AND o.family = ts.family';
+		if(!$this->conn->query($sql)){
+			echo 'ERROR updating tidInterpreted with family match: '.$sql;
+		}
+
 		$sql = 'UPDATE omoccurrences o INNER JOIN taxa t ON o.sciname = t.sciname SET o.tidinterpreted = t.tid WHERE (o.tidinterpreted IS NULL)';
 		if(!$this->conn->query($sql)){
 			echo 'ERROR updating tidInterpreted: '.$sql;
@@ -1487,12 +1498,12 @@ class OccurrenceHarvester{
 
 		//Run custon stored procedure that preforms some special assignment tasks
 		if(!$this->conn->query('call occurrence_harvesting_sql()')){
-			echo 'ERROR running stored procedure: occurrence_harvesting_sql';
+			echo 'ERROR running stored procedure occurrence_harvesting_sql: '.$this->conn->error;
 		}
 
 		//Run stored procedure that protects rare and sensitive species
 		if(!$this->conn->query('call sensitive_species_protection()')){
-			echo 'ERROR running stored procedure: sensitive_species_protection';
+			echo 'ERROR running stored procedure sensitive_species_protection: '.$this->conn->error;
 		}
 	}
 
