@@ -140,7 +140,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 							<fieldset style="margin:10px;padding:10px;">
 								<legend style="font-weight:bold;"><?php echo $catTitle; ?></legend>
 								<div style="margin:0px 15px;float:right;">
-									<button type="submit" name="submitaction"><?php echo isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next >'; ?></button>
+									<button type="submit" name="action"><?php echo isset($LANG['BUTTON_NEXT'])?$LANG['BUTTON_NEXT']:'Next >'; ?></button>
 								</div>
 								<?php
 								$projTitleArr = $otherCatArr['titles'][$catPid]['proj'];
@@ -148,7 +148,7 @@ $otherCatArr = $collManager->getOccurVoucherProjects();
 								foreach($projTitleArr as $pid => $projTitle){
 									?>
 									<div>
-										<a href="#" onclick="togglePid('<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>');return false;"><img id="plus-pid-<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>" src="../images/plus_sm.png" /><img id="minus-pid-<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>" src="../images/minus_sm.png" style="display:none;" /></a>
+										<a href="#" onclick="togglePid('<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>');return false;"><img id="plus-pid-<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>" src="../images/plus_sm.png" alt='Plus Sign' /><img id="minus-pid-<?php echo htmlspecialchars($pid, HTML_SPECIAL_CHARS_FLAGS); ?>" src="../images/minus_sm.png" style="display:none;" alt='Minus Sign' /></a>
 										<input name="pid[]" type="checkbox" value="<?php echo $pid; ?>" onchange="selectAllPid(this);" />
 										<b><?php echo $projTitle; ?></b>
 									</div>
