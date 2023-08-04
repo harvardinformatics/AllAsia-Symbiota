@@ -376,7 +376,7 @@ class OccurrenceTaxaManager {
 		$str = trim($str,' ,;');
 		if($str == '%') $str = '';
 		$str = strip_tags($str);
-		$str = htmlspecialchars($str, HTML_SPECIAL_CHARS_FLAGS);
+		$str = htmlspecialchars($str, ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 		return $str;
 	}
 
