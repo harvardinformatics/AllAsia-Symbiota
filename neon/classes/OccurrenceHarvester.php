@@ -912,7 +912,7 @@ class OccurrenceHarvester{
 			$dwcArr['individualCount'] = 1;
 			$dwcArr['preparations'] = '-80 degrees C.';
 			$dwcArr['lifeStage'] = 'Nymph';
-			$dwcArr['sex'] = 'unknown';
+			$dwcArr['sex'] = '';
 		}
 	}
 
