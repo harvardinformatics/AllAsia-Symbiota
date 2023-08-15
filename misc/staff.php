@@ -121,7 +121,7 @@ header("Content-Type: text/html; charset=" . $CHARSET);
 </body>
 <script>
 	// Fetch data from Google Spreadsheet via Google Sheets API + opensheet
-	const sheetId = '1Pa9U-QBiSNgL6IX-t0TV_GnmEkVMqA9UT9lxeBb_PBg';
+	const sheetId = '1OzXLkkLe6SpXeLdjih1GihSoHnwe6EzE3d4Lee96Kko';
 	const url = `https://opensheet.elk.sh/${sheetId}/Sheet1`;
 	const gallery = document.getElementById('staff-gallery');
 
