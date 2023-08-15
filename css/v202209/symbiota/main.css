@@ -464,6 +464,10 @@ table.styledtable tr.alt td {
   justify-content: center;
 }
 
+.margin-rt-rel {
+  margin-right: 1rem;
+}
+
 .bottom-breathing-room-sm-rel {
   margin-bottom: 0.5rem;
 }
