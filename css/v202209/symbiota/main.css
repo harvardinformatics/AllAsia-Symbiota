@@ -440,6 +440,10 @@ table.styledtable tr.alt td {
   width: 40%;
 }
 
+.bottom-breathing-room-relative {
+  margin-bottom: 1rem;
+}
+
 .col-profile-img {
   border: 1px;
   height: 6.4rem;
