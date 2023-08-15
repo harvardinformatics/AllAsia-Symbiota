@@ -441,7 +441,7 @@ class OccurrenceHarvester{
 						if($fArr['smsKey'] == 'analysis_type' && $fArr['smsValue'] == 'Positive'){
 							$readAssocTaxon = true;
 						}
-						if($fArr['smsKey'] == 'taxon' && $readAssocTaxon){
+						if($fArr['smsKey'] == 'taxon' && $fArr['smsValue'] != 'HardTick DNA Quality' && $readAssocTaxon){
 							$assocTaxa['verbatimSciname'] = $fArr['smsValue'];
 							$assocTaxa['relationship'] = 'hostOf';
 						}
@@ -760,6 +760,7 @@ class OccurrenceHarvester{
 			$dwcArr['eventDate2'] = $this->formatDate($dwcArr['eventDate2']);
 			if($dwcArr['eventDate'] == $dwcArr['eventDate2']) unset($dwcArr['eventDate2']);
 		}
+		$this->applyCustomAdjustments($dwcArr);
 		return $dwcArr;
 	}
 
@@ -903,6 +904,16 @@ class OccurrenceHarvester{
 			}
 		}
 		return true;
+	}
+
+	private function applyCustomAdjustments(&$dwcArr){
+		if($dwcArr['collid'] == 75){
+			//Tick pathogen extracts
+			$dwcArr['individualCount'] = 1;
+			$dwcArr['preparations'] = '-80 degrees C.';
+			$dwcArr['lifeStage'] = 'Nymph';
+			$dwcArr['sex'] = '';
+		}
 	}
 
 	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
