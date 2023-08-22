@@ -79,7 +79,7 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 			//USPS: WEDNESDAY 15  MAY 2019	 by 8:00pm
 			//USPS ver2: May 15, 2019 at 2:43 pm
 			//FedEx: Tuesday 9/04/2018 at 1:03 pm
-			//UPS: Thursday 02/07/2019 Delivery Time at 12:33 P.M.
+			//UPS: Monday, July 17 at 7:24 A.M. at Receiver
 
 			var f = textObj.form;
 			var testStr = textObj.value.trim();
@@ -88,9 +88,10 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 					var yearStr = "";
 					var monthStr = "";
 					var dayStr = "";
-					var dateEx1 = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
-					var dateEx2 = /(\d{1,2})\s{1,3}([A-Z]+)\s{1,3}(\d{4})/;
-					var dateEx3 = /([A-Za-z]+)\s{1,3}(\d{1,2})[,\s,]{1,3}(\d{4})/;
+					var dateEx1 = /(\d{1,2})\/(\d{1,2})\/(\d{2,4})/;
+					var dateEx2 = /(\d{1,2})\s{1,3}([A-Z]+)\s{1,3}(\d{2,4})/;
+					var dateEx3 = /([A-Za-z]+)\s{1,3}(\d{1,2})[,\s,]{1,3}(\d{2,4})/;
+					var dateEx4 = /([A-Z]{1}[a-z]+)\s{1}(\d{1,2})/;
 					if(extractArr = dateEx1.exec(testStr)){
 						yearStr = extractArr[3];
 						monthStr = extractArr[1];
@@ -106,7 +107,13 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 						monthStr = getMonthFromString(extractArr[1]);
 						dayStr = extractArr[2];
 					}
+					else if(extractArr = dateEx4.exec(testStr)){
+						yearStr = "2023";
+						monthStr = getMonthFromString(extractArr[1]);
+						dayStr = extractArr[2];
+					}
 					if(yearStr){
+						if(yearStr.length == 2) yearStr = '20'+yearStr;
 						if(monthStr.length == 1) monthStr = '0'+monthStr;
 						if(dayStr.length == 1) dayStr = '0'+dayStr;
 						if(!f.receivedDate.value){
