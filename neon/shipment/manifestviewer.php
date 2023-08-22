@@ -78,7 +78,7 @@ elseif(array_key_exists('CollAdmin',$USER_RIGHTS) || array_key_exists('CollEdito
 		function checkinCommentChanged(textObj){
 			//USPS: WEDNESDAY 15  MAY 2019	 by 8:00pm
 			//USPS ver2: May 15, 2019 at 2:43 pm
-			//FedEx: Tuesday 9/04/2018 at 1:03 pm
+			//FedEx: 7/13/23 at 9:39 AM
 			//UPS: Monday, July 17 at 7:24 A.M. at Receiver
 
 			var f = textObj.form;
