@@ -48,11 +48,19 @@ $LANG['TOGGLE_508_OFF'] = "Modo condensado";
 $LANG['TOGGLE_508_ON'] = "Modo de accesibilidad";
 $LANG['SELECT_LANGUAGE'] = 'Seleccionar un Idioma';
 
+$LANG['CONTACT_US'] = 'Contacta con Nosotros';
+$LANG['LOGIN'] = 'Acceso';
+$LANG['HOME'] = 'Hogar';
+$LANG['SEARCH_COLLECTIONS'] = 'Buscar Colecciones';
+$LANG['CHECKLISTS'] = 'Listas de Control';
+$LANG['DATA_USE'] = 'Uso de Datos';
+$LANG['ABOUT_SYMBIOTA'] = 'Acerca de Symbiota';
+$LANG['HELP'] = 'Ayuda';
 $LANG['SPECIMENS'] = 'Especímenes';
 $LANG['IMG_CONTR'] = 'Contribuidores de imágenes';
 $LANG['OBS'] = 'Observaciones';
 
-$LANG['NAV_HOME'] = 'Inicio';
+$LANG['NAV_HOME'] = 'Inicio'; // TODO these will be renamed to BREADCRUMB_FOO
 $LANG['NAV_IMG_LIB'] = 'Biblioteca de imágenes';
 $LANG['NAV_IMG_CONTR'] = 'Contribuidores de imágenes';
 $LANG['NAV_IMG_SEARCH'] = 'Búsqueda de imágenes';
