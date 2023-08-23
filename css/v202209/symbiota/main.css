@@ -483,6 +483,9 @@ table.styledtable tr.alt td {
   margin-bottom: 0.5rem;
 }
 
+.welcome-text {
+  margin-bottom: 0.75rem
+
 .load-button {
   margin-top: 0.75rem;
 }
