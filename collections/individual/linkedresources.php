@@ -4,18 +4,12 @@ include_once($SERVER_ROOT.'/classes/OccurrenceIndividual.php');
 @include_once($SERVER_ROOT.'/content/lang/collections/individual/linkedresources.'.$LANG_TAG.'.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$occid = $_GET["occid"];
-$tid = $_GET["tid"];
-$clid = array_key_exists("clid",$_REQUEST)?$_REQUEST["clid"]:0;
-
-//Sanitize input variables
-if(!is_numeric($occid)) $occid = 0;
-if(!is_numeric($tid)) $tid = 0;
-if(!is_numeric($clid)) $clid = 0;
+$occid = filter_var($_GET['occid'], FILTER_SANITIZE_NUMBER_INT);
+$tid = array_key_exists('tid', $_REQUEST) ? filter_var($_GET['tid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$clid = array_key_exists('clid', $_REQUEST) ? filter_var($_REQUEST['clid'], FILTER_SANITIZE_NUMBER_INT) : 0;
 
 $indManager = new OccurrenceIndividual();
 $indManager->setOccid($occid);
-
 ?>
 <style>
 	.section-title{  }
