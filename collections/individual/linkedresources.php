@@ -48,12 +48,12 @@ $indManager->setOccid($occid);
 					if($tid){
 						?>
 						<div style="margin:10px;">
-							<form action="../../checklists/clsppeditor.php" method="post" onsubmit="return verifyVoucherForm(this);">
+							<form action="index.php" method="post" onsubmit="return verifyVoucherForm(this);">
 								<div>
 									<?php echo (isset($LANG['ADDVOUCHERCHECK'])?$LANG['ADDVOUCHERCHECK']:'Add as voucher to checklist'); ?>:
-									<input name='voccid' type='hidden' value='<?php echo $occid; ?>'>
-									<input name='tid' type='hidden' value='<?php echo $tid; ?>'>
-									<select id='clid' name='clid'>
+									<input name='occid' type='hidden' value='<?php echo $occid; ?>'>
+									<input name='vtid' type='hidden' value='<?php echo $tid; ?>'>
+									<select id='vclid' name='vclid'>
 						  				<option value='0'><?php echo (isset($LANG['SELECTCHECKLIST'])?$LANG['SELECTCHECKLIST']:'Select a Checklist'); ?></option>
 						  				<option value='0'>--------------------------</option>
 						  				<?php
@@ -72,7 +72,8 @@ $indManager->setOccid($occid);
 									<input name="veditnotes" type="text" size="50" title="<?php echo (isset($LANG['VIEWABLEEDITORS'])?$LANG['VIEWABLEEDITORS']:'Viewable only to checklist editors'); ?>">
 								</div>
 								<div>
-									<button type='submit' name='action' value="Add Voucher"><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
+									<input name="tabindex" type="hidden" value="2" >
+									<button type='submit' name='formsubmit' value="addVoucher"><?php echo (isset($LANG['ADDVOUCHER'])?$LANG['ADDVOUCHER']:'Add Voucher'); ?></button>
 								</div>
 							</form>
 						</div>
