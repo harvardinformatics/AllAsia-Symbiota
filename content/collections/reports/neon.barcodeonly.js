@@ -1,14 +1,12 @@
 /***
- * NEON Mammals Wet Labels Custom Styles
+ * NEON Barcode-only Custom Styles
  * Author: Ed Gilbert
- * Version: Aug 2023
+ * Version: Sept 2023
  *
  * Features:
  * - Replaces standard Symbiota barcode with custom (using NEON tag (barcode) instead of catalogNumber)
  * - Barcodes courtesy of barcode.tec-it.com
- * - Removes orcid from recordedby
- * - Removes NEON UUID
- * - Removes NEON Hash
+ * - Removes all other identifiers except for IGSN
  */
 
 let labels = document.querySelectorAll(".label");
