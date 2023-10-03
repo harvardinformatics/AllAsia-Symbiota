@@ -456,6 +456,13 @@ hr {
   margin-bottom: 0.5rem;
 }
 
+.no-margin {
+  margin: 0;
+}
+
+.no-margin-left {
+  margin-left: 0;
+}
 .taxon-search-bar {
   width: 25rem;
 }
