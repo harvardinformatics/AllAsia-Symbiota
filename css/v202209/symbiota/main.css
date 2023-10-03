@@ -835,6 +835,14 @@ hr {
   text-decoration: underline;
 }
 
+.background-gray-light {
+  background-color: #f2f2f2;
+}
+
+.max-width-fit-65 {
+  max-width: 100%;
+  width: 65rem;
+}
 .bigger-left-margin-rel {
   margin-left: 3rem;
 }
