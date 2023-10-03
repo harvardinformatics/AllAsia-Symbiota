@@ -456,6 +456,16 @@ hr {
   margin-bottom: 0.5rem;
 }
 
+.cat-icon-div {
+  width: 4rem;
+  height: 3rem;
+}
+
+.collection-checkbox {
+  width: 25px;
+  padding-top: 8px;
+}
+
 .no-margin {
   margin: 0;
 }
