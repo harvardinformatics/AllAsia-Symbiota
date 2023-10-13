@@ -248,7 +248,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	private function setDeterminations(){
-		$conditionArr = array('appliedStatus' => '1');
+		$conditionArr = array('appliedStatus' => 1);
 		$detManager = new OmDeterminations($this->conn);
 		$detManager->setOccid($this->occid);
 		if($detArr = $detManager->getDeterminationArr($conditionArr)){

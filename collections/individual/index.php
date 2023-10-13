@@ -490,13 +490,13 @@ $traitArr = $indManager->getTraitArr();
 						}
 						if(!empty($occArr['dets'])){
 							?>
-							<div id="determination-div">
+							<div class="det-toogle-div">
+								<a href="#" onclick="toggle('det-toogle-div');return false"><img src="../../images/plus_sm.png"> <?php echo $LANG['SHOW_DET_HISTORY']; ?></a>
+							</div>
+							<div id="determination-div" class="det-toogle-div" style="display:none;">
 								<fieldset>
 									<legend><a href="#" onclick="toggle('det-toogle-div');return false"><?php echo $LANG['DET_HISTORY']; ?></a></legend>
-									<div class="det-toogle-div">
-										<a href="#" onclick="toggle('det-toogle-div');return false"><img src="../../images/plus_sm.png"> <?php echo $LANG['SHOW_DET_HISTORY']; ?></a>
-									</div>
-									<div class="det-toogle-div" style="display:none;">
+									<div>
 										<?php
 										$firstIsOut = false;
 										foreach($occArr['dets'] as $detArr){
