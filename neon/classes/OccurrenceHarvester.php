@@ -639,7 +639,7 @@ class OccurrenceHarvester{
 				}
 
 				//Taxonomic fields
-				$skipTaxonomy = array(5,6,10,13,16,21,23,31,41,42,45,58,60,61,62,67,68,69,76);
+				$skipTaxonomy = array(5,6,10,13,16,21,23,31,41,42,45,58,60,61,62,67,68,69,76,92);
 				if(!in_array($dwcArr['collid'],$skipTaxonomy)){
 					$identArr = array();
 					if(isset($sampleArr['identifications'])){
@@ -653,19 +653,19 @@ class OccurrenceHarvester{
 						//Identifications not supplied via API nor manifest, thus try to grab from sampleID
 						$taxonCode = '';
 						$taxonRemarks = '';
-						if($dwcArr['collid'] == 56){
+						if($dwcArr['collid'] == 30) $taxonCode = 'Soil';
+						elseif($dwcArr['collid'] == 56){
 							if(preg_match('/\.\d{4}\.\d{1,2}\.([A-Z]{2,15}\d{0,2})\./', $sampleArr['sampleID'], $m)){
 								$taxonCode = $m[1];
 								$taxonRemarks = 'Identification source: parsed from NEON sampleID';
 							}
 						}
-						elseif(!in_array($dwcArr['collid'], array(5,21,22,23,30,31,41,42,50,56,57))){
-							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'],$m)){
+						elseif(!in_array($dwcArr['collid'], array(22,50,57))){
+							if(preg_match('/\.\d{8}\.([A-Z]{2,15}\d{0,2})\./',$sampleArr['sampleID'], $m)){
 								$taxonCode = $m[1];
 								$taxonRemarks = 'Identification source: parsed from NEON sampleID';
 							}
 						}
-						elseif($dwcArr['collid'] == 30) $taxonCode = 'Soil';
 						if($taxonCode){
 							$hash = hash('md5', str_replace(' ','',$taxonCode.'sampleIDs.d.'));
 							$identArr[$hash] = array('sciname' => $taxonCode, 'identifiedBy' => 'sampleID', 'dateIdentified' => 's.d.', 'taxonRemarks' => $taxonRemarks);
@@ -914,6 +914,9 @@ class OccurrenceHarvester{
 			$dwcArr['lifeStage'] = 'Nymph';
 			$dwcArr['sex'] = '';
 		}
+		elseif($dwcArr['collid'] == 29 || $dwcArr['collid'] == 39){
+			$dwcArr['individualCount'] = 1;
+		}
 	}
 
 	private function loadOccurrenceRecord($dwcArr, $samplePK, $occid){
@@ -938,6 +941,9 @@ class OccurrenceHarvester{
 				}
 				elseif($dwcArr['collid'] == 42){
 					$sciname = 'Wet Deposition';
+				}
+				elseif($dwcArr['collid'] == 92){
+					$sciname = 'Aquatic Sediments';
 				}
 				if($sciname){
 					$idDate = 's.d.';
@@ -1111,7 +1117,7 @@ class OccurrenceHarvester{
 			foreach($identArr as $k => $v){
 				if(!isset($v['sciname'])) unset($identArr[$k]);
 				elseif($v['identifiedBy'] == 'undefined' && $v['dateIdentified'] == 's.d.' && count($identArr) > 1){
-					unset($identArr[$k]);
+					//unset($identArr[$k]);
 				}
 			}
 			//Remove old annotations entered by the occurrence harvester that are not present within new harvest
