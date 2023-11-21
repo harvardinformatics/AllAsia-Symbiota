@@ -11,6 +11,7 @@ $collManager = new OccurrenceCollectionProfile();
 
 $collid = isset($_REQUEST['collid']) ? $collManager->sanitizeInt($_REQUEST['collid']) : 0;
 $occIndex = array_key_exists('occindex',$_REQUEST)?$_REQUEST['occindex']:0;
+$SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT = $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT ?? false;
 
 // $occManager = new OccurrenceEditorManager();
 // $collIdAsNum = (int)$collid;
@@ -83,19 +84,6 @@ if ($SYMB_UID) {
 				console.log(err);
 			}
 		}
-
-		function validateForm (){
-			const taxonSearchVal = document?.forms['quicksearch']['taxon-search']?.value;
-			const catalogNumberValue = document.forms['quicksearch']['catalog-number'].value;
-			if(taxonSearchVal && !catalogNumberValue){
-				 alert("You cannot search the occurrence editor by taxon.");
-				 return false;
-			}else{
-				return true;
-			}
-
-		}
-		
 	</script>
 	<style type="text/css">
 		.importItem { margin-left:10px; display:none; }
@@ -117,7 +105,7 @@ if ($SYMB_UID) {
 		<section id="tabs" class="fieldset-like no-left-margin" style="float: right;">
 			<h1><span><?php echo (isset($LANG['QUICK_SEARCH']) ? $LANG['QUICK_SEARCH'] : 'Quick Search'); ?></span></h1>
 			<div id="dialogContainer" style="position: relative;">
-				<form name="quicksearch" action="processEditorSearch.php" method="POST" onsubmit="return validateForm()">
+				<form name="quicksearch" action="processEditorSearch.php" method="POST">
 					<label for="catalog-number"><?php echo (isset($LANG['OCCURENCE_IDENTIFIER']) ? $LANG['OCCURENCE_IDENTIFIER'] : 'Catalog Number'); ?></label>
 					<span class="skip-link">
 						<?php
@@ -151,9 +139,8 @@ if ($SYMB_UID) {
 					?>
 					
 				</form>
-				<!-- <form name="quicksearch-editor" action="javascript:void(0);" onsubmit="submitAndRedirectSearchForm('<?php echo $CLIENT_ROOT ?>/collections/editor/occurrencetabledisplay.php?displayquery=1&collid=','&q_catalognumber=', '', '', '', true, <?php echo $occid ?>); return false;"> -->
-				<form name="quicksearch" action="javascript:void(0);" onsubmit="submitAndRedirectSearchForm('<?php echo $CLIENT_ROOT ?>/collections/list.php?db=','&catnum=', '&taxa=', '&includeothercatnum=1', '&usethes=1&taxontype=2 '); return false;">
-					<button type="submit" id="search-by-catalog-number-btn" title="<?php echo (isset($LANG['IIDENTIFIER_PLACEHOLDER_LIST']) ? $LANG['IDENTIFIER_PLACEHOLDER_LIST'] : 'Occurrence ID and Record ID also accepted.'); ?>">
+				<form name="quicksearch" action="javascript:void(0);" onsubmit="submitAndRedirectSearchForm('<?php echo $CLIENT_ROOT ?>/collections/list.php?db=','&catnum=', '&taxa=', '&includecult=' + <?php echo $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT ? '1' : '0' ?> + '&includeothercatnum=1', '&includecult=' + <?php echo $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT ? '1' : '0' ?> + '&usethes=1&taxontype=2 '); return false;">
+					<button class="top-breathing-room-rel" type="submit" id="search-by-catalog-number-btn" title="<?php echo (isset($LANG['IDENTIFIER_PLACEHOLDER_LIST']) ? $LANG['IDENTIFIER_PLACEHOLDER_LIST'] : 'Occurrence ID and Record ID also accepted.'); ?>">
 						<?php echo (isset($LANG['SEARCH']) ? $LANG['SEARCH'] : 'Search'); ?>
 					</button>
 				</form>

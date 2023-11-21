@@ -16,21 +16,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $occManager->setCollId($collIdAsNum);
     $occManager->setQueryVariables();
     $occIndex = 0;
-    $recLimit = 1000; // @TODO this is likely not sufficient
+    $recLimit = 10000; // @TODO this is likely not a sufficient long-term solution
     $recStart = floor($occIndex/$recLimit)*$recLimit;
     $recArr = $occManager->getOccurMap($recStart, $recLimit);
-    foreach ($recArr as $key => $element) {
-        if (isset($element['catalognumber']) && $element['catalognumber'] === $catalogNumber) {
-            $matchingElement = $element;
-            break;
+    if($catalogNumber !== ''){
+        foreach ($recArr as $key => $element) {
+            if (isset($element['catalognumber']) && $element['catalognumber'] === $catalogNumber) {
+                $matchingElement = $element;
+                break;
+            }
         }
+        $occid = $matchingElement['occid'] ?? '';
     }
-    $occid = $matchingElement['occid'] ?? '';
 
     $shouldRedirect = false;
 
 
     $redirectURL = $CLIENT_ROOT . '/collections/editor/occurrencetabledisplay.php?displayquery=1&collid=' . $collid;
+    if($catalogNumber === '' && $taxon !== ''){
+        $redirectURL = $CLIENT_ROOT . '/collections/editor/occurrenceeditor.php?q_catalognumber=&occindex=0&q_customfield1=sciname&q_customtype1=STARTS&q_customvalue1=' . urlencode($taxon) . '&collid=' . $collid;
+        $shouldRedirect = true;
+    }
     if($catalogNumber !== ''){
         if($occid == ''){
             $message = '<p>No matching catalog number could be found</p>';
