@@ -1,7 +1,9 @@
 <?php
 /*
  ------------------
- Language: Español (Spanish)
+Language: Español (Spanish)
+Translated by: Samanta Orellana
+Date Translated: 2021-06-23
  ------------------
  */
 $LANG['DETAILS'] = 'Detalles';
@@ -152,4 +154,5 @@ $LANG['CHECKING'] = 'Revisando archivo';
 $LANG['RESTORE_RECORD'] = 'Restore Record';
 $LANG['RECORD_DELETED'] = 'Registro eliminado';
 $LANG['VALUE'] = 'Valor';
+$LANG['LAT_LNG'] = 'Latitud/Longitud';
 ?>
