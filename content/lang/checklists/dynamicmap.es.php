@@ -2,6 +2,8 @@
 /*
 ------------------
 Language: Español (Spanish)
+Translated by: Samanta Orellana
+Date Translated: 2021-08-05
 ------------------
 */
 
@@ -23,5 +25,6 @@ $LANG['TAXON_FILTER'] = 'Filtro de Taxón';
 $LANG['RADIUS'] = 'Radio';
 $LANG['KM'] = 'Kilómetros';
 $LANG['MILES'] = 'Millas';
+$LANG['UNITS'] = 'Unidades';
 
 ?>
