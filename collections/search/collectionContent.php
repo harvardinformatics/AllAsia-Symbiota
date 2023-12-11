@@ -40,6 +40,19 @@
 			</section>
 		<?php
 		}
+		if(isset($specArr['coll'])){
+			$collArr = $specArr['coll'];
+			?>
+			<table style="float:left;width:80%;">
+				<?php
+				foreach($collArr as $collid => $cArr){
+					include('./singleCollectionWithoutCategoryDetails.php');
+					$collCnt++;
+				}
+				?>
+			</table>
+			<?php
+		}
 		$hrAndHeaderText = '<div class="specimen-header-margin"><hr/><h2>' . $LANG['OBSERVATION_COLLECTIONS'] . '</h2></div>';
 		if($specArr && $obsArr) echo $hrAndHeaderText;
 		if(isset($obsArr['cat'])){
@@ -56,5 +69,18 @@
 				?>
 			</section>
 		<?php
+		}
+		if(isset($obsArr['coll'])){
+			$collArr = $obsArr['coll'];
+			?>
+			<table style="float:left;width:80%;">
+				<?php
+				foreach($collArr as $collid => $cArr){
+					include('./singleCollectionWithoutCategoryDetails.php');
+					$collCnt++;
+				}
+				?>
+			</table>
+			<?php
 		}
 	?>

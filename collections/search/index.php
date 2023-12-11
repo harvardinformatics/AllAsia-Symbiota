@@ -2,8 +2,8 @@
 <?php
 // error_reporting(E_ALL);
 // ini_set('display_errors', '1');
-include_once('../config/symbini.php');
-include_once('../content/lang/index.' . $LANG_TAG . '.php');
+include_once('../../config/symbini.php');
+include_once('../../content/lang/index.' . $LANG_TAG . '.php');
 include_once($SERVER_ROOT . '/classes/CollectionMetadata.php');
 include_once($SERVER_ROOT . '/classes/DatasetsMetadata.php');
 include_once($SERVER_ROOT.'/content/lang/collections/sharedterms.'.$LANG_TAG.'.php');
@@ -35,10 +35,10 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 		echo '<link href="' . $CLIENT_ROOT . '/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
 		echo '<link href="' . $CLIENT_ROOT . '/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
 	}
-	echo '<link href="' . $CLIENT_ROOT . '/search/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	echo '<link href="' . $CLIENT_ROOT . '/search/css/app.css" type="text/css" rel="stylesheet" />';
+	echo '<link href="' . $CLIENT_ROOT . '/collections/search/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
+	echo '<link href="' . $CLIENT_ROOT . '/collections/search/css/app.css" type="text/css" rel="stylesheet" />';
 	
-	echo '<link href="' . $CLIENT_ROOT . '/search/css/tables.css" type="text/css" rel="stylesheet" />';
+	echo '<link href="' . $CLIENT_ROOT . '/collections/search/css/tables.css" type="text/css" rel="stylesheet" />';
 	echo '<link href="' . $CLIENT_ROOT . '/css/v202209/symbiota/collections/sharedCollectionStyling.css" type="text/css" rel="stylesheet" />';
 	?>
 	<script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
@@ -439,7 +439,7 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 	?>
 </body>
 <script src="js/searchform.js" type="text/javascript"></script>
-<script src="<?php echo $CLIENT_ROOT . '/search/js/alerts.js?v=202107'; ?>" type="text/javascript"></script>
+<script src="<?php echo $CLIENT_ROOT . '/collections/search/js/alerts.js?v=202107'; ?>" type="text/javascript"></script>
 <script src="<?php echo $CLIENT_ROOT . '/js/jquery-ui-1.12.1/jquery-ui.min.js'; ?>" type="text/javascript"></script>
 <script src="<?php echo $CLIENT_ROOT . '/js/symb/api.taxonomy.taxasuggest.js'; ?>" type="text/javascript"></script>
 <script src="<?php echo $CLIENT_ROOT . '/js/symb/collections.index.js?ver=20171215' ?>" type="text/javascript"></script>
@@ -459,7 +459,7 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 
 	if(collectionSource){
 		// go through all collections and set them all to unchecked
-		const collectionCheckboxes = document.querySelectorAll('input[id^="coll-"]');
+		const collectionCheckboxes = document.querySelectorAll('input[id^="coll"]');
 		collectionCheckboxes.forEach(collection => {
 			collection.checked = false;
 		});
@@ -474,7 +474,12 @@ $obsArr = (isset($collList['obs'])?$collList['obs']:null);
 		const targetCheckbox = document.querySelectorAll('input[id^="coll-' + collectionSource + '"]');
 		targetCheckbox.forEach(collection => {
 			collection.checked = true;
-		})
+		});
+		//do the same for collections with slightly different format
+		const targetCheckboxAlt = document.querySelectorAll('input[id^="collection-' + collectionSource + '"]');
+		targetCheckboxAlt.forEach(collection => {
+			collection.checked = true;
+		});
 		updateChip();
 	}
 
