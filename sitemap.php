@@ -188,6 +188,9 @@ $smManager = new SiteMapManager();
 									<?php echo htmlspecialchars($LANG['GLOSSARY'], HTML_SPECIAL_CHARS_FLAGS);?>
 								</a>
 							</li>
+							<li>
+								<a href="collections/map/staticmaphandler.php"><?php echo htmlspecialchars($LANG['MANAGE_TAXON_THUMBNAILS'], HTML_SPECIAL_CHARS_FLAGS);?></a>
+							</li>
 						</ul>
 						<?php
 					}
