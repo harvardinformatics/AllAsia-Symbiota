@@ -902,6 +902,14 @@ hr {
   font-weight: bold;
 }
 
+.float-right {
+  float: right;
+}
+
+.margin-left-20 {
+  margin-left: 20px;
+}
+
 .voucher-admin-header {
   font-size: 2em;
   font-weight: bold;
