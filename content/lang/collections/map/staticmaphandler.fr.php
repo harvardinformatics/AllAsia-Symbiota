@@ -1,10 +1,10 @@
 <?php
 /*
 ------------------
-Language: English
+Language: French 
 ------------------
 */
-include_once('mapshared.en.php');
+include_once('mapshared.fr.php');
 
 $LANG['BUILD_MAPS'] = 'Build Maps';
 $LANG['BOUNDS'] = 'Bounds';
@@ -28,10 +28,10 @@ $LANG['TYPE_TAXON'] = 'Type taxon';
 $LANG['SEPARATE_MULTIPLE'] = 'Separate multiple terms w/ commas';
 
 $LANG['TID'] = 'Tid';
-$LANG['TAXON'] = 'Taxon';
-$LANG['STATUS'] = 'Status';
-$LANG['SUCCESS'] = 'Success';
-$LANG['FAILURE'] = 'Failure';
-$LANG['NO_COORDINATES'] = 'No coordinates to map';
-$LANG['RESULTS'] = 'Results';
+$LANG['TAXON'] = 'Taxón';
+$LANG['STATUS'] = 'Statut';
+$LANG['SUCCESS'] = 'Succès';
+$LANG['FAILURE'] = 'Échec';
+$LANG['NO_COORDINATES'] = 'Aucune coordonnée à cartographier';
+$LANG['RESULTS'] = 'Résultats';
 ?>
