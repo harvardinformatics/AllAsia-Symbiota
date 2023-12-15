@@ -95,7 +95,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		if($url !== null){
 			if($GLOBALS['IMAGE_DOMAIN'] && substr($url,0,1) == '/') $url = $GLOBALS['IMAGE_DOMAIN'].$url;
 			$sql .= 'url=?, ';
-			$fieldArr[] = $url;
+			$fieldArr[] = ($url?$url:NULL);
 			$types .= 's';
 		}
 
@@ -112,7 +112,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 		}
 		if($tnUrl !== null){
 			if($GLOBALS['IMAGE_DOMAIN'] && substr($tnUrl,0,1) == '/') $tnUrl = $GLOBALS['IMAGE_DOMAIN'].$tnUrl;
-			$fieldArr[] = $tnUrl;
+			$fieldArr[] = ($tnUrl?$tnUrl:NULL);
 			$sql .= 'thumbnailurl=?, ';
 			$types .= 's';
 		}
@@ -155,7 +155,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 			$stmt->bind_param($types, ...$fieldArr);
 			if($stmt->execute()){
 				$imgUpdateStatus = true;
-				if(array_key_exists('occid', $fieldArr) || array_key_exists('tidinterpreted', $fieldArr)){
+				if(array_key_exists('occid', $imgArr) || array_key_exists('tidinterpreted', $imgArr)){
 					$imgSql = 'UPDATE images i INNER JOIN omoccurrences o ON i.occid = o.occid SET i.tid = o.tidinterpreted WHERE (i.imgid = '.$imgId.')';
 					$this->conn->query($imgSql);
 				}
@@ -361,7 +361,7 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 	}
 
 	public function addImage($postArr){
-		$status = true;
+		$status = false;
 		$imgManager = new ImageShared();
 		//Set target path
 		$subTargetPath = $this->collMap['institutioncode'];
@@ -414,18 +414,19 @@ class OccurrenceEditorImages extends OccurrenceEditorManager {
 			if($imgWeb) $imgManager->setImgWebUrl($imgWeb);
 			if($imgThumb) $imgManager->setImgTnUrl($imgThumb);
 			if(array_key_exists('copytoserver',$postArr) && $postArr['copytoserver']){
-				if(!$imgManager->copyImageFromUrl()) $status = false;
+				if($imgManager->copyImageFromUrl()) $status = true;
 			}
 			else $imgManager->setImgLgUrl($sourceImgUri);
 		}
 		else{
 			//Image is a file upload
-			if(!$imgManager->uploadImage()) $status = false;
+			if($imgManager->uploadImage()) $status = true;
 		}
 		$imgManager->setOccid($this->occid);
 		if(isset($this->occurrenceMap[$this->occid]['tidinterpreted'])) $imgManager->setTid($this->occurrenceMap[$this->occid]['tidinterpreted']);
 		if($imgManager->processImage()){
 			$this->activeImgId = $imgManager->getActiveImgId();
+			$status = true;
 		}
 
 		//Load tags

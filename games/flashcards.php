@@ -10,6 +10,12 @@ $taxonFilter = array_key_exists("taxonfilter",$_REQUEST)?$_REQUEST["taxonfilter"
 $showCommon = array_key_exists("showcommon",$_REQUEST)?$_REQUEST["showcommon"]:0;
 $lang = array_key_exists("lang",$_REQUEST)?$_REQUEST["lang"]:$defaultLang;
 
+//Sanitation
+if(!is_numeric($clid)) $clid = 0;
+if(!is_numeric($dynClid)) $dynClid = 0;
+if(!is_numeric($taxonFilter)) $taxonFilter = 0;
+if(!is_numeric($showCommon)) $showCommon = 0;
+
 $fcManager = new GamesManager();
 $fcManager->setClid($clid);
 $fcManager->setDynClid($dynClid);
@@ -23,15 +29,7 @@ $sciArr = array();
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Flash Cards</title>
 	<?php
-	$activateJQuery = false;
-	if(file_exists($SERVER_ROOT.'/includes/head.php')){
-		include_once($SERVER_ROOT.'/includes/head.php');
-	}
-	else{
-		echo '<link href="'.$CLIENT_ROOT.'/css/jquery-ui.css" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/base.css?ver=1" type="text/css" rel="stylesheet" />';
-		echo '<link href="'.$CLIENT_ROOT.'/css/main.css?ver=1" type="text/css" rel="stylesheet" />';
-	}
+	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
 	<script type="text/javascript">

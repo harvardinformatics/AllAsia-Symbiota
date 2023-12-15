@@ -3,8 +3,8 @@ include_once($SERVER_ROOT.'/classes/RpcBase.php');
 
 class RpcOccurrenceEditor extends RpcBase{
 
-	function __construct(){
-		parent::__construct('write');
+	function __construct($connType = 'readonly'){
+		parent::__construct(null,$connType);
 	}
 
 	function __destruct(){
@@ -25,7 +25,8 @@ class RpcOccurrenceEditor extends RpcBase{
 			if($this->conn->query($sql)){
 				$bool = true;
 				if($origOcnStr){
-					$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueNew, fieldValueOld, uid) VALUES('.$occid.',"othercatalognumbers","","'.$this->cleanInStr($origOcnStr).'",'.$GLOBALS['SYMB_UID'].')';
+					$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueNew, fieldValueOld, appliedStatus, uid)
+						VALUES('.$occid.',"omoccuridentifiers","","'.$this->cleanInStr($origOcnStr).'",1,'.$GLOBALS['SYMB_UID'].')';
 					$this->conn->query($sql);
 				}
 			}
@@ -64,7 +65,8 @@ class RpcOccurrenceEditor extends RpcBase{
 					$sql = 'UPDATE omoccurrences SET otherCatalogNumbers = '.($newOcnStr?'"'.$this->cleanInStr($newOcnStr).'"':'NULL').' WHERE occid = '.$occid;
 					if($this->conn->query($sql)){
 						$bool = true;
-						$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueNew, fieldValueOld, uid) VALUES('.$occid.',"othercatalognumbers","'.$this->cleanInStr($newOcnStr).'","'.$this->cleanInStr($origOcnStr).'",'.$GLOBALS['SYMB_UID'].')';
+						$sql = 'INSERT INTO omoccuredits(occid, fieldName, fieldValueNew, fieldValueOld, appliedStatus, uid)
+							VALUES('.$occid.',"omoccuridentifiers","'.$this->cleanInStr($newOcnStr).'","'.$this->cleanInStr($origOcnStr).'",1,'.$GLOBALS['SYMB_UID'].')';
 						$this->conn->query($sql);
 					}
 					else echo 'ERROR deleting occurrence identifier: '.$this->conn->error;
@@ -78,27 +80,58 @@ class RpcOccurrenceEditor extends RpcBase{
 		$retArr = array();
 		$catNumber = $this->cleanInStr($catNum);
 		if(is_numeric($collid) && is_numeric($skipOccid) && $catNumber){
-			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = "'.$catNumber.'") AND (collid = '.$collid.') AND (occid != '.$skipOccid.') ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->occid] = $r->occid;
+			$sql = 'SELECT occid FROM omoccurrences WHERE (catalognumber = ?) AND (collid = ?) AND (occid != ?) ';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param('sii', $catNum, $collid, $skipOccid);
+				$stmt->execute();
+				$occid = 0;
+				$stmt->bind_result($occid);
+				while($stmt->fetch()){
+					$retArr[$occid] = $occid;
+				}
+				$stmt->close();
 			}
-			$rs->free();
 		}
 		return $retArr;
 	}
 
 	public function getDupesOtherCatalogNumbers($otherCatNum, $collid, $skipOccid){
 		$retArr = array();
-		$otherCatNum = $this->cleanInStr($otherCatNum);
 		if(is_numeric($collid) && is_numeric($skipOccid) && $otherCatNum){
 			$sql = 'SELECT o.occid FROM omoccurrences o LEFT JOIN omoccuridentifiers i ON o.occid = i.occid
-				WHERE (o.othercatalognumbers = "'.$otherCatNum.'" OR i.identifierValue = "'.$otherCatNum.'") AND (o.collid = '.$collid.') AND (o.occid != '.$skipOccid.') ';
-			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr[$r->occid] = $r->occid;
+				WHERE (o.othercatalognumbers = ? OR i.identifierValue = ?) AND (o.collid = ?) AND (o.occid != ?) ';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param('ssii', $otherCatNum, $otherCatNum, $collid, $skipOccid);
+				$stmt->execute();
+				$occid = 0;
+				$stmt->bind_result($occid);
+				while($stmt->fetch()){
+					$retArr[$occid] = $occid;
+				}
+				$stmt->close();
 			}
-			$rs->free();
+		}
+		return $retArr;
+	}
+
+	public function getOccurrenceVouchers($occid){
+		$retArr = array();
+		if(is_numeric($occid)){
+			$sql = 'SELECT c.clid, c.name FROM fmvouchers v INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID INNER JOIN fmchecklists c ON cl.clid = c.clid WHERE v.occid = ?';
+			if($stmt = $this->conn->prepare($sql)) {
+				if($stmt->bind_param('i', $occid)){
+					$stmt->execute();
+					$clid = '';
+					$name = '';
+					$stmt->bind_result($clid, $name);
+					while($stmt->fetch()){
+						$retArr[$clid] = $name;
+					}
+					$stmt->close();
+				}
+				else $this->errorMessage = 'ERROR binding params for getOccurrenceVouchers: '.$stmt->error;
+			}
+			else $this->errorMessage = 'ERROR preparing statement for getOccurrenceVouchers: '.$this->conn->error;
 		}
 		return $retArr;
 	}

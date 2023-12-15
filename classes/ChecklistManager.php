@@ -1,10 +1,9 @@
 <?php
-include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/Manager.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherAdmin.php');
 
-class ChecklistManager {
+class ChecklistManager extends Manager{
 
-	private $conn;
 	private $clid;
 	private $dynClid;
 	private $clName;
@@ -13,7 +12,7 @@ class ChecklistManager {
 	private $voucherArr = array();
 	private $pid = '';
 	private $projName = '';
-	private $taxaList = Array();
+	private $taxaList = array();
 	private $langId;
 	private $thesFilter = 0;
 	private $taxonFilter;
@@ -26,7 +25,7 @@ class ChecklistManager {
 	private $showAlphaTaxa = false;
 	private $searchCommon = false;
 	private $searchSynonyms = true;
-	private $filterArr = Array();
+	private $filterArr = array();
 	private $imageLimit = 100;
 	private $taxaLimit = 500;
 	private $speciesCount = 0;
@@ -36,11 +35,11 @@ class ChecklistManager {
 	private $basicSql;
 
 	function __construct() {
-		$this->conn = MySQLiConnectionFactory::getCon("readonly");
+		parent::__construct();
 	}
 
 	function __destruct(){
- 		if(!($this->conn === false)) $this->conn->close();
+		parent::__destruct();
 	}
 
 	public function setClid($clid){
@@ -186,7 +185,7 @@ class ChecklistManager {
 
 	//return an array: family => array(TID => sciName)
 	public function getTaxaList($pageNumber = 1,$retLimit = 500){
-		if(!$this->clid && !$this->dynClid) return;
+		if(!$this->clid && !$this->dynClid) return array();
 		//Get species list
 		$speciesPrev="";
 		$taxonPrev="";
@@ -264,6 +263,7 @@ class ChecklistManager {
 		if($this->taxaCount < (($pageNumber-1)*$retLimit)){
 			$this->taxaCount = 0; $this->genusCount = 0; $this->familyCount = 0;
 			unset($this->filterArr);
+			$this->filterArr = array();
 			return $this->getTaxaList(1,$retLimit);
 		}
 		if($this->taxaList){
@@ -273,19 +273,21 @@ class ChecklistManager {
 				if($this->childClidArr){
 					$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 				}
-				$vSql = 'SELECT DISTINCT v.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
-					'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
-					'INNER JOIN omcollections c ON o.collid = c.collid '.
-					'WHERE (v.clid IN ('.$clidStr.')) AND v.tid IN('.implode(',',array_keys($this->taxaList)).') '.
-					'ORDER BY o.collid';
+				$vSql = 'SELECT DISTINCT cl.tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid
+					FROM fmvouchers v INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					INNER JOIN omoccurrences o ON v.occid = o.occid
+					INNER JOIN omcollections c ON o.collid = c.collid
+					WHERE (cl.clid IN ('.$clidStr.')) AND cl.tid IN('.implode(',',array_keys($this->taxaList)).')
+					ORDER BY o.collid';
 				if($this->thesFilter){
-					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid '.
-						'FROM fmvouchers v INNER JOIN omoccurrences o ON v.occid = o.occid '.
-						'INNER JOIN omcollections c ON o.collid = c.collid '.
-						'INNER JOIN taxstatus ts ON v.tid = ts.tid '.
-						'WHERE (ts.taxauthid = '.$this->thesFilter.') AND (v.clid IN ('.$clidStr.')) '.
-						'AND (ts.tidaccepted IN('.implode(',',array_keys($this->taxaList)).')) '.
-						'ORDER BY o.collid';
+					$vSql = 'SELECT DISTINCT ts.tidaccepted AS tid, v.occid, c.institutioncode, v.notes, o.catalognumber, o.othercatalognumbers, o.recordedby, o.recordnumber, o.eventdate, o.collid
+						FROM fmvouchers v INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+						INNER JOIN omoccurrences o ON v.occid = o.occid
+						INNER JOIN omcollections c ON o.collid = c.collid
+						INNER JOIN taxstatus ts ON cl.tid = ts.tid
+						WHERE (ts.taxauthid = '.$this->thesFilter.') AND (cl.clid IN ('.$clidStr.'))
+						AND (ts.tidaccepted IN('.implode(',',array_keys($this->taxaList)).'))
+						ORDER BY o.collid';
 				}
 				//echo $vSql; exit;
 		 		$vResult = $this->conn->query($vSql);
@@ -330,7 +332,8 @@ class ChecklistManager {
 				$sql = 'SELECT i.tid, i.url, i.thumbnailurl, i.originalurl
 					FROM images i INNER JOIN omoccurrences o ON i.occid = o.occid
 					INNER JOIN fmvouchers v ON o.occid = v.occid
-					WHERE (v.clid = 2) AND (i.tid IN('.implode(',',array_keys($this->taxaList)).'))';
+					INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					WHERE (cl.clid = 2) AND (i.tid IN('.implode(',',array_keys($this->taxaList)).'))';
 				$matchedArr = $this->setImageSubset($sql);
 			}
 			if($missingArr = array_diff(array_keys($this->taxaList),$matchedArr)){
@@ -442,12 +445,12 @@ class ChecklistManager {
 
 			if(!$limit || $retCnt < 50){
 				//Grab voucher points
-				$sql2 = 'SELECT DISTINCT v.tid, o.occid, o.decimallatitude, o.decimallongitude, '.
-					'CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes '.
-					'FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid '.
-					'INNER JOIN ('.$this->basicSql.') t ON v.tid = t.tid '.
-					'WHERE v.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL '.
-					'AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
+				$sql2 = 'SELECT DISTINCT cl.tid, o.occid, o.decimallatitude, o.decimallongitude, CONCAT(o.recordedby," (",IFNULL(o.recordnumber,o.eventdate),")") as notes
+					FROM omoccurrences o INNER JOIN fmvouchers v ON o.occid = v.occid
+					INNER JOIN fmchklsttaxalink cl ON v.clTaxaID = cl.clTaxaID
+					INNER JOIN ('.$this->basicSql.') t ON cl.tid = t.tid
+					WHERE cl.clid IN ('.$clidStr.') AND o.decimallatitude IS NOT NULL AND o.decimallongitude IS NOT NULL
+					AND (o.localitysecurity = 0 OR o.localitysecurity IS NULL) ';
 				if($limit) $sql2 .= 'ORDER BY RAND() LIMIT '.$limit;
 				//echo $sql2;
 				$rs2 = $this->conn->query($sql2);
@@ -726,25 +729,9 @@ class ChecklistManager {
 		return $retArr;
 	}
 
-	public function getUpperTaxa($term){
-		$retArr = array();
-		$param = "{$term}%";
-		$sql = 'SELECT tid, sciname FROM taxa WHERE (rankid < 180) AND (sciname LIKE ?) ORDER BY sciname';
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bind_param('s', $param);
-		$stmt->execute();
-		$stmt->bind_result($tid,$sciname);
-		while ($stmt->fetch()) {
-			$retArr[$tid]['id'] = $tid;
-			$retArr[$tid]['value'] = $sciname;
-		}
-		$stmt->close();
-		return $retArr;
-	}
-
 	//Setters and getters
 	public function setThesFilter($filt){
-		$this->thesFilter = $filt;
+		if(is_numeric($filt)) $this->thesFilter = $filt;
 	}
 
 	public function getThesFilter(){
@@ -882,17 +869,12 @@ class ChecklistManager {
 	}
 
 	//Misc functions
-	private function cleanOutStr($str){
-		$str = str_replace('"',"&quot;",$str);
-		$str = str_replace("'","&apos;",$str);
+	public function cleanOutText($str){
+		//Need to clean for MS Word ouput: strip html tags, convert all html entities and then reset as html tags
+		$str = strip_tags($str);
+		$str = html_entity_decode($str);
+		$str = htmlspecialchars($str);
 		return $str;
-	}
-
-	private function cleanInStr($str){
-		$newStr = trim($str);
-		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
-		$newStr = $this->conn->real_escape_string($newStr);
-		return $newStr;
 	}
 }
 ?>
