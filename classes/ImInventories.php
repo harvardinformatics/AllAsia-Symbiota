@@ -5,6 +5,10 @@ class ImInventories extends Manager{
 
 	private $clid;
 	private $pid;
+	private $fieldMap = array();
+	private $parameterArr = array();
+	private $typeStr = '';
+	private $primaryKey;
 
 	public function __construct($conType = 'write') {
 		parent::__construct(null, $conType);
@@ -19,7 +23,7 @@ class ImInventories extends Manager{
 		$retArr = array();
 		if($this->clid){
 			$sql = 'SELECT clid, name, locality, publication, abstract, authors, parentclid, notes, latcentroid, longcentroid, pointradiusmeters,
-				access, defaultsettings, dynamicsql, datelastmodified, uid, type, footprintwkt, sortsequence, initialtimestamp
+				access, defaultsettings, dynamicsql, datelastmodified, dynamicProperties, uid, type, footprintwkt, sortsequence, initialtimestamp
 				FROM fmchecklists WHERE (clid = '.$this->clid.')';
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
@@ -41,105 +45,93 @@ class ImInventories extends Manager{
 				$retArr['hasfootprintwkt'] = ($row->footprintwkt?'1':'0');
 				$retArr['sortsequence'] = $row->sortsequence;
 				$retArr['datelastmodified'] = $row->datelastmodified;
+				$retArr['dynamicProperties'] = $row->dynamicProperties;
 			}
 			$result->free();
-			if($retArr['type'] == 'excludespp'){
-				$sql = 'SELECT clid FROM fmchklstchildren WHERE clidchild = '.$this->clid;
-				$rs = $this->conn->query($sql);
-				while($r = $rs->fetch_object()){
-					$retArr['excludeparent'] = $r->clid;
-				}
-				$rs->free();
-			}
-			if($pid && is_numeric($pid)){
-				$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes FROM fmchklstprojlink WHERE clid = '.$this->clid.' AND pid = '.$pid;
-				$rs = $this->conn->query($sql);
-				if($rs){
-					if($r = $rs->fetch_object()){
-						$retArr['clNameOverride'] = $this->cleanOutStr($r->clNameOverride);
-						$retArr['mapchecklist'] = $r->mapChecklist;
-						$retArr['sortsequence'] = $r->sortSequence;
+			if($retArr){
+				if($retArr['type'] == 'excludespp'){
+					$sql = 'SELECT clid FROM fmchklstchildren WHERE clidchild = '.$this->clid;
+					$rs = $this->conn->query($sql);
+					while($r = $rs->fetch_object()){
+						$retArr['excludeparent'] = $r->clid;
 					}
 					$rs->free();
+				}
+				if($pid && is_numeric($pid)){
+					$sql = 'SELECT clNameOverride, mapChecklist, sortSequence, notes FROM fmchklstprojlink WHERE clid = '.$this->clid.' AND pid = '.$pid;
+					$rs = $this->conn->query($sql);
+					if($rs){
+						if($r = $rs->fetch_object()){
+							$retArr['clNameOverride'] = $this->cleanOutStr($r->clNameOverride);
+							$retArr['mapchecklist'] = $r->mapChecklist;
+							$retArr['sortOverride'] = $r->sortSequence;
+						}
+						$rs->free();
+					}
 				}
 			}
 		}
 		return $retArr;
 	}
 
-	public function insertChecklist($fieldArr){
-		$clid = false;
-		if($fieldArr['name']){
-			$clName = $fieldArr['name'];
-			$authors = (!empty($fieldArr['authors']) ? $fieldArr['authors'] : NULL);
-			$type = (!empty($fieldArr['type']) ? $fieldArr['type'] : 'static');
-			$locality = (!empty($fieldArr['locality']) ? $fieldArr['locality'] : NULL);
-			$publication = (!empty($fieldArr['publication']) ? $fieldArr['publication'] : NULL);
-			$abstract = (!empty($fieldArr['abstract']) ? strip_tags($fieldArr['abstract'], '<i><u><b><a>') : NULL);
-			$notes = (!empty($fieldArr['notes']) ? $fieldArr['notes'] : NULL);
-			$latCentroid = (!empty($fieldArr['latcentroid']) && is_numeric($fieldArr['latcentroid']) ? $fieldArr['latcentroid'] : NULL);
-			$longCentroid = (!empty($fieldArr['longcentroid']) && is_numeric($fieldArr['longcentroid']) ? $fieldArr['longcentroid'] : NULL);
-			$pointRadiusMeters = (!empty($fieldArr['pointradiusmeters']) && is_numeric($fieldArr['pointradiusmeters']) ? $fieldArr['pointradiusmeters'] : NULL);
-			$access = (!empty($fieldArr['access']) ? $fieldArr['access'] : 'private');
-			$defaultSettings = (!empty($fieldArr['defaultsettings']) ? $fieldArr['defaultsettings'] : NULL);
-			$dynamicSql = (!empty($fieldArr['dynamicsql']) ? $fieldArr['dynamicsql'] : NULL);
-			$uid = (!empty($fieldArr['uid']) && is_numeric($fieldArr['uid']) && $fieldArr['uid'] ? $fieldArr['uid'] : NULL);
-			$footprintWkt = (!empty($fieldArr['footprintwkt']) ? $fieldArr['footprintwkt'] : NULL);
-			$sortSequence = (!empty($fieldArr['sortsequence']) && is_numeric($fieldArr['sortsequence']) ? $fieldArr['sortsequence'] : 50);
-			$sql = 'INSERT INTO fmchecklists(name, authors, type, locality, publication, abstract, notes, latcentroid, longcentroid, pointradiusmeters, access, defaultsettings, dynamicsql, uid, footprintWkt, sortsequence) '.
-				'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';
+	public function insertChecklist($inputArr){
+		$status = false;
+		if($inputArr['name']){
+			if(empty($inputArr['uid'])) $inputArr['uid'] = $GLOBALS['SYMB_UID'];
+			$this->setChecklistFieldMap();
+			$this->setParameterArr($inputArr);
+			$sql = 'INSERT INTO fmchecklists(';
+			$sqlValues = '';
+			$paramArr = array();
+			$delimiter = '';
+			foreach($this->parameterArr as $fieldName => $value){
+				$sql .= $delimiter.$fieldName;
+				$sqlValues .= $delimiter.'?';
+				$paramArr[] = $value;
+				$delimiter = ', ';
+			}
+			$sql .= ') VALUES('.$sqlValues.') ';
 			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param('sssssssdddsssisi', $clName, $authors, $type, $locality, $publication, $abstract, $notes, $latCentroid, $longCentroid, $pointRadiusMeters, $access, $defaultSettings, $dynamicSql, $uid, $footprintWkt, $sortSequence);
+				$stmt->bind_param($this->typeStr, ...$paramArr);
 				if($stmt->execute()){
 					if($stmt->affected_rows || !$stmt->error){
-						$clid = $stmt->insert_id;
+						$this->primaryKey = $stmt->insert_id;
+						$status = true;
 					}
 					else $this->errorMessage = 'ERROR inserting fmchecklists record (2): '.$stmt->error;
 				}
 				else $this->errorMessage = 'ERROR inserting fmchecklists record (1): '.$stmt->error;
 				$stmt->close();
 			}
+			else $this->errorMessage = 'ERROR preparing statement for fmchecklists insert: '.$this->conn->error;
 		}
-		return $clid;
+		return $status;
 	}
 
 	public function updateChecklist($inputArr){
 		$status = false;
+		$this->setChecklistFieldMap();
+		$this->setParameterArr($inputArr);
 		$sqlFrag = '';
-		$fieldArr = array('name' => 's', 'authors' => 's', 'type' => 's', 'locality' => 's', 'publication' => 's', 'abstract' => 's', 'notes' => 's', 'latcentroid' => 'd', 'longcentroid' => 'd',
-			'pointradiusmeters' => 'i', 'access' => 's', 'defaultsettings' => 's', 'dynamicsql' => 's', 'footprintWkt' => 's', 'uid' => 'i', 'sortsequence' => 'i');
-		$typeStr = '';
 		$paramArr = array();
-		foreach($inputArr as $fieldName => $fieldValue){
-			$fieldName = strtolower($fieldName);
-			if(array_key_exists($fieldName, $fieldArr)){
-				if($fieldArr[$fieldName] == 'i' || $fieldArr[$fieldName] == 'd'){
-					if(!is_numeric($fieldValue)) $fieldValue = NULL;
-					if($fieldName == 'sortsequence' && !$fieldValue) $fieldValue = 50;
-				}
-				else{
-					if(!$fieldValue) $fieldValue = NULL;
-				}
-				$sqlFrag .= $fieldName.' = ?, ';
-				$paramArr[] = $fieldValue;
-				$typeStr .= $fieldArr[$fieldName];
-			}
+		foreach($this->parameterArr as $fieldName => $value){
+			$sqlFrag .= $fieldName . ' = ?, ';
+			$paramArr[] = $value;
 		}
-		$sql = 'UPDATE fmchecklists SET '.trim($sqlFrag,', ').' WHERE (clid = ?)';
+		$sql = 'UPDATE fmchecklists SET '.trim($sqlFrag, ', ').' WHERE (clid = ?)';
 		if($paramArr){
 			$paramArr[] = $this->clid;
-			$typeStr .= 'i';
-			if($stmt = $this->conn->prepare($sql)){
-				$stmt->bind_param($typeStr, ...$paramArr);
+			$this->typeStr .= 'i';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param($this->typeStr, ...$paramArr);
 				if($stmt->execute()){
-					if($stmt->affected_rows || !$stmt->error){
-						$status = true;
-					}
-					else $this->errorMessage = 'ERROR updating fmchecklists record (2): '.$stmt->error;
+					if($stmt->affected_rows || !$stmt->error) $status = true;
+					else $this->errorMessage = 'ERROR updating fmchecklists record: '.$stmt->error;
 				}
 				else $this->errorMessage = 'ERROR updating fmchecklists record (1): '.$stmt->error;
 				$stmt->close();
 			}
+			else $this->errorMessage = 'ERROR preparing statement for updating fmchecklists: '.$this->conn->error;
 			if($status){
 				if($inputArr['type'] == 'rarespp' && $inputArr['locality']){
 					$sql = 'UPDATE omoccurrences o INNER JOIN taxstatus ts1 ON o.tidinterpreted = ts1.tid '.
@@ -167,24 +159,33 @@ class ImInventories extends Manager{
 		return $status;
 	}
 
+	private function setChecklistFieldMap(){
+		$this->fieldMap = array('name' => 's', 'authors' => 's', 'type' => 's', 'locality' => 's', 'publication' => 's', 'abstract' => 's', 'notes' => 's',
+			'latCentroid' => 'd', 'longCentroid' => 'd', 'pointRadiusMeters' => 'i', 'access' => 's', 'defaultSettings' => 's', 'dynamicSql' => 's',
+			'dynamicProperties' => 's', 'uid' => 'i', 'footprintWkt' => 's', 'sortSequence' => 'i');
+	}
+
 	public function deleteChecklist(){
-		$status = true;
+		$status = false;
 		$roleArr = $this->getManagers('ClAdmin', 'fmchecklists', $this->clid);
 		unset($roleArr[$GLOBALS['SYMB_UID']]);
 		if(!$roleArr){
-			$sql = 'DELETE FROM fmchecklists WHERE (clid = '.$this->clid.')';
-			if($this->conn->query($sql)){
-				//Delete userpermissions reference once patch is submitted
-				$this->deleteUserRole('ClAdmin', $this->clid, $GLOBALS['SYMB_UID']);
-			}
-			else{
-				$this->errorMessage = 'ERROR attempting to delete checklist: '.$this->conn->error;
-				$status = false;
+			$this->deleteChecklistTaxaLinks();
+			$sql = 'DELETE FROM fmchecklists WHERE clid = ?';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param('i', $this->clid);
+				$stmt->execute();
+				if($stmt->affected_rows && !$stmt->error){
+					$status = true;
+					//Delete userpermissions reference once patch is submitted
+					$this->deleteUserRole('ClAdmin', $this->clid, $GLOBALS['SYMB_UID']);
+				}
+				else $this->errorMessage = $stmt->error;
+				$stmt->close();
 			}
 		}
 		else{
 			$this->errorMessage = 'Checklist cannot be deleted until all editors are removed. Remove editors and then try again.';
-			$status = false;
 		}
 		return $status;
 	}
@@ -205,6 +206,22 @@ class ImInventories extends Manager{
 		return $retArr;
 	}
 
+	//Checklist taxa linkages
+	private function deleteChecklistTaxaLinks(){
+		$status = false;
+		if($this->clid){
+			$sql = 'DELETE FROM fmchklsttaxalink WHERE clid = ?';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param('i', $this->clid);
+				$stmt->execute();
+				if($stmt->error) $this->errorMessage = $stmt->error;
+				else $status = true;
+				$stmt->close();
+			}
+		}
+		return $status;
+	}
+
 	//Child-Parent checklist functions
 	public function insertChildChecklist($clidChild, $modifiedUid){
 		$status = false;
@@ -212,7 +229,7 @@ class ImInventories extends Manager{
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('iii', $this->clid, $clidChild, $modifiedUid);
 			if($stmt->execute()){
-				if($stmt->affected_rows || !$stmt->error){
+				if($stmt->affected_rows && !$stmt->error){
 					$status = true;
 				}
 				else $this->errorMessage = 'ERROR inserting child checklist record (2): '.$stmt->error;
@@ -232,6 +249,83 @@ class ImInventories extends Manager{
 			}
 		}
 		return $status;
+	}
+
+	//Checklist coordinates functions
+	public function insertChecklistCoordinates($inputArr){
+		$status = false;
+		if($this->clid && isset($inputArr['tid']) && $inputArr['tid']){
+			$sql = 'INSERT INTO fmchklstcoordinates(clid';
+			$sqlValues = '?, ';
+			$paramArr = array($this->clid);
+			$this->typeStr = 'i';
+			$this->setChecklistCoordinatesFieldMap();
+			$this->setParameterArr($inputArr);
+			foreach($this->parameterArr as $fieldName => $value){
+				$sql .= ', '.$fieldName;
+				$sqlValues .= '?, ';
+				$paramArr[] = $value;
+			}
+			$sql .= ') VALUES('.trim($sqlValues, ', ').') ';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param($this->typeStr, ...$paramArr);
+				if($stmt->execute()){
+					if($stmt->affected_rows || !$stmt->error){
+						$this->primaryKey = $stmt->insert_id;
+						$status = true;
+					}
+					else $this->errorMessage = 'ERROR inserting fmchklstcoordinates record (2): '.$stmt->error;
+				}
+				else $this->errorMessage = 'ERROR inserting fmchklstcoordinates record (1): '.$stmt->error;
+				$stmt->close();
+			}
+			else $this->errorMessage = 'ERROR preparing statement for fmchklstcoordinates insert: '.$this->conn->error;
+		}
+		return $status;
+	}
+
+	public function updateChecklistCoordinates($inputArr){
+		$status = false;
+		if($this->clid && isset($inputArr['clCoordID']) && $inputArr['clCoordID']){
+			$this->setChecklistCoordinatesFieldMap();
+			$this->setParameterArr($inputArr);
+			$paramArr = array();
+			$sqlFrag = '';
+			foreach($this->parameterArr as $fieldName => $value){
+				$sqlFrag .= $fieldName . ' = ?, ';
+				$paramArr[] = $value;
+			}
+			$paramArr[] = $inputArr['clCoordID'];
+			$this->typeStr .= 'i';
+			$sql = 'UPDATE fmchklstcoordinates SET '.trim($sqlFrag, ', ').' WHERE (clCoordID = ?)';
+			if($stmt = $this->conn->prepare($sql)) {
+				$stmt->bind_param($this->typeStr, ...$paramArr);
+				$stmt->execute();
+				if($stmt->affected_rows || !$stmt->error) $status = true;
+				else $this->errorMessage = 'ERROR updating fmchklstcoordinates record: '.$stmt->error;
+				$stmt->close();
+			}
+			else $this->errorMessage = 'ERROR preparing statement for updating fmchklstcoordinates: '.$this->conn->error;
+		}
+		return $status;
+	}
+
+	public function deleteChecklistCoordinates($pk){
+		if($this->assocID){
+			$sql = 'DELETE FROM fmchklstcoordinates WHERE chklstCoordID = '.$pk;
+			if($this->conn->query($sql)){
+				return true;
+			}
+			else{
+				$this->errorMessage = 'ERROR deleting fmchklstcoordinates record: '.$this->conn->error;
+				return false;
+			}
+		}
+	}
+
+	private function setChecklistCoordinatesFieldMap(){
+		$this->fieldMap = array('tid' => 'i', 'decimalLatitude' => 'd', 'decimalLongitude' => 'd', 'sourceName' => 's',
+			'sourceIdentifier' => 's', 'referenceUrl' => 's', 'notes' => 's', 'dynamicProperties' => 's');
 	}
 
 	//Inventory Project functions
@@ -278,7 +372,7 @@ class ImInventories extends Manager{
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('ssssi', $projName, $managers, $fullDescription, $notes, $isPublic);
 			if($stmt->execute()){
-				if($stmt->affected_rows || !$stmt->error){
+				if($stmt->affected_rows && !$stmt->error){
 					$newPid = $stmt->insert_id;
 					$this->pid = $newPid;
 				}
@@ -302,7 +396,7 @@ class ImInventories extends Manager{
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('ssssii', $projName, $managers, $fullDescription, $notes, $isPublic, $this->pid);
 			if($stmt->execute()){
-				if($stmt->affected_rows || !$stmt->error){
+				if(!$stmt->error){
 					$status = true;
 				}
 				else $this->errorMessage = 'ERROR updating fmprojects record (2): '.$stmt->error;
@@ -384,7 +478,7 @@ class ImInventories extends Manager{
 		if($stmt = $this->conn->prepare($sql)){
 			$stmt->bind_param('isssi', $uid, $role, $tableName, $tablePK, $uidAssignedBy);
 			if($stmt->execute()){
-				if($stmt->affected_rows || !$stmt->error){
+				if($stmt->affected_rows && !$stmt->error){
 					$status = true;
 				}
 				else $this->errorMessage = 'ERROR inserting user role record (2): '.$stmt->error;
@@ -413,6 +507,22 @@ class ImInventories extends Manager{
 		return $retArr;
 	}
 
+	//Mics support functions
+	private function setParameterArr($inputArr){
+		foreach($this->fieldMap as $field => $type){
+			$postField = '';
+			if(isset($inputArr[$field])) $postField = $field;
+			elseif(isset($inputArr[strtolower($field)])) $postField = strtolower($field);
+			if($postField){
+				$value = trim($inputArr[$postField]);
+				if(!$value) $value = null;
+				$this->parameterArr[$field] = $value;
+				$this->typeStr .= $type;
+			}
+		}
+		if(isset($inputArr['clid']) && $inputArr['clid'] && !$this->clid) $this->clid = $inputArr['clid'];
+	}
+
 	//Setter and getter functions
 	public function setClid($clid){
 		if(is_numeric($clid)) $this->clid = $clid;
@@ -424,6 +534,10 @@ class ImInventories extends Manager{
 
 	public function setPid($pid){
 		if(is_numeric($pid)) $this->pid = $pid;
+	}
+
+	public function getPrimaryKey(){
+		return $this->primaryKey;
 	}
 }
 ?>

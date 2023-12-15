@@ -3,31 +3,20 @@ include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/GamesManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$clName = array_key_exists('listname',$_REQUEST)?$_REQUEST['listname']:'';
-$clid = array_key_exists('clid',$_REQUEST)?$_REQUEST['clid']:0;
-$dynClid = array_key_exists('dynclid',$_REQUEST)?$_REQUEST['dynclid']:0;
+$clid = array_key_exists('clid', $_REQUEST) ? filter_var($_REQUEST['clid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$dynClid = array_key_exists('dynclid', $_REQUEST) ? filter_var($_REQUEST['dynclid'], FILTER_SANITIZE_NUMBER_INT) : 0;
 
-//Sanitation
-if(filter_var($clName, FILTER_SANITIZE_STRING)) $clName = '';
-if(!is_numeric($clid)) $clid = 0;
-if(!is_numeric($dynClid)) $dynClid  = 0;
+$gameManager = new GamesManager();
+if($clid) $gameManager->setClid($clid);
+elseif($dynClid) $gameManager->setDynClid($dynClid);
+$clName = $gameManager->getClName();
 
-if(!$clName){
-	$gameManager = new GamesManager();
-	if($clid){
-		$gameManager->setClid($clid);
-	}
-	elseif($dynClid){
-		$gameManager->setDynClid($dynClid);
-	}
-	$clName = $gameManager->getClName();
-}
 $imgloc = "../images/games/namegame/";
 ?>
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> Name Game</title>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
@@ -562,7 +551,7 @@ $imgloc = "../images/games/namegame/";
 		echo $games_namegameCrumbs;
 	}
 	else{
-		echo '<a href="../checklists/checklist.php?clid='.$clid.'&dynclid='.$dynClid.'">';
+		echo '<a href="../checklists/checklist.php?clid=' . htmlspecialchars($clid, HTML_SPECIAL_CHARS_FLAGS) . '&dynclid=' . htmlspecialchars($dynClid, HTML_SPECIAL_CHARS_FLAGS) . '">';
 		echo $clName;
 		echo '</a> &gt;&gt; ';
 	}

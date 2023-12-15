@@ -1,7 +1,9 @@
 <?php
 /*
 ------------------
-Language: Español
+Language: Español (Spanish)
+Translated by: Samanta Orellana
+Date Translated: 2021-10-29
 ------------------
 */
 
@@ -17,7 +19,6 @@ $LANG['ROTATE'] = 'Rotar';
 $LANG['HIGH_RES'] = 'Res. Alta';
 $LANG['MED_RES'] = 'Res. Media';
 $LANG['OCR_IMAGE'] = 'Analizar Imagen con OCR';
-$LANG['OPTIONS'] = 'Opciones';
 $LANG['OCR_WHOLE_IMG'] = 'OCR imagen completa';
 $LANG['OCR_ANALYSIS'] = 'OCR con análisis';
 $LANG['IMAGE'] = 'Imagen';

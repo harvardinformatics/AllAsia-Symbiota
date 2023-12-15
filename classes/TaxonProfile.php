@@ -159,7 +159,7 @@ class TaxonProfile extends Manager {
 			}
 			if($imgObj['occid']) $imgAnchor = '../collections/individual/index.php?occid='.$imgObj['occid'];
 			if($useThumbnail) if($imgObj['thumbnailurl']) $imgUrl = $imgThumbnail;
-			echo '<div class="tptnimg"><a href="#" onclick="openPopup(\''.$imgAnchor.'\');return false;">';
+			echo '<div class="tptnimg"><a href="#" onclick="openPopup(\'' . htmlspecialchars($imgAnchor, HTML_SPECIAL_CHARS_FLAGS) . '\');return false;">';
 			$titleStr = $imgObj['caption'];
 			if($imgObj['sciname'] != $this->taxonName) $titleStr .= ' (linked from '.$imgObj['sciname'].')';
 			echo '<img src="'.$imgUrl.'" title="'.$titleStr.'" alt="'.$this->taxonName.' image" />';
@@ -244,7 +244,7 @@ class TaxonProfile extends Manager {
 		if($tidStr){
 			$sql = 'SELECT tm.url, t.sciname '.
 					'FROM taxamaps tm INNER JOIN taxa t ON tm.tid = t.tid '.
-					'WHERE (t.tid IN('.$tidStr.'))';
+					'WHERE (t.tid IN('.$tidStr.')) ORDER BY tm.initialtimestamp DESC';
 			//echo $sql;
 			$result = $this->conn->query($sql);
 			if($row = $result->fetch_object()){
@@ -340,17 +340,18 @@ class TaxonProfile extends Manager {
 		$retArr = Array();
 		if($this->tid){
 			$rsArr = array();
-			$sql = 'SELECT d.tid, d.tdbid, d.caption, d.source, d.sourceurl, s.tdsid, s.heading, s.statement, s.displayheader, d.language, d.langid ';
+			$sql = 'SELECT p.tdProfileID, IFNULL(d.caption, p.caption) as caption, IFNULL(d.source, p.publication) AS source, IFNULL(d.sourceurl, p.urlTemplate) AS sourceurl,
+				IFNULL(d.displaylevel, p.defaultDisplayLevel) AS displaylevel, d.tid, d.tdbid, s.tdsid, s.heading, s.statement, s.displayheader, d.language, p.langid
+				FROM taxadescrprofile p INNER JOIN taxadescrblock d ON p.tdProfileID = d.tdProfileID
+				INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid
+				LEFT JOIN adminlanguages l ON p.langid = l.langid ';
 			if($this->acceptance){
-				$sql .= 'FROM taxstatus ts INNER JOIN taxadescrblock d ON ts.tid = d.tid '.
-					'INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid '.
-					'WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
+				$sql .= 'INNER JOIN taxstatus ts ON ts.tid = d.tid WHERE (ts.tidaccepted = '.$this->tid.') AND (ts.taxauthid = '.$this->taxAuthId.') ';
 			}
 			else{
-				$sql .= 'FROM taxadescrblock d INNER JOIN taxadescrstmts s ON d.tdbid = s.tdbid WHERE (d.tid = '.$this->tid.') ';
+				$sql .= 'WHERE (d.tid = '.$this->tid.') ';
 			}
-			$sql .= 'ORDER BY d.displaylevel, s.sortsequence';
-			//echo $sql; exit;
+			$sql .= 'ORDER BY p.defaultDisplayLevel, d.displayLevel, s.sortsequence';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_assoc()){
 				$rsArr[] = $r;
@@ -418,9 +419,9 @@ class TaxonProfile extends Manager {
 			}
 		}
 		if((isset($CALENDAR_TRAIT_PLOTS) && $CALENDAR_TRAIT_PLOTS > 0) && $this->rankId > 180) {
-			$retStr .= '<li><a href="plottab.php?tid='.$this->tid.'">'.($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots').'</a></li>';
+			$retStr .= '<li><a href="plottab.php?tid=' . htmlspecialchars($this->tid, HTML_SPECIAL_CHARS_FLAGS) . '">' . htmlspecialchars(($LANG['CALENDAR_TRAIT_PLOT']?$LANG['CALENDAR_TRAIT_PLOT']:'Traits Plots'), HTML_SPECIAL_CHARS_FLAGS) . '</a></li>';
 		}
-		$retStr .= '<li><a href="resourcetab.php?tid='.$this->tid.'">'.($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources').'</a></li>';
+		$retStr .= '<li><a href="resourcetab.php?tid=' . htmlspecialchars($this->tid, HTML_SPECIAL_CHARS_FLAGS) . '">' . htmlspecialchars(($LANG['RESOURCES']?$LANG['RESOURCES']:'Resources'), HTML_SPECIAL_CHARS_FLAGS) . '</a></li>';
 		$retStr .= '</ul>';
 		foreach($descArr as $dArr){
 			foreach($dArr as $id => $vArr){
@@ -479,6 +480,23 @@ class TaxonProfile extends Manager {
 	public function getLinkArr(){
 		if($this->linkArr === false) $this->setLinkArr();
 		return $this->linkArr;
+	}
+
+	public function getResourceLinkArr(){
+		$retArr = array();
+		if($this->tid){
+			$sql = 'SELECT taxaResourceID, sourceName, sourceIdentifier, sourceGuid, url, notes FROM taxaresourcelinks WHERE tid = '.$this->tid.' ORDER BY ranking, sourceName';
+			$rs = $this->conn->query($sql);
+			while($r = $rs->fetch_object()){
+				$retArr[$r->taxaResourceID]['name'] = $r->sourceName;
+				$retArr[$r->taxaResourceID]['id'] = $r->sourceIdentifier;
+				$retArr[$r->taxaResourceID]['guid'] = $r->sourceGuid;
+				$retArr[$r->taxaResourceID]['url'] = $r->url;
+				$retArr[$r->taxaResourceID]['notes'] = $r->notes;
+			}
+			$rs->free();
+		}
+		return $retArr;
 	}
 
 	//Set children data for taxon higher than species level
@@ -710,7 +728,7 @@ class TaxonProfile extends Manager {
 		if ((1 <= $numOccs) && ($numOccs <= $limitOccs)) {
 			$occSrcUrl = '../collections/list.php?usethes=1&taxa='.$this->tid;
 			if($collidStr != 'all') $occSrcUrl .= '&db='.$collidStr;
-			$occMsg = '<a class="btn" href="'.$occSrcUrl.'" target="_blank">Explore '.number_format($numOccs).' occurrences</a>';
+			$occMsg = '<a class="btn" href="' . htmlspecialchars($occSrcUrl, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">Explore ' . htmlspecialchars(number_format($numOccs), HTML_SPECIAL_CHARS_FLAGS) . ' occurrences</a>';
 		} elseif ($numOccs > $limitOccs) {
 			$occMsg = number_format($numOccs).' occurrences';
 		} elseif ($numOccs == 0) {

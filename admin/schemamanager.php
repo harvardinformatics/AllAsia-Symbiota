@@ -18,7 +18,7 @@ $curentVersion = $schemaManager->getCurrentVersion();
 //if(!$IS_ADMIN && $curentVersion) header('Location: ../profile/index.php?refurl=../admin/schemamanager.php');
 $IS_ADMIN = true;
 ?>
-<html>
+<html lang="en">
 	<head>
 		<title>Database Schema Manager</title>
 		<?php
@@ -53,6 +53,8 @@ $IS_ADMIN = true;
 							$schemaManager->setPort($port);
 							$schemaManager->setUsername($username);
 							$schemaManager->installPatch();
+							$verHistory = $schemaManager->getVersionHistory();
+							$curentVersion = $schemaManager->getCurrentVersion();
 						}
 						?>
 					</fieldset>
@@ -95,12 +97,12 @@ $IS_ADMIN = true;
 							</select>
 						</div>
 						<div class="form-section">
-							<label>Username:</label>
-							<input name="username" type="text" value="<?php echo $username; ?>" required autocomplete="off">
+							<label for="username">Username: </label>
+							<input id="username" name="username" type="text" value="<?php echo $username; ?>" required autocomplete="off">
 						</div>
 						<div class="form-section">
-							<label>Password: </label>
-							<input name="password" type="password" value="" required autocomplete="off">
+							<label for="password">Password: </label>
+							<input id="password" name="password" type="password" value="" required autocomplete="off">
 						</div>
 						<div class="form-section">
 							<label>Host:</label>

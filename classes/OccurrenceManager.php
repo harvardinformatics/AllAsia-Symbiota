@@ -88,7 +88,7 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			}
 			//$this->displaySearchArr[] = $this->voucherManager->getQueryVariableStr();
 		}
-		elseif(array_key_exists('clid',$this->searchTermArr) && is_numeric($this->searchTermArr['clid'])){
+		elseif(array_key_exists('clid',$this->searchTermArr) && preg_match('/^[0-9,]+$/', $this->searchTermArr['clid'])){
 			if(isset($this->searchTermArr["cltype"]) && $this->searchTermArr["cltype"] == 'all'){
 				$sqlWhere .= 'AND (cl.clid IN('.$this->searchTermArr['clid'].')) ';
 			}
@@ -495,26 +495,26 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	protected function getTableJoins($sqlWhere){
 		$sqlJoin = '';
 		if(array_key_exists('clid',$this->searchTermArr) && $this->searchTermArr['clid']){
-			if(strpos($sqlWhere,'ctl.clid')){
+			if(isset($sqlWhere) && strpos($sqlWhere,'ctl.clid')){
 				$sqlJoin .= 'INNER JOIN fmvouchers v ON o.occid = v.occid INNER JOIN fmchklsttaxalink ctl ON v.clTaxaID = ctl.clTaxaID ';
 			}
 			else{
 				$sqlJoin .= 'INNER JOIN fmchklsttaxalink cl ON o.tidinterpreted = cl.tid ';
 			}
 		}
-		if(strpos($sqlWhere,'MATCH(f.recordedby)') || strpos($sqlWhere,'MATCH(f.locality)')){
+		if(isset($sqlWhere) && (strpos($sqlWhere,'MATCH(f.recordedby)') || strpos($sqlWhere,'MATCH(f.locality)'))){
 			$sqlJoin .= 'INNER JOIN omoccurrencesfulltext f ON o.occid = f.occid ';
 		}
-		if(strpos($sqlWhere,'e.taxauthid')){
+		if(isset($sqlWhere) && strpos($sqlWhere,'e.taxauthid')){
 			$sqlJoin .= 'INNER JOIN taxaenumtree e ON o.tidinterpreted = e.tid ';
 		}
-		if(strpos($sqlWhere,'ts.family')){
+		if(isset($sqlWhere) && strpos($sqlWhere,'ts.family')){
 			$sqlJoin .= 'LEFT JOIN taxstatus ts ON o.tidinterpreted = ts.tid ';
 		}
-		if(strpos($sqlWhere,'d.datasetid')){
+		if(isset($sqlWhere) && strpos($sqlWhere,'d.datasetid')){
 			$sqlJoin .= 'INNER JOIN omoccurdatasetlink d ON o.occid = d.occid ';
 		}
-		if(array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point')){
+		if(isset($sqlWhere) && (array_key_exists('polycoords',$this->searchTermArr) || strpos($sqlWhere,'p.point'))){
 			$sqlJoin .= 'INNER JOIN omoccurpoints p ON o.occid = p.occid ';
 		}
 		/*
@@ -531,9 +531,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return $this->searchSupportManager->getFullCollectionList($catId);
 	}
 
-	public function outputFullCollArr($collGrpArr, $targetCatID = 0, $displayIcons = true, $displaySearchButtons = true){
+	public function outputFullCollArr($collGrpArr, $targetCatID = 0, $displayIcons = true, $displaySearchButtons = true, $collTypeLabel = '', $uniqGrouping=''){
 		if(!$this->searchSupportManager) $this->searchSupportManager = new OccurrenceSearchSupport($this->conn);
-		$this->searchSupportManager->outputFullCollArr($collGrpArr, $targetCatID, $displayIcons, $displaySearchButtons);
+		$this->searchSupportManager->outputFullCollArr($collGrpArr, $targetCatID, $displayIcons, $displaySearchButtons, $collTypeLabel, $uniqGrouping);
 	}
 
 	public function getOccurVoucherProjects(){
@@ -598,12 +598,13 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 	}
 
 	protected function setSearchTerm($termKey, $termValue){
-		$this->searchTermArr[$termKey] = $this->cleanInputStr($termValue);
+		if(!$termValue) return false;
+		$this->searchTermArr[$this->cleanInputStr($termKey)] = $this->cleanInputStr($termValue);
 	}
 
 	public function getSearchTerm($k){
 		if($k && isset($this->searchTermArr[$k])){
-			return trim($this->searchTermArr[$k],' ;');
+			return $this->cleanOutStr(trim($this->searchTermArr[$k],' ;'));
 		}
 		return '';
 	}
@@ -612,14 +613,15 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		//Returns a search variable string
 		$retStr = '';
 		foreach($this->searchTermArr as $k => $v){
-			$retStr .= '&'.$k.'='.urlencode($v);
+			if(is_array($v)) $v = implode(',', $v);
+			if($v) $retStr .= '&'.$this->cleanOutStr($k).'='.$this->cleanOutStr($v);
 		}
 		if(isset($this->taxaArr['search'])){
-			$retStr .= '&taxa='.urlencode($this->taxaArr['search']);
+			$retStr .= '&taxa='.$this->cleanOutStr($this->taxaArr['search']);
 			if($this->taxaArr['usethes']) $retStr .= '&usethes=1';
 			$retStr .= '&taxontype='.$this->taxaArr['taxontype'];
 		}
-		return trim($retStr,' &');
+		return substr($retStr, 1);
 	}
 
 	public function addOccurrencesToDataset($datasetID){
@@ -648,9 +650,10 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(array_key_exists('searchvar',$_REQUEST)){
 			$parsedArr = array();
 			$taxaArr = array();
-			parse_str($this->cleanInputStr($_REQUEST['searchvar']), $parsedArr);
+			parse_str($_REQUEST['searchvar'], $parsedArr);
+
 			if(isset($parsedArr['taxa'])){
-				$taxaArr['taxa'] = $parsedArr['taxa'];
+				$taxaArr['taxa'] = $this->cleanInputStr($parsedArr['taxa']);
 				unset($parsedArr['taxa']);
 				if(isset($parsedArr['usethes']) && is_numeric($parsedArr['usethes'])){
 					$taxaArr['usethes'] = $parsedArr['usethes'];
@@ -662,7 +665,11 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 				}
 				$this->setTaxonRequestVariable($taxaArr);
 			}
-			if($parsedArr) $this->searchTermArr = $parsedArr;
+			foreach($parsedArr as $k => $v){
+				$k = $this->cleanInputStr($k);
+				$v = $this->cleanInputStr($v);
+				if($k) $this->searchTermArr[$k] = $v;
+			}
 		}
 		//Search will be confinded to a clid vouchers, collid, catid, or will remain open to all collection
 		if(array_key_exists('targetclid',$_REQUEST) && is_numeric($_REQUEST['targetclid'])){

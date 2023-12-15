@@ -173,7 +173,7 @@ class ImageProcessor {
 						if(strpos($result[0],'503')){
 							$this->logOrEcho('ERROR: CyVerse Bisque system appears to be offline',1);
 							$this->logOrEcho('Response code: '.$result[0],2);
-							$this->logOrEcho('FAILED URL: <a href="'.$url.'" target="_blank">'.$url.'</a>',2);
+							$this->logOrEcho('FAILED URL: <a href="' . htmlspecialchars($url, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">' . htmlspecialchars($url, HTML_SPECIAL_CHARS_FLAGS) . '</a>',2);
 							return false;
 						}
 						else{
@@ -297,7 +297,7 @@ class ImageProcessor {
 											'sourceurl = '.($sourceUrl?'"'.$sourceUrl.'"':'NULL').' '.
 											'WHERE imgid = '.$r1->imgid;
 										if($this->conn->query($sql2)){
-											$this->logOrEcho('Existing image replaced with new image mapping: <a href="../editor/occurrenceeditor.php?occid='.$occid.'" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a>',1);
+											$this->logOrEcho('Existing image replaced with new image mapping: <a href="../editor/occurrenceeditor.php?occid=' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">'.($catalogNumber?$catalogNumber:$otherCatalogNumbers).'</a>',1);
 											//Delete physical images it previous version was mapped locally
 											$this->deleteImage($r1->url);
 											$this->deleteImage($r1->originalurl);
@@ -347,7 +347,7 @@ class ImageProcessor {
 				$occurMain = new OccurrenceMaintenance($this->conn);
 
 				$this->logOrEcho('Updating statistics...');
-				if(!$occurMain->updateCollectionStats($this->collid)){
+				if(!$occurMain->updateCollectionStatsBasic($this->collid)){
 					$errorArr = $occurMain->getErrorArr();
 					foreach($errorArr as $errorStr){
 						$this->logOrEcho($errorStr,1);
@@ -470,7 +470,7 @@ class ImageProcessor {
 					'VALUES('.$this->collid.',"'.$targetIdentifier.'","unprocessed","'.date('Y-m-d H:i:s').'")';
 				if($this->conn->query($sql2)){
 					$occid = $this->conn->insert_id;
-					$this->logOrEcho('Linked image to new "unprocessed" specimen record (#<a href="../individual/index.php?occid='.$occid.'" target="_blank">'.$occid.'</a>) ',2);
+					$this->logOrEcho('Linked image to new "unprocessed" specimen record (#<a href="../individual/index.php?occid=' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '</a>) ',2);
 				}
 				else $this->logOrEcho("ERROR creating new occurrence record: ".$this->conn->error,2);
 			}
@@ -494,7 +494,7 @@ class ImageProcessor {
 			}
 			$sql = 'INSERT INTO images(occid'.$sqlInsert.') VALUES ('.$occid.$sqlValues.')';
 			if($this->conn->query($sql)){
-				$occLink = '<a href="../individual/index.php?occid='.$occid.'" target="_blank">#'.$occid.'</a>';
+				$occLink = '<a href="../individual/index.php?occid=' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">#' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '</a>';
 				$this->logOrEcho('Image linked to existing record'.(isset($targetFieldArr['sourceIdentifier'])?' ('.$targetFieldArr['sourceIdentifier'].')':'').': '.$occLink,2);
 			}
 			else{
@@ -545,7 +545,8 @@ class ImageProcessor {
 		/*
 		$this->logOrEcho('General cleaning...',2);
 		$collString = implode(',',$collList);
-		if(!$occurMain->generalOccurrenceCleaning($collString)){
+		$occurMain->setCollidStr($collString);
+		if(!$occurMain->generalOccurrenceCleaning()){
 			$errorArr = $occurMain->getErrorArr();
 			foreach($errorArr as $errorStr){
 				$this->logOrEcho($errorStr,1);
@@ -559,7 +560,7 @@ class ImageProcessor {
 		if($collList){
 			$this->logOrEcho('Updating collection statistics...',2);
 			foreach($collList as $collid){
-				if(!$occurMain->updateCollectionStats($collid)){
+				if(!$occurMain->updateCollectionStatsBasic($collid)){
 					$errorArr = $occurMain->getErrorArr();
 					foreach($errorArr as $errorStr){
 						$this->logOrEcho($errorStr,1);

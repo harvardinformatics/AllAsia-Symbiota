@@ -3,8 +3,8 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/GamesManager.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$oodID = array_key_exists("oodid",$_REQUEST)?$_REQUEST["oodid"]:1;
-$clidStr = array_key_exists("cl",$_REQUEST)?$_REQUEST["cl"]:0;
+$oodID = array_key_exists('oodid', $_REQUEST) ? filter_var($_REQUEST['oodid'], FILTER_SANITIZE_NUMBER_INT) : 1;
+$clidStr = array_key_exists('cl', $_REQUEST) ? $_REQUEST['cl'] : 0;
 $ootdTitle = array_key_exists("title",$_REQUEST)?$_REQUEST["title"]:'Organism of the Day';
 $ootdType = array_key_exists("type",$_REQUEST)?$_REQUEST["type"]:'organism';
 $familyAnswer = array_key_exists('family_answer',$_POST)&&$_POST['family_answer']!='Family'?trim(strtolower($_POST['family_answer'])):'';
@@ -12,12 +12,11 @@ $scinameAnswer = array_key_exists('sciname_answer',$_POST)&&$_POST['sciname_answ
 $submitAction = array_key_exists("submitaction",$_POST)?$_POST["submitaction"]:'';
 
 //Sanitation
-if(!is_numeric($oodID)) $oodID = 1;
-if(!preg_match('/^[\d,]+$/',$clidStr)) $clidStr = 0;
-$ootdTitle = strip_tags($ootdTitle);
-$ootdType = strip_tags($ootdType);
-$familyAnswer = strip_tags($familyAnswer);
-$scinameAnswer = strip_tags($scinameAnswer);
+if(!preg_match('/^[\d,]+$/', $clidStr)) $clidStr = 0;
+$ootdTitle = htmlspecialchars($ootdTitle, HTML_SPECIAL_CHARS_FLAGS);
+$ootdType = htmlspecialchars($ootdType, HTML_SPECIAL_CHARS_FLAGS);
+$familyAnswer = htmlspecialchars($familyAnswer, HTML_SPECIAL_CHARS_FLAGS);
+$scinameAnswer = htmlspecialchars($scinameAnswer, HTML_SPECIAL_CHARS_FLAGS);
 
 $gameManager = new GamesManager();
 $gameInfo = $gameManager->setOOTD($oodID,$clidStr);
@@ -32,7 +31,7 @@ $genusAnswer = strtok($scinameAnswer, " ");
 <html>
 <head>
 	<title><?php echo $ootdTitle; ?></title>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
@@ -235,11 +234,11 @@ $genusAnswer = strtok($scinameAnswer, " ");
 								</div>
 								<div style="margin-top:40px;font-size:16px;" >
 									<div>
-										<a href = "index.php?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>">Click here to try again!</a>
+										<a href = "index.php?oodid=<?php echo htmlspecialchars($oodID, HTML_SPECIAL_CHARS_FLAGS) . '&cl=' . htmlspecialchars($clidStr, HTML_SPECIAL_CHARS_FLAGS) . '&title=' . htmlspecialchars($ootdTitle, HTML_SPECIAL_CHARS_FLAGS) . '&type=' . htmlspecialchars($ootdType, HTML_SPECIAL_CHARS_FLAGS); ?>">Click here to try again!</a>
 									</div>
 									<div>-- OR --</div>
 									<div>
-										<a href = "index.php?submitaction=giveup?oodid=<?php echo $oodID.'&cl='.$clidStr.'&title='.$ootdTitle.'&type='.$ootdType; ?>" onClick="openTaxonProfile()" >-Click here reveal what the <?php echo $ootdType; ?> was-</a>
+										<a href = "index.php?submitaction=giveup?oodid=<?php echo htmlspecialchars($oodID, HTML_SPECIAL_CHARS_FLAGS) .'&cl=' . htmlspecialchars($clidStr, HTML_SPECIAL_CHARS_FLAGS) . '&title=' . htmlspecialchars($ootdTitle, HTML_SPECIAL_CHARS_FLAGS) . '&type=' . htmlspecialchars($ootdType, HTML_SPECIAL_CHARS_FLAGS); ?>" onClick="openTaxonProfile()" >-Click here reveal what the <?php echo htmlspecialchars($ootdType, HTML_SPECIAL_CHARS_FLAGS); ?> was-</a>
 									</div>
 								</div>
 							</div>

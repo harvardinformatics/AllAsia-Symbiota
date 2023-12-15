@@ -26,8 +26,6 @@ class OccurrenceEditorManager {
 	protected $errorArr = array();
 	protected $isShareConn = false;
 
-	private $paleoActivated = false;
-
 	public function __construct($conn = null){
 		if($conn){
 			$this->conn = $conn;
@@ -85,26 +83,19 @@ class OccurrenceEditorManager {
 				$rs->free();
 			}
 			else return false;
-		}
-	}
-
-	public function getDynamicPropertiesArr(){
-		$retArr = array();
-		$propArr = array();
-		if(array_key_exists('dynamicproperties', $this->collMap)){
-			$propArr = json_decode($this->collMap['dynamicproperties'],true);
-			if(isset($propArr['editorProps'])){
-				$retArr = $propArr['editorProps'];
-				if(isset($retArr['modules-panel'])){
-					foreach($retArr['modules-panel'] as $module){
-						if(isset($module['paleo']['status']) && $module['paleo']['status']){
-							$this->paleoActivated = true;
+			if(!empty($this->collMap['dynamicproperties'])){
+				$propArr = json_decode($this->collMap['dynamicproperties'],true);
+				if(isset($propArr['editorProps'])){
+					$retArr = $propArr['editorProps'];
+					if(isset($retArr['modules-panel'])){
+						foreach($retArr['modules-panel'] as $module){
+							if(!empty($module['paleo']['status'])) $this->collMap['paleoActivated'] = 1;
+							if(!empty($module['matSample']['status'])) $this->collMap['matSampleActivated'] = 1;
 						}
 					}
 				}
 			}
 		}
-		return $retArr;
 	}
 
 	//Query functions
@@ -128,12 +119,12 @@ class OccurrenceEditorManager {
 			if(array_key_exists('q_ocrfrag',$_REQUEST) && $_REQUEST['q_ocrfrag']) $this->qryArr['ocr'] = trim($_REQUEST['q_ocrfrag']);
 			if(array_key_exists('q_imgonly',$_REQUEST) && $_REQUEST['q_imgonly']) $this->qryArr['io'] = 1;
 			if(array_key_exists('q_withoutimg',$_REQUEST) && $_REQUEST['q_withoutimg']) $this->qryArr['woi'] = 1;
-			for($x=1;$x<9;$x++){
+			for($x=1; $x<9; $x++){
 				if(array_key_exists('q_customandor'.$x,$_REQUEST) && $_REQUEST['q_customandor'.$x]) $this->qryArr['cao'.$x] = $_REQUEST['q_customandor'.$x];
                 if(array_key_exists('q_customopenparen'.$x,$_REQUEST) && $_REQUEST['q_customopenparen'.$x]) $this->qryArr['cop'.$x] = $_REQUEST['q_customopenparen'.$x];
 				if(array_key_exists('q_customfield'.$x,$_REQUEST) && $_REQUEST['q_customfield'.$x]) $this->qryArr['cf'.$x] = $_REQUEST['q_customfield'.$x];
 				if(array_key_exists('q_customtype'.$x,$_REQUEST) && $_REQUEST['q_customtype'.$x]) $this->qryArr['ct'.$x] = $_REQUEST['q_customtype'.$x];
-				if(array_key_exists('q_customvalue'.$x,$_REQUEST) && $_REQUEST['q_customvalue'.$x]) $this->qryArr['cv'.$x] = trim($_REQUEST['q_customvalue'.$x]);
+				if(array_key_exists('q_customvalue'.$x,$_REQUEST)) $this->qryArr['cv'.$x] = trim($_REQUEST['q_customvalue'.$x]);
 				if(array_key_exists('q_customcloseparen'.$x,$_REQUEST) && $_REQUEST['q_customcloseparen'.$x]) $this->qryArr['ccp'.$x] = $_REQUEST['q_customcloseparen'.$x];
 			}
 			if(array_key_exists('orderby',$_REQUEST)) $this->qryArr['orderby'] = trim($_REQUEST['orderby']);
@@ -285,7 +276,7 @@ class OccurrenceEditorManager {
 							$this->otherCatNumIsNum = true;
 							if(substr($v,0,1) == '0'){
 								//Add value with left padded zeros removed
-								$ocnInFrag[] = ltrim($vStr,0);
+								$ocnInFrag[] = ltrim($v,0);
 							}
 						}
 					}
@@ -474,7 +465,7 @@ class OccurrenceEditorManager {
 		}
 		//Custom search fields
 		$customWhere = '';
-		for($x=1;$x<9;$x++){
+		for($x=1; $x<9; $x++){
 			$cao = (array_key_exists('cao'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cao'.$x]):'');
             $cop = (array_key_exists('cop'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cop'.$x]):'');
 			$customField = (array_key_exists('cf'.$x,$this->qryArr)?$this->cleanInStr($this->qryArr['cf'.$x]):'');
@@ -496,14 +487,14 @@ class OccurrenceEditorManager {
 				}
 				if($customField == 'o.otherCatalogNumbers'){
 					$customWhere .= $cao.' ('.substr($this->setCustomSqlFragment($customField, $customTerm, $customValue, $cao, $cop, $ccp),3).' ';
-					if($customTerm != 'NOT EQUALS' && $customTerm != 'NOT LIKE'){
+					if($customTerm != 'NOT_EQUALS' && $customTerm != 'NOT_LIKE'){
 						$caoOverride = 'OR';
 						if($customTerm == 'NULL') $caoOverride = 'AND';
 						$customWhere .= $this->setCustomSqlFragment('id.identifierValue', $customTerm, $customValue, $caoOverride, $cop, $ccp);
 					}
 					else{
 						$customWhere .= 'AND o.occid NOT IN(SELECT occid FROM omoccuridentifiers WHERE identifierValue ';
-						if($customTerm == 'NOT LIKE') $customWhere .= 'NOT LIKE';
+						if($customTerm == 'NOT_LIKE') $customWhere .= 'NOT_LIKE';
 						else $customWhere .= '!=';
 						$customWhere .= ' "'.$this->cleanInStr($customValue).'")';
 					}
@@ -536,22 +527,22 @@ class OccurrenceEditorManager {
 		elseif($customTerm == 'NOTNULL'){
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' IS NOT NULL) '.($ccp?$ccp.' ':'');
 		}
-		elseif($customTerm == 'NOT EQUALS' && $customValue){
+		elseif($customTerm == 'NOT_EQUALS'){
 			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' != '.$customValue.') OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
 		}
-		elseif($customTerm == 'GREATER' && $customValue){
+		elseif($customTerm == 'GREATER'){
 			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' > '.$customValue.') '.($ccp?$ccp.' ':'');
 		}
-		elseif($customTerm == 'LESS' && $customValue){
+		elseif($customTerm == 'LESS'){
 			if(!is_numeric($customValue)) $customValue = '"'.$customValue.'"';
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' < '.$customValue.') '.($ccp?$ccp.' ':'');
 		}
 		elseif($customTerm == 'LIKE' && $customValue){
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' ('.$customField.' LIKE "%'.trim($customValue,'%').'%") '.($ccp?$ccp.' ':'');
 		}
-		elseif($customTerm == 'NOT LIKE' && $customValue){
+		elseif($customTerm == 'NOT_LIKE' && $customValue){
 			$sqlFrag .= $cao.($cop?' '.$cop:'').' (('.$customField.' NOT LIKE "%'.trim($customValue,'%').'%") OR ('.$customField.' IS NULL)) '.($ccp?$ccp.' ':'');
 		}
 		elseif($customTerm == 'STARTS' && $customValue){
@@ -775,14 +766,18 @@ class OccurrenceEditorManager {
 			//Iterate through occurrences and merge addtional identifiers and otherCatalogNumbers field values
 			foreach($occurrenceArr as $occid => $occurArr){
 				$otherCatNumArr = array();
-				if($ocnStr = trim($occurArr['othercatalognumbers'],',;| ')){
+				$trimmableOccurArr = $occurArr['othercatalognumbers'] ?? "";
+				if($ocnStr = trim($trimmableOccurArr,',;| ')){
 					$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
 					$ocnArr = explode('|',$ocnStr);
 					foreach($ocnArr as $identUnit){
-						$unitArr = explode(':',trim($identUnit,': '));
+						$trimmableIdentUnit = $identUnit ?? "";
+						$unitArr = explode(':',trim($trimmableIdentUnit,': '));
+						$safeUnitArr = $unitArr ?? array();
 						$tag = '';
-						if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
-						$value = trim(implode(', ',$unitArr));
+						$trimmableShiftedUnitArr = array_shift($safeUnitArr) ?? "";
+						if(count($safeUnitArr) > 1) $tag = trim($trimmableShiftedUnitArr);
+						$value = trim(implode(', ',$safeUnitArr));
 						$otherCatNumArr[$value] = $tag;
 					}
 				}
@@ -873,7 +868,7 @@ class OccurrenceEditorManager {
 				}
 				//Get current paleo values to be saved within versioning tables
 				$editFieldArr['omoccurpaleo'] = array_intersect($editArr, $this->fieldArr['omoccurpaleo']);
-				if($this->paleoActivated && $editFieldArr['omoccurpaleo']){
+				if(isset($this->collMap['paleoActivated']) && $editFieldArr['omoccurpaleo']){
 					$sql = 'SELECT '.implode(',',$editFieldArr['omoccurpaleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
 					if($rs->num_rows) $oldValueArr['omoccurpaleo'] = $rs->fetch_assoc();
@@ -1024,7 +1019,7 @@ class OccurrenceEditorManager {
 						//Deal with additional identifiers
 						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr, $identArr);
 						//Deal with paleo fields
-						if($this->paleoActivated && array_key_exists('eon',$postArr)){
+						if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
 							//Check to see if paleo record already exists
 							$paleoRecordExist = false;
 							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = '.$this->occid;
@@ -1184,7 +1179,7 @@ class OccurrenceEditorManager {
 				//Deal with identifiers
 				if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr);
 				//Deal with paleo
-				if($this->paleoActivated && array_key_exists('eon',$postArr)){
+				if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
 					//Add new record
 					$paleoFrag1 = '';
 					$paleoFrag2 = '';
@@ -1346,7 +1341,7 @@ class OccurrenceEditorManager {
 				}
 
 				//Archive paleo
-				if($this->paleoActivated){
+				if(isset($this->collMap['paleoActivated'])){
 					$sql = 'SELECT * FROM omoccurpaleo WHERE occid = '.$delOccid;
 					if($rs = $this->conn->query($sql)){
 						if($r = $rs->fetch_assoc()){
@@ -1400,13 +1395,11 @@ class OccurrenceEditorManager {
 				//Archive complete occurrence record
 				$archiveArr['dateDeleted'] = date('r').' by '.$USER_DISPLAY_NAME;
 				$archiveObj = json_encode($archiveArr);
-				$sqlArchive = 'UPDATE omoccurarchive '.
-					'SET archivestatus = 1, archiveobj = "'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'", '.
-					'catalogNumber = '.(isset($archiveArr['catalogNumber']) && $archiveArr['catalogNumber']?'"'.$this->cleanInStr($archiveArr['catalogNumber']).'"':'NULL').', '.
-					'occurrenceID = '.(isset($archiveArr['occurrenceID']) && $archiveArr['occurrenceID']?'"'.$this->cleanInStr($archiveArr['occurrenceID']).'"':'NULL').', '.
-					'recordID = '.(isset($archiveArr['recordID']) && $archiveArr['recordID']?'"'.$this->cleanInStr($archiveArr['recordID']).'"':'NULL').' '.
-					'WHERE (occid = '.$delOccid.')';
-				//echo $sqlArchive;
+				$sqlArchive = 'INSERT INTO omoccurarchive(archiveobj, occid, catalogNumber, occurrenceID, recordID) '.
+					'VALUES ("'.$this->cleanInStr($this->encodeStrTargeted($archiveObj,'utf8',$CHARSET)).'", '.$delOccid.','.
+					(isset($archiveArr['catalogNumber']) && $archiveArr['catalogNumber']?'"'.$this->cleanInStr($archiveArr['catalogNumber']).'"':'NULL').', '.
+					(isset($archiveArr['occurrenceID']) && $archiveArr['occurrenceID']?'"'.$this->cleanInStr($archiveArr['occurrenceID']).'"':'NULL').', '.
+					(isset($archiveArr['recordID']) && $archiveArr['recordID']?'"'.$this->cleanInStr($archiveArr['recordID']).'"':'NULL').')';
 				$this->conn->query($sqlArchive);
 			}
 
@@ -1535,7 +1528,7 @@ class OccurrenceEditorManager {
 		}
 
 		//Remap paleo
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'UPDATE omoccurpaleo SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
 			if(!$this->conn->query($sql)){
 				//$this->errorArr[] .= '; '.$LANG['ERROR_REMAPPING_PALEOS'].': '.$this->conn->error;
@@ -1579,8 +1572,8 @@ class OccurrenceEditorManager {
 		//Remap identifiers
 		$sql = 'UPDATE omoccuridentifiers SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
 		if(!$this->conn->query($sql)){
-			$this->errorArr[] .= '; '.$LANG['ERROR_REMAPPING_OCCIDS'].': '.$this->conn->error;
-			$status = false;
+			//$this->errorArr[] .= '; '.$LANG['ERROR_REMAPPING_OCCIDS'].': '.$this->conn->error;
+			//$status = false;
 		}
 
 		//Remap exsiccati
@@ -1669,7 +1662,7 @@ class OccurrenceEditorManager {
 	}
 
 	private function setPaleoData(){
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'SELECT '.implode(',',$this->fieldArr['omoccurpaleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -1767,7 +1760,7 @@ class OccurrenceEditorManager {
 					$statusStr = $LANG['ERROR_ADDING_UPDATE'].': '.$this->conn->error;
 				}
 				//Apply edits to core tables
-				if($this->paleoActivated && array_key_exists($fn, $this->fieldArr['omoccurpaleo'])){
+				if(isset($this->collMap['paleoActivated']) && array_key_exists($fn, $this->fieldArr['omoccurpaleo'])){
 					$sql = 'UPDATE omoccurpaleo SET '.$fn.' = '.$nvSqlFrag.' '.$sqlWhere;
 				}
 				else{
@@ -1868,32 +1861,36 @@ class OccurrenceEditorManager {
 		$status = '';
 		if(is_numeric($clid) && is_numeric($tid)){
 			//Check to see it the name is in the list, if not, add it
-			$clTid = 0;
-			$sqlCl = 'SELECT cl.tid '.
+			$clTaxaID = 0;
+			$sql = 'SELECT cl.clTaxaID '.
 				'FROM fmchklsttaxalink cl INNER JOIN taxstatus ts1 ON cl.tid = ts1.tid '.
 				'INNER JOIN taxstatus ts2 ON ts1.tidaccepted = ts2.tidaccepted '.
-				'WHERE (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) AND (ts2.tid = '.$tid.') AND (cl.clid = '.$clid.')';
-			$rsCl = $this->conn->query($sqlCl);
-			//echo $sqlCl;
-			if($rowCl = $rsCl->fetch_object()){
-				$clTid = $rowCl->tid;
+				'WHERE (ts1.taxauthid = 1) AND (ts2.taxauthid = 1) AND (ts2.tid = ?) AND (cl.clid = ?)';
+			if($stmt = $this->conn->prepare($sql)){
+				$stmt->bind_param('ii', $tid, $clid);
+				$stmt->execute();
+				$stmt->bind_result($clTaxaID);
+				$stmt->fetch();
+				$stmt->close();
 			}
-			$rsCl->free();
-			if(!$clTid){
-				$sqlCl1 = 'INSERT INTO fmchklsttaxalink(clid, tid) VALUES('.$clid.','.$tid.') ';
-				if($this->conn->query($sqlCl1)){
-					$clTid = $tid;
-				}
-				else{
-					$status .= '('.$LANG['WARNING_ADD_SCINAME'].': '.$this->conn->error.'); ';
+			if(!$clTaxaID){
+				$sql = 'INSERT INTO fmchklsttaxalink(tid,clid) VALUES(?,?)';
+				if($stmt = $this->conn->prepare($sql)){
+					$stmt->bind_param('ii', $tid, $clid);
+					$stmt->execute();
+					if($stmt->affected_rows) $clTaxaID = $stmt->insert_id;
+					else $status .= '('.$LANG['WARNING_ADD_SCINAME'].': '.$stmt->error.'); ';
+					$stmt->close();
 				}
 			}
 			//Add voucher
-			if($clTid){
-				$sqlCl2 = 'INSERT INTO fmvouchers(occid,clid,tid) values('.$this->occid.','.$clid.','.$clTid.')';
-				//echo $sqlCl2;
-				if(!$this->conn->query($sqlCl2)){
-					$status .= '('.$LANG['WARNING_ADD_VOUCHER'].': '.$this->conn->error.'); ';
+			if($clTaxaID){
+				$sql = 'INSERT INTO fmvouchers(clTaxaID, occid) VALUES(?,?) ';
+				if($stmt = $this->conn->prepare($sql)){
+					$stmt->bind_param('ii', $clTaxaID, $this->occid);
+					$stmt->execute();
+					if(!$stmt->affected_rows) $status .= '('.$LANG['WARNING_ADD_VOUCHER'].': '.$stmt->error.'); ';
+					$stmt->close();
 				}
 			}
 		}
@@ -1904,7 +1901,7 @@ class OccurrenceEditorManager {
 		global $LANG;
 		$status = '';
 		if(is_numeric($clid)){
-			$sql = 'DELETE FROM fmvouchers WHERE clid = '.$clid.' AND occid = '.$this->occid;
+			$sql = 'DELETE v.* FROM fmvouchers v INNER JOIN fmchklsttaxalink c ON v.clTaxaID = c.clTaxaID WHERE c.clid = '.$clid.' AND v.occid = '.$this->occid;
 			if(!$this->conn->query($sql)){
 				$status = $LANG['ERROR_DELETING_VOUCHER'].': '.$this->conn->error;
 			}
@@ -2322,7 +2319,7 @@ class OccurrenceEditorManager {
 
 	public function getPaleoGtsTerms(){
 		$retArr = array();
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
@@ -2530,20 +2527,23 @@ class OccurrenceEditorManager {
 	}
 
 	protected function cleanOutStr($str){
-		$newStr = str_replace('"',"&quot;",$str);
+		$safeStr = $str ?? "";
+		$newStr = str_replace('"',"&quot;",$safeStr);
 		$newStr = str_replace("'","&apos;",$newStr);
 		return $newStr;
 	}
 
 	protected function cleanInStr($str){
-		$newStr = trim($str);
+		$safeStr = $str ?? "";
+		$newStr = trim($safeStr);
 		$newStr = preg_replace('/\s\s+/', ' ',$newStr);
 		$newStr = $this->conn->real_escape_string($newStr);
 		return $newStr;
 	}
 
-	private function cleanRawFragment($str){
-		$newStr = trim($str);
+	protected function cleanRawFragment($str){
+		$safeStr = $str ?? "";
+		$newStr = trim($safeStr);
 		$newStr = $this->encodeStr($newStr);
 		$newStr = $this->conn->real_escape_string($newStr);
 		return $newStr;
