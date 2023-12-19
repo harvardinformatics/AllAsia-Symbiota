@@ -119,7 +119,6 @@ class GeographicThesaurus extends Manager{
 				(is_numeric($postArr['acceptedID'])?'"'.$this->cleanInStr($postArr['acceptedID']).'"':'NULL').', '.
 				(is_numeric($postArr['parentID'])?'"'.$this->cleanInStr($postArr['parentID']).'"':'NULL').', '.
 				($postArr['notes']?'"'.$this->cleanInStr($postArr['notes']).'"':'NULL').')';
-			echo $sql;
 			if(!$this->conn->query($sql)){
 				$this->errorMessage = 'ERROR adding unit: '.$this->conn->error;
 				return false;
@@ -208,10 +207,15 @@ class GeographicThesaurus extends Manager{
 		return $retArr;
 	}
 
-	public function getAcceptedGeoTermArr($geoLevelMax = 0){
+	public function getAcceptedGeoTermArr($geoLevelMax = 0, $parentID = 0){
 		$retArr = array();
 		$sql = 'SELECT geoThesID, geoTerm FROM geographicthesaurus ';
-		if($geoLevelMax) $sql .= 'WHERE (geoLevel = '.$geoLevelMax.') ';
+		$conditionArr = array();
+		if($geoLevelMax) $conditionArr[] = '(geoLevel = '.$geoLevelMax.')';
+		if($parentID) $conditionArr[] = '(parentID = '.$parentID.')';
+		if($conditionArr){
+			$sql .= 'WHERE ' . implode(' AND ', $conditionArr);
+		}
 		$sql .= 'ORDER BY geoTerm';
 		$rs = $this->conn->query($sql);
 		while($r = $rs->fetch_object()){
@@ -227,7 +231,7 @@ class GeographicThesaurus extends Manager{
 			$rankArr = $GLOBALS['GEO_THESAURUS_RANKING'];
 		}
 		else{
-			$rankArr = array(10 => 'Oceans', 20 => 'Island Group', 30 => 'Island', 40 => 'Continent/Region', 50 => 'Country', 60 => 'ADM1', 70 => 'ADM2', 80 => 'ADM3',
+			$rankArr = array(10 => 'Oceans', 20 => 'Island Group', 30 => 'Island', 40 => 'Continent/Region', 50 => 'Country', 60 => 'State/Province', 70 => 'County', 80 => 'Municipality',
 				100 => 'City/Town', 110 => 'Place Name', 150 => 'Lake/Pond', 160 => 'River/Creek');
 		}
 		return $rankArr;
@@ -329,7 +333,7 @@ class GeographicThesaurus extends Manager{
 				$retArr[$key]['region'] = $region;
 				//$retArr[$key]['geoJSON'] = $countryObj->gjDownloadURL;
 				//$retArr[$key]['simplifiedGeoJSON'] = $countryObj->simplifiedGeometryGeoJSON;
-				$retArr[$key]['link'] = $countryObj->apiURL;
+				//$retArr[$key]['link'] = $countryObj->apiURL;
 				$retArr[$key]['img'] = $countryObj->imagePreview;
 			}
 			ksort($retArr);
