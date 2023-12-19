@@ -136,16 +136,30 @@ if($isEditor && $submitAction) {
 						<form name="" method="post" action="harvester.php">
 							<table class="styledtable">
 								<tr>
-									<th></th><th>Type</th><th>ID</th><th>In Database</th><th>Has Polygon</th><th>Canonical</th><th>Region</th><th>License</th><th>Full Link</th><th>Preview Image</th>
+									<th></th><th>Type</th><th>ID</th><th>Database Count</th><th>Geoboundaries Count</th><th>Has Polygon</th><th>Canonical</th><th>Region</th><th>License</th><th>Full Link</th><th>Preview Image</th>
 								</tr>
 								<?php
 								$geoList = $geoManager->getGBGeoList($gbAction);
+								$prevGeoThesID = 0;
 								foreach($geoList as $type => $gArr){
 									echo '<tr class="'.(isset($gArr['geoThesID'])?'nodb':'').(isset($gArr['polygon'])?' nopoly':'').'">';
 									echo '<td><input name="geoid[]" type="checkbox" value="'.$gArr['id'].'" '.(isset($gArr['polygon'])?'DISABLED':'').' /></td>';
 									echo '<td>'.$type.'</td>';
 									echo '<td>'.$gArr['id'].'</td>';
-									echo '<td>'.(isset($gArr['geoThesID'])?'Yes':'No').'</td>';
+									$isInDbStr = 'No';
+									if(isset($gArr['geoThesID'])){
+										$isInDbStr = 1;
+										if(is_numeric($gArr['geoThesID'])){
+											$isInDbStr = '<a href="index.php?geoThesID='.$gArr['geoThesID'].'" target="_blank">1</a>';
+											$prevGeoThesID = $gArr['geoThesID'];
+										}
+										else{
+											$isInDbStr = substr($gArr['geoThesID'], 4);
+											if($prevGeoThesID) $isInDbStr = '<a href="index.php?parentID='.$prevGeoThesID.'" target="_blank">'.$isInDbStr.'</a>';
+										}
+									}
+									echo '<td>'.$gArr['gbCount'].'</td>';
+									echo '<td>'.$isInDbStr.'</td>';
 									echo '<td>'.(isset($gArr['polygon'])?'Yes':'No').'</td>';
 									echo '<td>'.$gArr['canonical'].'</td>';
 									echo '<td>'.$gArr['region'].'</td>';

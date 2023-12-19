@@ -354,7 +354,8 @@ class GeographicThesaurus extends Manager{
 	public function getGBGeoList($countryCode){
 		$retArr = array();
 		$contArr = $this->getContinentArr();
-		$url = 'https://www.geoboundaries.org/api/current/gbOpen/'.$countryCode.'/ALL/';
+		$urlBase = 'https://www.geoboundaries.org/api/current/gbOpen/';
+		$url = $urlBase . $countryCode.'/ALL/';
 		$json = $this->getGeoboundariesJSON($url);
 		$obj = json_decode($json);
 		if($obj){
@@ -374,9 +375,10 @@ class GeographicThesaurus extends Manager{
 					if($region == 'Northern America') $region == 'North America';
 					if($countryCode == 'ATA') $region = 'Antartica';
 					$retArr[$type]['region'] = $region;
+					$retArr[$type]['gbCount'] = $boundaryObj->admUnitCount;
 					$retArr[$type]['geoJson'] = $boundaryObj->gjDownloadURL;
 					$retArr[$type]['simpleGeoJson'] = $boundaryObj->simplifiedGeometryGeoJSON;
-					$retArr[$type]['link'] = $boundaryObj->apiURL;
+					$retArr[$type]['link'] = $urlBase.$countryCode.'/'.$type.'/';
 					$retArr[$type]['img'] = $boundaryObj->imagePreview;
 				}
 			}
@@ -386,12 +388,14 @@ class GeographicThesaurus extends Manager{
 				FROM geographicthesaurus g LEFT JOIN geographicpolygon p ON g.geoThesID = p.geoThesID
 				WHERE g.geoLevel = 50 AND g.acceptedID IS NULL AND g.iso3 IN("'.$countryCode.'")';
 			$rs = $this->conn->query($sql);
-			while($r = $rs->fetch_object()){
-				$retArr['ADM0']['geoThesID'] = $r->geoThesID;
-				if($r->polygonID) $retArr['ADM0']['polygon'] = 1;
+			if($r = $rs->fetch_object()){
+				if(isset($retArr['ADM0'])){
+					$retArr['ADM0']['geoThesID'] = $r->geoThesID;
+					if($r->polygonID) $retArr['ADM0']['polygon'] = 1;
+					$this->checkLowerDivision($retArr, array($r->geoThesID));
+				}
 			}
 			$rs->free();
-			$this->checkLowerDivision($retArr);
 		}
 		return $retArr;
 	}
@@ -414,26 +418,31 @@ class GeographicThesaurus extends Manager{
 		return $retStr;
 	}
 
-	private function checkLowerDivision(&$retArr, $type = 'ADM1'){
-		$admLevel = substr($type,-1);
+	private function checkLowerDivision(&$retArr, $parentIdArr, $admLevel = 1){
 		$geoLevel = 0;
 		if($admLevel == 1) $geoLevel = 60;
 		elseif($admLevel == 2) $geoLevel = 70;
 		elseif($admLevel == 3) $geoLevel = 80;
 		elseif($admLevel > 3) return false;
 		if($geoLevel){
-			$admNext = 'ADM'.($admLevel+1);
-			if(isset($retArr[$type]['geoThesID']) && isset($retArr[$admNext])){
-				$sql = 'SELECT g.geoThesID, g.iso3, p.geoThesID AS polygonID
+			if($parentIdArr && isset($retArr['ADM'.$admLevel])){
+				$idArr = array();
+				$hasPolygons = false;
+				$sql = 'SELECT g.geoThesID, COUNT(p.geoThesID) AS polygon_cnt
 					FROM geographicthesaurus g LEFT JOIN geographicpolygon p ON g.geoThesID = p.geoThesID
-					WHERE g.geoLevel = '.$geoLevel.' AND g.acceptedID IS NULL AND g.parentID = '.$retArr[$type]['geoThesID'];
+					WHERE g.geoLevel = '.$geoLevel.' AND g.acceptedID IS NULL AND g.parentID IN('.implode(',', $parentIdArr).')
+					GROUP BY g.geoThesID';
 				$rs = $this->conn->query($sql);
 				while($r = $rs->fetch_object()){
-					$retArr[$admNext]['geoThesID'] = $r->geoThesID;
-					if($r->polygonID) $retArr[$admNext]['polygon'] = 1;
-					$this->checkLowerDivision($retArr, $admNext);
+					$idArr[] = $r->geoThesID;
+					if($r->polygon_cnt) $hasPolygons = true;
 				}
 				$rs->free();
+				if($idArr){
+					$retArr['ADM'.$admLevel]['geoThesID'] = 'cnt_'.count($idArr);
+					if($hasPolygons) $retArr['ADM'.$admLevel]['polygon'] = 1;
+					$this->checkLowerDivision($retArr, $idArr, ++$admLevel);
+				}
 			}
 		}
 	}
