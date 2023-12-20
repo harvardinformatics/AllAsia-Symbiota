@@ -10,7 +10,7 @@ Translated by: Google Translate
 $LANG['CROWDSOURCE_EXPLAIN'] = 'Ce module peut être utilisé pour soumettre et gérer des enregistrements pour la saisie de données par le
 			grand public. Pour plus d\'informations, consultez le
 			<a href="https://biokic.github.io/symbiota-docs/coll_manager/crowdsource/edit/">
-			Documentation Symbiota sur le crowdsourcing</a>' ;
+			Documentation Symbiota sur le crowdsourcing</a>';
 $LANG['EDIT_PROJECT'] = 'Modifier le projet';
 $LANG['GENERAL_INSTRUCTIONS'] = 'Instructions générales';
 $LANG['TRAINING_URL'] = 'URL de formation';
@@ -28,12 +28,12 @@ $LANG['GENUS_SP'] = 'Genre/Espèce';
 $LANG['PAYS'] = 'Pays';
 $LANG['STATE_PROV'] = 'État/Province';
 $LANG['RECORD_LIMIT'] = 'Limite d\'enregistrement';
-$LANG['BÉNÉVOLES'] = 'Bénévoles';
-$LANG['UTILISATEUR'] = 'Utilisateur';
+$LANG['VOLUNTEERS'] = 'Bénévoles';
+$LANG['USER'] = 'Utilisateur';
 $LANG['SCORE'] = 'Score';
 $LANG['PENDING_REVIEW'] = 'En attente de révision';
-$LANG['APPROVED'] = 'Bénévoles';
-$LANG['REVUE'] = 'Révision';
+$LANG['APPROVED'] = 'Approuvées';
+$LANG['REVIEW'] = 'Révision';
 $LANG['NO_RECS_PROCESSED'] = 'Aucun enregistrement traité';
 $LANG['APPROVED_EDITORS'] = 'Éditeurs approuvés';
 $LANG['SCORE_BOARD'] = 'Tableau des scores';
