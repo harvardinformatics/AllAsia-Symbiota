@@ -192,7 +192,7 @@ $LANG['CONTACT_SYSADMIN'] = 'Contact your system administrator to resolve these 
 $LANG['OCR_IMPORT_TOOL'] = 'OCR Batch Import Tool';
 $LANG['OCR_IMPORT_EXPLAIN'] = 'This interface will upload OCR text files generated outside of the portal environment.
 				For instance, ABBYY FineReader has the ability to batch OCR specimen images and output the results as separate text files (.txt) named after the source image.
-				OCR text files are linked to specimen records by matching catalog numbers extracted from the file name and comparing OCR and iamge file names.';
+				OCR text files are linked to specimen records by matching catalog numbers extracted from the file name and comparing OCR and image file names.';
 $LANG['REQS'] = 'Requirements';
 $LANG['REQ1'] = 'OCR files must be in a text format with a .txt extension. When using ABBYY, use the setting: "Create a separate document for each file", "Save as Text (*.txt)", and "Name as source file"';
 $LANG['REQ2'] = 'Compress multiple OCR text files into a single zip file to be uploaded into the portal';
