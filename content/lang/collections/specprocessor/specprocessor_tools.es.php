@@ -36,6 +36,7 @@ $LANG['NOT_AUTH'] = 'No estás autorizado a acceder a esta página';
 
 $LANG['IMG_PROCESSOR'] = 'Procesador de imágenes';
 $LANG['SEL_IMPORT_TYPE'] = 'Se debe seleccionar el tipo de importación/mapeo de imagen';
+$LANG['USE_DEFAULT_PATH'] = "-- Usar Ruta Predeterminada --";
 $LANG['SEL_CSV'] = 'Seleccione un archivo CSV para cargar';
 $LANG['CSV_OR_ZIP'] = 'El archivo de entrada debe ser un archivo delimitado por comas (CSV) o un archivo ZIP que contenga un archivo CSV';
 $LANG['NEED_PATTERN_MATCH'] = 'El término de coincidencia de patrón debe tener un valor';
@@ -52,8 +53,8 @@ $LANG['SOURCE_MUST_UNIQUE'] = 'ERROR: Los nombres de los campos de origen deben 
 $LANG['MUST_MAP_CATNUM'] = 'El número de catálogo u otros números de catálogo deben asignarse a un campo de importación';
 $LANG['LARGE_URL_MAPPED'] = 'La URL de imagen grande debe estar asignada a un campo de importación';
 $LANG['IMG_PROCESSOR_EXPLAIN'] = 'Estas herramientas están diseñadas para ayudar a los administradores de colecciones en el procesamiento por lotes de imágenes de muestras. Póngase en contacto con el administrador del portal para obtener ayuda para configurar un nuevo flujo de trabajo.
-Una vez que se establece un perfil, el administrador de la colección puede usar este formulario para activar manualmente el procesamiento de imágenes. Para obtener más información, consulte la documentación de Symbiota para
-<b><a href="https://biokic.github.io/symbiota-docs/coll_manager/images/batch/" target="_blank">prácticas recomendadas</a></b> para integrar imágenes.' ;
+			Una vez que se establece un perfil, el administrador de la colección puede usar este formulario para activar manualmente el procesamiento de imágenes. Para obtener más información, consulte la documentación de Symbiota para
+			<b><a href="https://biokic.github.io/symbiota-docs/coll_manager/images/batch/" target="_blank">prácticas recomendadas</a></b> para integrar imágenes.' ;
 $LANG['IMG_FILE_UPLOAD_MAP'] = 'Mapa de carga de archivos de imagen';
 $LANG['SOURCE_FIELD'] = 'Campo de origen';
 $LANG['TARGET_FIELD'] = 'Campo de destino';
@@ -68,7 +69,7 @@ $LANG['LINK_BLANK_RECORD'] = 'Vincular imagen a nuevo registro en blanco si el n
 $LANG['MAP_IMGS'] = 'Imágenes del mapa';
 $LANG['SAVED_PROCESSING_PROF'] = 'Perfiles de procesamiento de imágenes guardados';
 $LANG['EDITAR'] = 'Editar';
-$LANG['NUEVO'] = 'Nuevo';
+$LANG['NEW'] = 'Nuevo';
 $LANG['PROFILE'] = 'Perfil';
 $LANG['CLOSE_EDITOR'] = 'Cerrar editor';
 $LANG['PROC_TYPE'] = 'Tipo de procesamiento';
@@ -82,7 +83,7 @@ $LANG['PATTERN_EXPLAIN'] = 'Expresión regular necesaria para extraer el identif
 			del archivo de imagen llamado WIS-L-0001234_a.jpg. Para obtener más información sobre la creación de expresiones regulares,
 			busque en Internet &quot;Tutorial PHP de expresiones regulares&quot;';
 $LANG['REPLACEMENT_TERM'] = 'Término de reemplazo';
-$LANG['OPCIONAL'] = 'Opcional';
+$LANG['OPTIONAL'] = 'Opcional';
 $LANG['PATT_REPLACE_EXPLAIN'] = "La expresión regular opcional para la coincidencia del número de catálogo se reemplazará con un término de reemplazo.
 			Ejemplo 1: expresión reemplazar término = '/^/' combinada con reemplazar cadena = 'código de barras-' convertirá 0001234 => código de barras-0001234.
 			Ejemplo 2: expresión reemplazar término = '/XYZ-/' combinada con una cadena de reemplazo vacía convertirá XYZ-0001234 => 0001234.";

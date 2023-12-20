@@ -150,8 +150,8 @@ if($spprid) $specManager->setProjVariables($spprid);
 						return false;
 					}
 				}
-				if(f.patternreplace.value == "-- Optional --") f.patternreplace.value = "";
-				if(f.replacestr.value == "-- Optional --") f.replacestr.value = "";
+				if(f.patternreplace.value == <?php echo $LANG['OPTIONAL']; ?>) f.patternreplace.value = "";
+				if(f.replacestr.value == <?php echo $LANG['OPTIONAL']; ?>) f.replacestr.value = "";
 				if(f.sourcepath.value == "-- Use Default Path --") f.sourcepath.value = "";
 				return true;
 			}
@@ -356,9 +356,9 @@ if($spprid) $specManager->setProjVariables($spprid);
 										</div>
 									</div>
 									<div id="replaceStrDiv" class="profileDiv" style="display:<?php echo ($projectType?'block':'none'); ?>">
-										<label>Replacement string:</label>
+										<label><?php echo $LANG['REPLACEMENT_STR']; ?>:</label>
 										<div style="float:left;">
-											<input name="replacestr" type="text" style="width:300px;" value="<?php echo ($specManager->getReplaceStr()?$specManager->getReplaceStr():'-- Optional --'); ?>" />
+											<input name="replacestr" type="text" style="width:300px;" value="<?php echo ($specManager->getReplaceStr()?$specManager->getReplaceStr():'-- ' . $LANG['OPTIONAL'] . ' --'); ?>" />
 											<a id="replacestrinfo" href="#" onclick="return false" title="<?php echo $LANG['MORE_INFO']; ?>">
 												<img src="../../images/info.png" style="width:15px;" />
 											</a>

@@ -34,6 +34,7 @@ $LANG['NOT_AUTH'] = 'You are not authorized to access this page';
 
 $LANG['IMG_PROCESSOR'] = 'Image Processor';
 $LANG['SEL_IMPORT_TYPE'] = 'Image Mapping/Import type must be selected';
+$LANG['USE_DEFAULT_PATH'] = "-- Use Default Path --";
 $LANG['SEL_CSV'] = 'Select a CSV file to upload';
 $LANG['CSV_OR_ZIP'] = 'Input file must be a comma-delimited file (CSV) or ZIP file containing a CSV file';
 $LANG['NEED_PATTERN_MATCH'] = 'Pattern matching term must have a value';
