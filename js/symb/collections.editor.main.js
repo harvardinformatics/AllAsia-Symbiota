@@ -180,50 +180,6 @@ $(document).ready(function() {
 	});
 
 	//Misc fields with lookups
-	$("#ffcountry").autocomplete({
-		source: function( request, response ) {
-			$.getJSON( "rpc/lookupCountry.php", { term: request.term }, response );
-		},
-		minLength: 2,
-		autoFocus: true,
-		change: function(event, ui){
-			fieldChanged("country");
-		}
-	});
-
-	$("#ffstate").autocomplete({
-		source: function( request, response ) {
-			$.getJSON( "rpc/lookupState.php", { term: request.term, "country": editForm.country.value }, response );
-		},
-		minLength: 2,
-		autoFocus: true,
-		change: function(event, ui){
-			fieldChanged("stateprovince");
-		}
-	});
-
-	$("#ffcounty").autocomplete({ 
-		source: function( request, response ) {
-			$.getJSON( "rpc/lookupCounty.php", { term: request.term, "state": editForm.stateprovince.value }, response );
-		},
-		minLength: 2,
-		autoFocus: true,
-		change: function(event, ui){
-			fieldChanged("county");
-		}
-	});
-
-	$("#ffmunicipality").autocomplete({ 
-		source: function( request, response ) {
-			$.getJSON( "rpc/lookupMunicipality.php", { term: request.term, "state": editForm.stateprovince.value }, response );
-		},
-		minLength: 2,
-		autoFocus: true,
-		change: function(event, ui){
-			fieldChanged("municipality");
-		}
-	});
-	
 	$("textarea[name=associatedtaxa]").autocomplete({
 		source: function( request, response ) {
 			$.getJSON( "rpc/getspeciessuggest.php", { term: extractLast( request.term ) }, response );
@@ -973,7 +929,7 @@ function eventDateChanged(eventDateInput){
 				var testDate = new Date(dateArr['y'],dateArr['m']-1,dateArr['d']);
 				var today = new Date();
 				if(testDate > today){
-					alert("Was this plant really collected in the future? The date you entered has not happened yet. Please revise.");
+					alert("Was this specimen really collected in the future? The date you entered has not happened yet. Please revise.");
 					return false;
 				}
 			}
