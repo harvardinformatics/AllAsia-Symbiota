@@ -473,17 +473,17 @@ class DwcArchiverOccurrence extends Manager{
 			$retStr = '';
 			foreach($assocArr as $assocateArr){
 				if($associationType == 'observational'){
-					$retStr .= ' | '.$assocateArr['relationship'];
+					$retStr .= ' | ' . $assocateArr['relationship'];
 					if(!empty($assocateArr['scientificName'])) $retStr .= ': '.$assocateArr['scientificName'];
 				}
 				else{
-					$retStr .= ' | relationship: '.$assocateArr['relationship'];
-					if(!empty($assocateArr['subtype'])) $retStr .= ' ('.$assocateArr['subtype'].')';
-					if(!empty($assocateArr['identifier'])) $retStr .= ', identifier: '.$assocateArr['identifier'];
-					if(!empty($assocateArr['basisOfRecord'])) $retStr .= ', basisOfRecord: '.$assocateArr['basisOfRecord'];
-					if(!empty($assocateArr['scientificName'])) $retStr .= ', scientificName: '.$assocateArr['scientificName'];
-					if(!empty($assocateArr['resourceUrl'])) $retStr .= ', resourceUrl:  '.$assocateArr['resourceUrl'];
-					if(empty($assocateArr['identifier']) && !empty($assocateArr['recordID'])) $retStr .= ', recordID:  '.$assocateArr['recordID'];
+					$retStr .= ' | relationship: ' . $assocateArr['relationship'];
+					if(!empty($assocateArr['subtype'])) $retStr .= ' (' . $assocateArr['subtype'] . ')';
+					if(!empty($assocateArr['identifier'])) $retStr .= ', identifier: ' . $assocateArr['identifier'];
+					elseif(!empty($assocateArr['recordID'])) $retStr .= ', recordID:  ' . $assocateArr['recordID'];
+					if(!empty($assocateArr['basisOfRecord'])) $retStr .= ', basisOfRecord: ' . $assocateArr['basisOfRecord'];
+					if(!empty($assocateArr['scientificName'])) $retStr .= ', scientificName: ' . $assocateArr['scientificName'];
+					if(!empty($assocateArr['resourceUrl'])) $retStr .= ', resourceUrl:  ' . $assocateArr['resourceUrl'];
 				}
 			}
 		}
@@ -497,7 +497,7 @@ class DwcArchiverOccurrence extends Manager{
 		$sql = 'SELECT occid, occidAssociate, relationship, subType, identifier,' .
 			'basisOfRecord, resourceUrl, verbatimSciname, locationOnHost ' .
 			'FROM omoccurassociations ' .
-			'WHERE (occid = '.$occid.' OR occidAssociate = '.$occid.') ';
+			'WHERE (occid = ' . $occid . ' OR occidAssociate = ' . $occid . ') ';
 
 		if ($rs = $this->conn->query($sql)) {
 
