@@ -82,7 +82,7 @@ if($SYMB_UID){
 				$headerArr = array();
 				foreach($recArr as $occurArr){
 					foreach($occurArr as $k => $v){
-						if(trim($v) && !array_key_exists($k,$headerArr)){
+						if($v && trim($v) && !array_key_exists($k,$headerArr)){
 							$headerArr[$k] = $k;
 						}
 					}
