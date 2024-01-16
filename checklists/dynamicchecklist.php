@@ -4,23 +4,17 @@ include_once($SERVER_ROOT . '/classes/DynamicChecklistManager.php');
 include_once($SERVER_ROOT . '/content/lang/checklists/checklist . ' . $LANG_TAG . '.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$lat = $_POST['lat'];
-$lng = $_POST['lng'];
-$radius = $_POST['radius'];
+$lat = filter_var($_POST['lat'], FILTER_SANITIZE_NUMBER_INT);
+$lng = filter_var($_POST['lng'], FILTER_SANITIZE_NUMBER_INT);
+$radius = filter_var($_POST['radius'], FILTER_SANITIZE_NUMBER_INT);
 $radiusUnits = $_POST['radiusunits'];
-$dynamicRadius = (isset($DYN_CHECKLIST_RADIUS)?$DYN_CHECKLIST_RADIUS:10);
+$dynamicRadius = isset($DYN_CHECKLIST_RADIUS) ?? 10;
 $taxa = $_POST['taxa'];
-$tid = $_POST['tid'];
+$tid = filter_var($_POST['tid'], FILTER_SANITIZE_NUMBER_INT);
 $interface = $_POST['interface'];
 
 //sanitation
-if(!is_numeric($lat)) $lat = 0;
-if(!is_numeric($lng)) $lng = 0;
-if(!is_numeric($radius)) $radius = 0;
 if($radiusUnits != 'mi') $radiusUnits == 'km';
-if(!is_numeric($dynamicRadius)) $dynamicRadius = 10;
-$taxa = filter_var($taxa,FILTER_SANITIZE_STRING);
-if(!is_numeric($tid)) $tid = 0;
 
 $dynClManager = new DynamicChecklistManager();
 
