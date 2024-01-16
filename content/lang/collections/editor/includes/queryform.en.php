@@ -125,4 +125,16 @@ $LANG['ELEV_MAX'] = 'Elevation Maximum';
 $LANG['ASCENDING'] = 'ascending';
 $LANG['DESCENDING'] = 'descending';
 $LANG['OUTPUT'] = 'Record output';
+$LANG['SELECT_FIELD'] = 'Field Name';
+$LANG['OPERATOR'] = 'Operator';
+$LANG['EXPRESSION'] = 'Expression';
+$LANG['PARENTHESES'] = 'Parentheses';
+$LANG['OPEN_PAREN_FIELD'] = 'Open Parentheses Field';
+$LANG['CRITERIA'] = 'Criteria';
+$LANG['CONDITION'] = 'Condition';
+$LANG['CUSTOM_VALUE'] = 'Custom Value';
+$LANG['CLOSE_PAREN_FIELD'] = 'Close Parentheses Field';
+$LANG['NEW_CUSTOM_FIELD'] = 'Add another custom field';
+$LANG['ORDER_BY'] = 'Order by';
+$LANG['IMG_EDIT'] = 'Edit Button';
 ?>

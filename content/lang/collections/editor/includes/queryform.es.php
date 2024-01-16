@@ -1,7 +1,9 @@
 <?php
 /*
 ------------------
-Language: Español
+Language: Español (Spanish)
+Translated by: Samanta Orellana
+Date Translated: 2021-10-29
 ------------------
 */
 
@@ -99,8 +101,8 @@ $LANG['CUSTOM_FIELD'] = 'Campo Personalizado';
 $LANG['SELECT_FIELD_NAME'] = 'Seleccione Nombre del Campo';
 $LANG['AND'] = 'Y';
 $LANG['OR'] = 'O';
-$LANG['EQUALS'] = 'IGUAL A';
-$LANG['NOT_EQUALS'] = 'NO IGUAL A';
+$LANG['EQUALS'] = 'ES IGUAL';
+$LANG['NOT_EQUALS'] = 'NO ES IGUAL';
 $LANG['STARTS'] = 'EMPIEZA CON';
 $LANG['LIKE'] = "CONTIENE";
 $LANG['NOT_LIKE'] = "NO CONTIENE";
@@ -124,5 +126,17 @@ $LANG['ELEV_MIN'] = 'Elevación Mínima';
 $LANG['ELEV_MAX'] = 'Elevación Máxima';
 $LANG['ASCENDING'] = 'ascendente';
 $LANG['DESCENDING'] = 'descendente';
-$LANG['OUTPUT'] = 'Record output';
+$LANG['OUTPUT'] = 'Grabar la salida';
+$LANG['SELECT_FIELD'] = 'Nombre del campo';
+$LANG['OPERATOR'] = 'Operador';
+$LANG['EXPRESSION'] = 'Expresión';
+$LANG['PARENTHESES'] = 'Paréntesis';
+$LANG['OPEN_PAREN_FIELD'] = 'Abrir campo entre paréntesis';
+$LANG['CRITERIA'] = 'Criterios';
+$LANG['CONDITION'] = 'Condición';
+$LANG['CUSTOM_VALUE'] = 'Valor personalizado';
+$LANG['CLOSE_PAREN_FIELD'] = 'Cerrar campo entre paréntesis';
+$LANG['NEW_CUSTOM_FIELD'] = 'Agregar otro campo personalizado';
+$LANG['ORDER_BY'] = 'Ordenar por';
+$LANG['IMG_EDIT'] = 'Botón Editar';
 ?>

@@ -3,15 +3,13 @@
  * Instead, modify styles within the symb/main.css file to override the default styles declared within this file 
 */
 
-
-
 /* Spans that use javascript to add clickable link behaviors */
-span[class='link'] {
+span[class="link"] {
   color: #2c405e;
   text-decoration: none;
 }
 
-span[class='link']:hover {
+span[class="link"]:hover {
   color: black;
   text-decoration: underline;
 }
@@ -298,4 +296,81 @@ ol.mp_list li.mp_highlighted {
   font-weight: normal;
   color: #212121;
   border-radius: 4px;
+}
+
+.accessibility-button {
+  font-size: 1.1em;
+}
+
+/*
+* OccurrenceSearchSupport
+*/
+.search-button-div {
+  float: right;
+  margin-top: 20px;
+}
+.sticky-buttons {
+  position: sticky;
+  top: 1rem;
+  float: right;
+}
+
+.no-left-margin {
+  margin-left: 0;
+}
+
+.fieldset-like {
+  /* borrowed from: https://www.geeksforgeeks.org/how-to-achieve-fieldset-like-effect-without-using-fieldset-tag/ */
+  border: 0.2em solid;
+  border-top: none;
+  margin: 2rem 0 1rem 1rem;
+  padding: 0.8rem;
+}
+
+.fieldset-like h1,
+.fieldset-like h2,
+.fieldset-like h3 {
+  font: 1.5rem normal;
+  margin: -1.6rem -0.8rem 0rem;
+}
+
+.fieldset-like h1 span,
+.fieldset-like h2 span,
+.fieldset-like h3 span {
+  float: left;
+}
+
+.fieldset-like h1:before,
+.fieldset-like h2:before,
+.fieldset-like h3:before {
+  border-top: 0.15em solid;
+  content: " ";
+  float: left;
+  margin: 0.8rem 0.1rem 0 -0.2rem;
+  width: 1.2rem;
+}
+
+.fieldset-like h1:after,
+.fieldset-like h2:after,
+.fieldset-like h3:after {
+  border-top: 0.15em solid;
+  content: " ";
+  display: block;
+  height: 2.4rem;
+  left: 0.3rem;
+  margin: 0 0.1rem 0 0;
+  overflow: hidden;
+  position: relative;
+  top: 0.8rem;
+}
+
+.float-rt-no-overlap {
+  /* this should occur after fieldset-like definitions */
+  float: right;
+  clear: both;
+  margin: 2rem 2rem 2rem 2rem;
+}
+
+.top-light-margin {
+  margin: 2px 10px 10px 10px;
 }

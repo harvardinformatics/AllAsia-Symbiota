@@ -26,8 +26,6 @@ class OccurrenceEditorManager {
 	protected $errorArr = array();
 	protected $isShareConn = false;
 
-	private $paleoActivated = false;
-
 	public function __construct($conn = null){
 		if($conn){
 			$this->conn = $conn;
@@ -104,7 +102,6 @@ class OccurrenceEditorManager {
 				}
 			}
 		}
-		return $retArr;
 	}
 
 	//Query functions
@@ -780,10 +777,13 @@ class OccurrenceEditorManager {
 					$ocnStr = str_replace(array(',',';'),'|',$ocnStr);
 					$ocnArr = explode('|',$ocnStr);
 					foreach($ocnArr as $identUnit){
-						$unitArr = explode(':',trim($identUnit,': '));
+						$trimmableIdentUnit = $identUnit ?? "";
+						$unitArr = explode(':',trim($trimmableIdentUnit,': '));
+						$safeUnitArr = $unitArr ?? array();
 						$tag = '';
-						if(count($unitArr) > 1) $tag = trim(array_shift($unitArr));
-						$value = trim(implode(', ',$unitArr));
+						$trimmableShiftedUnitArr = array_shift($safeUnitArr) ?? "";
+						if(count($safeUnitArr) > 1) $tag = trim($trimmableShiftedUnitArr);
+						$value = trim(implode(', ',$safeUnitArr));
 						$otherCatNumArr[$value] = $tag;
 					}
 				}
@@ -874,7 +874,7 @@ class OccurrenceEditorManager {
 				}
 				//Get current paleo values to be saved within versioning tables
 				$editFieldArr['omoccurpaleo'] = array_intersect($editArr, $this->fieldArr['omoccurpaleo']);
-				if($this->paleoActivated && $editFieldArr['omoccurpaleo']){
+				if(isset($this->collMap['paleoActivated']) && $editFieldArr['omoccurpaleo']){
 					$sql = 'SELECT '.implode(',',$editFieldArr['omoccurpaleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 					$rs = $this->conn->query($sql);
 					if($rs->num_rows) $oldValueArr['omoccurpaleo'] = $rs->fetch_assoc();
@@ -1025,7 +1025,7 @@ class OccurrenceEditorManager {
 						//Deal with additional identifiers
 						if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr, $identArr);
 						//Deal with paleo fields
-						if($this->paleoActivated && array_key_exists('eon',$postArr)){
+						if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
 							//Check to see if paleo record already exists
 							$paleoRecordExist = false;
 							$paleoSql = 'SELECT paleoid FROM omoccurpaleo WHERE occid = '.$this->occid;
@@ -1185,7 +1185,7 @@ class OccurrenceEditorManager {
 				//Deal with identifiers
 				if(isset($postArr['idvalue'])) $this->updateIdentifiers($postArr);
 				//Deal with paleo
-				if($this->paleoActivated && array_key_exists('eon',$postArr)){
+				if(isset($this->collMap['paleoActivated']) && array_key_exists('eon',$postArr)){
 					//Add new record
 					$paleoFrag1 = '';
 					$paleoFrag2 = '';
@@ -1347,7 +1347,7 @@ class OccurrenceEditorManager {
 				}
 
 				//Archive paleo
-				if($this->paleoActivated){
+				if(isset($this->collMap['paleoActivated'])){
 					$sql = 'SELECT * FROM omoccurpaleo WHERE occid = '.$delOccid;
 					if($rs = $this->conn->query($sql)){
 						if($r = $rs->fetch_assoc()){
@@ -1534,7 +1534,7 @@ class OccurrenceEditorManager {
 		}
 
 		//Remap paleo
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'UPDATE omoccurpaleo SET occid = '.$targetOccid.' WHERE occid = '.$sourceOccid;
 			if(!$this->conn->query($sql)){
 				//$this->errorArr[] .= '; '.$LANG['ERROR_REMAPPING_PALEOS'].': '.$this->conn->error;
@@ -1668,7 +1668,7 @@ class OccurrenceEditorManager {
 	}
 
 	private function setPaleoData(){
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'SELECT '.implode(',',$this->fieldArr['omoccurpaleo']).' FROM omoccurpaleo WHERE occid = '.$this->occid;
 			//echo $sql;
 			$rs = $this->conn->query($sql);
@@ -1766,7 +1766,7 @@ class OccurrenceEditorManager {
 					$statusStr = $LANG['ERROR_ADDING_UPDATE'].': '.$this->conn->error;
 				}
 				//Apply edits to core tables
-				if($this->paleoActivated && array_key_exists($fn, $this->fieldArr['omoccurpaleo'])){
+				if(isset($this->collMap['paleoActivated']) && array_key_exists($fn, $this->fieldArr['omoccurpaleo'])){
 					$sql = 'UPDATE omoccurpaleo SET '.$fn.' = '.$nvSqlFrag.' '.$sqlWhere;
 				}
 				else{
@@ -2325,7 +2325,7 @@ class OccurrenceEditorManager {
 
 	public function getPaleoGtsTerms(){
 		$retArr = array();
-		if($this->paleoActivated){
+		if(isset($this->collMap['paleoActivated'])){
 			$sql = 'SELECT gtsterm, rankid FROM omoccurpaleogts ';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){

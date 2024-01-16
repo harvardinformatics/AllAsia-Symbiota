@@ -5,10 +5,10 @@ header("Content-Type: text/html; charset=".$CHARSET);
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../ident/admin/index.php');
 
-$formSubmit = array_key_exists('formsubmit',$_POST)?$_POST['formsubmit']:'';
-$cid = array_key_exists('cid',$_REQUEST)?$_REQUEST['cid']:0;
-$tabIndex = array_key_exists('tabindex',$_REQUEST)?$_REQUEST['tabindex']:0;
-$langId = array_key_exists('langid',$_REQUEST)?$_REQUEST['langid']:'';
+$formSubmit = array_key_exists('formsubmit', $_POST) ? $_POST['formsubmit'] : '';
+$cid = array_key_exists('cid', $_REQUEST) ? filter_var($_REQUEST['cid'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$tabIndex = array_key_exists('tabindex', $_REQUEST) ? filter_var($_REQUEST['tabindex'], FILTER_SANITIZE_NUMBER_INT) : 0;
+$langId = array_key_exists('langid', $_REQUEST) ? $_REQUEST['langid'] : '';
 
 $isEditor = false;
 if($IS_ADMIN || array_key_exists('KeyAdmin',$USER_RIGHTS)) $isEditor = true;
@@ -322,20 +322,22 @@ if(!$cid) header('Location: index.php');
 								<b>Help URL</b><br />
 								<input type="text" name="helpurl" maxlength="500" style="width:80%;" value="<?php echo $charArr['helpurl']; ?>" />
 								<?php
-								if($charArr['helpurl'] && substr($charArr['helpurl'],0,4) == 'http') echo '<a href="'.$charArr['helpurl'].'" target="_blank"><img src="../../images/link2.png" style="width:15px" /></a>';
+								if($charArr['helpurl'] && substr($charArr['helpurl'],0,4) == 'http') echo '<a href="' . $charArr['helpurl'] . '" target="_blank"><img src="../../images/link2.png" style="width:15px" /></a>';
 								?>
 							</div>
 							<?php
-							$glossArr = $keyManager->getGlossaryList();
-							if($glossArr){
+							$glossaryArr = $keyManager->getGlossaryList();
+							if($glossaryArr){
 								?>
 								<div style="padding-top:8px;clear:both;">
 									<b>Glossary link</b><br />
 									<select name="glossid">
 										<option value="">------------------------</option>
 										<?php
-										foreach($glossArr as $glossID => $gArr){
-											echo '<option value="'.$glossID.'" '.($charArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+										foreach($glossaryArr as $glossArr){
+											foreach($glossArr as $glossID => $gArr){
+												echo '<option value="'.$glossID.'" '.($charArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+											}
 										}
 										?>
 									</select>
@@ -390,15 +392,17 @@ if(!$cid) header('Location: index.php');
 									<input type="text" name="description" maxlength="255" style="width:80%;" />
 								</div>
 								<?php
-								if($glossArr){
+								if($glossaryArr){
 									?>
 									<div style="padding-top:8px;clear:both;">
 										<b>Glossary link</b><br />
 										<select name="glossid">
 											<option value="">------------------------</option>
 											<?php
-											foreach($glossArr as $glossID => $gArr){
-												echo '<option value="'.$glossID.'">'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+											foreach($glossaryArr as $glossArr){
+												foreach($glossArr as $glossID => $gArr){
+													echo '<option value="'.$glossID.'">'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+												}
 											}
 											?>
 										</select>
@@ -452,15 +456,17 @@ if(!$cid) header('Location: index.php');
 												<input type="text" name="description" maxlength="255" style="width:80%;" value="<?php echo $stateArr['description']; ?>"/>
 											</div>
 											<?php
-											if($glossArr){
+											if($glossaryArr){
 												?>
 												<div style="padding-top:8px;clear:both;">
 													<b>Glossary link</b><br />
 													<select name="glossid">
 														<option value="">------------------------</option>
 														<?php
-														foreach($glossArr as $glossID => $gArr){
-															echo '<option value="'.$glossID.'" '.($stateArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+														foreach($glossaryArr as $glossArr){
+															foreach($glossArr as $glossID => $gArr){
+																echo '<option value="'.$glossID.'" '.($stateArr['glossid']==$glossID?'selected':'').'>'.$gArr['term'].' ('.$gArr['lang'].')</option>';
+															}
 														}
 														?>
 													</select>
