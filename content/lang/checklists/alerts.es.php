@@ -5,8 +5,7 @@ Language: Spanish
 ------------------
 */
 
-$LANG['FORBIDDEN'] = 'Prohibido';
-$LANG['NO_PERMISSION'] = 'No tienes permiso para acceder a esta página.';
-$LANG['RETURN_TO_INDEX'] = 'Volver a la página de índice';
+$LANG['VOUCHER_ADDED'] = '¡Éxito! Vale añadido a la lista de verificación.';
+$LANG['UNABLE_TO_LINK'] = 'No se puede vincular el cupón: ';
 
 ?>

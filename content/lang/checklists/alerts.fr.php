@@ -5,8 +5,7 @@ Language: French
 ------------------
 */
 
-$LANG['FORBIDDEN'] = 'Interdit';
-$LANG['NO_PERMISSION'] = 'Vous n\'avez pas la permission d\'accéder à cette page.';
-$LANG['RETURN_TO_INDEX'] = 'Retour à la page d\'index';
+$LANG['VOUCHER_ADDED'] = 'Succès! Bon ajouté à la liste de contrôle.';
+$LANG['UNABLE_TO_LINK'] = 'Impossible d\'associer le bon : ';
 
 ?>
