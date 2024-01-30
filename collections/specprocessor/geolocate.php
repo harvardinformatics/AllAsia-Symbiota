@@ -9,9 +9,9 @@ header("Content-Type: text/html; charset=".$CHARSET);
 $collid = array_key_exists('collid',$_REQUEST) && is_numeric($_REQUEST['collid']) ? $_REQUEST['collid'] : 0;
 $customArr = array();
 for($h = 1; $h < 4; $h++){
-	$customArr[$h]['f'] = array_key_exists('customfield'.$h,$_REQUEST)?filter_var($_REQUEST['customfield'].$h,FILTER_SANITIZE_STRING):'';
-	$customArr[$h]['t'] = array_key_exists('customtype'.$h,$_REQUEST)?filter_var($_REQUEST['customtype'].$h,FILTER_SANITIZE_STRING):'';
-	$customArr[$h]['v'] = array_key_exists('customvalue'.$h,$_REQUEST)?filter_var($_REQUEST['customvalue'].$h,FILTER_SANITIZE_STRING):'';
+	$customArr[$h]['f'] = array_key_exists('customfield' . $h, $_REQUEST) ? htmlspecialchars($_REQUEST['customfield'], HTML_SPECIAL_CHARS_FLAGS) . $h : '';
+	$customArr[$h]['t'] = array_key_exists('customtype' . $h, $_REQUEST) ? htmlspecialchars($_REQUEST['customtype'], HTML_SPECIAL_CHARS_FLAGS) . $h : '';
+	$customArr[$h]['v'] = array_key_exists('customvalue' . $h, $_REQUEST) ? htmlspecialchars($_REQUEST['customvalue'], HTML_SPECIAL_CHARS_FLAGS) . $h : '';
 }
 
 $dlManager = new OccurrenceDownload();
