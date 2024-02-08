@@ -129,8 +129,8 @@ class GeographicThesaurus extends Manager{
    }
 
    private function addPolygon($geoThesID, $polygon) {
-      $sql = 'INSERT INTO geographicpolygon 
-         (geoThesID, footprintPolygon ,footprintWKT) 
+      $sql = 'INSERT INTO geographicpolygon
+         (geoThesID, footprintPolygon ,footprintWKT)
          VALUES ('. $geoThesID .', ST_GeomFromText("' . $polygon . '"), "' . $polygon . '")';
       if(!$this->conn->query($sql)){
          $this->errorMessage = 'ERROR saving new polygon: '.$this->conn->error;
@@ -616,7 +616,7 @@ class GeographicThesaurus extends Manager{
 	// Setters and getters
 
 
-
+	//Mics support functions
 	private function lkupTablesExist(){
 		$bool = false;
 		// Check to see is old deprecated lookup tables exist
