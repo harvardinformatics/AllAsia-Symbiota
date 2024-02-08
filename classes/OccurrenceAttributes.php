@@ -701,18 +701,6 @@ class OccurrenceAttributes extends Manager {
 		return $retArr;
 	}
 
-	private function lkupTablesExist(){
-		$bool = false;
-		// Check to see is old deprecated lookup tables exist
-		$sql = 'SHOW tables LIKE "lkupcountry"';
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows){
-			$bool = true;
-		}
-		$rs->free();
-		return $bool;
-	}
-
 	public function getSourceControlledArr($currentSetStr=''){
 		$sourceControlArr = array('machineLearning','physicalSpecimen','verbatimTextMining','viewingImage');
 		if($currentSetStr){
