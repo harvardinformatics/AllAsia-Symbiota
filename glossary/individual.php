@@ -44,7 +44,7 @@ if($glossId){
 <html>
 <head>
 	<title><?php echo $DEFAULT_TITLE.(isset($LANG['GLOSS_TERM_INFO'])?$LANG['GLOSS_TERM_INFO']:'Glossary Term Information'); ?></title>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
@@ -76,7 +76,7 @@ if($glossId){
 						?>
 						<div style="float:right;margin-right:15px;" title="Edit Term Data">
 							<a href="termdetails.php?glossid=<?php echo $glossId;?>" onclick="self.resizeTo(1250, 900);">
-								<img style="border:0px;width:12px;" src="../images/edit.png" />
+								<img style="border:0px;width:1.3em;" src="../images/edit.png" />
 							</a>
 						</div>
 						<?php

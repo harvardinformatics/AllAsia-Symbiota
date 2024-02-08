@@ -48,19 +48,19 @@ if(is_array($collid)) $collid = implode(',',$collid);
 
 //Sanitation
 if(!preg_match('/^[,\d]+$/',$collid)) $collid = 0;
-$submitAction = filter_var($submitAction, FILTER_SANITIZE_STRING);
-$qCountry = filter_var($qCountry, FILTER_SANITIZE_STRING);
-$qState = filter_var($qState, FILTER_SANITIZE_STRING);
-$qCounty = filter_var($qCounty, FILTER_SANITIZE_STRING);
-$qMunicipality = filter_var($qMunicipality, FILTER_SANITIZE_STRING);
-$qLocality = filter_var($qLocality, FILTER_SANITIZE_STRING);
-$qDisplayAll = filter_var($qDisplayAll, FILTER_SANITIZE_STRING);
-$qVStatus = filter_var($qVStatus, FILTER_SANITIZE_STRING);
-$qSciname = filter_var($qSciname, FILTER_SANITIZE_STRING);
-$qProcessingStatus = filter_var($qProcessingStatus, FILTER_SANITIZE_STRING);
-$georeferenceSources = filter_var($georeferenceSources, FILTER_SANITIZE_STRING);
-$georeferenceProtocol = filter_var($georeferenceProtocol, FILTER_SANITIZE_STRING);
-$georeferenceVerificationStatus = filter_var($georeferenceVerificationStatus, FILTER_SANITIZE_STRING);
+$submitAction = htmlspecialchars($submitAction, HTML_SPECIAL_CHARS_FLAGS);
+$qCountry = htmlspecialchars($qCountry, HTML_SPECIAL_CHARS_FLAGS);
+$qState = htmlspecialchars($qState, HTML_SPECIAL_CHARS_FLAGS);
+$qCounty = htmlspecialchars($qCounty, HTML_SPECIAL_CHARS_FLAGS);
+$qMunicipality = htmlspecialchars($qMunicipality, HTML_SPECIAL_CHARS_FLAGS);
+$qLocality = htmlspecialchars($qLocality, HTML_SPECIAL_CHARS_FLAGS);
+$qDisplayAll = htmlspecialchars($qDisplayAll, HTML_SPECIAL_CHARS_FLAGS);
+$qVStatus = htmlspecialchars($qVStatus, HTML_SPECIAL_CHARS_FLAGS);
+$qSciname = htmlspecialchars($qSciname, HTML_SPECIAL_CHARS_FLAGS);
+$qProcessingStatus = htmlspecialchars($qProcessingStatus, HTML_SPECIAL_CHARS_FLAGS);
+$georeferenceSources = htmlspecialchars($georeferenceSources, HTML_SPECIAL_CHARS_FLAGS);
+$georeferenceProtocol = htmlspecialchars($georeferenceProtocol, HTML_SPECIAL_CHARS_FLAGS);
+$georeferenceVerificationStatus = htmlspecialchars($georeferenceVerificationStatus, HTML_SPECIAL_CHARS_FLAGS);
 
 if(!$georeferenceSources) $georeferenceSources = 'georef batch tool '.date('Y-m-d');
 //if(!$georeferenceVerificationStatus) $georeferenceVerificationStatus = 'reviewed - high confidence';
@@ -96,7 +96,7 @@ if($isEditor && $submitAction){
 <html>
 	<head>
 		<title><?php echo $DEFAULT_TITLE.' '.$LANG['GEOREF_TOOLS']; ?></title>
-		<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+		<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
@@ -121,21 +121,21 @@ if($isEditor && $submitAction){
 					<?php
 					if(count($collMap) > 1 && $activeCollArr){
 						?>
-						<div style="float:left;margin-left:5px;"><a href="#" onclick="toggle('mult_coll_div')"><img src="../../images/add.png" style="width:12px" /></a></div>
+						<div style="float:left;margin-left:5px;"><a href="#" onclick="toggle('mult_coll_div')"><img src="../../images/add.png" style="width:1em" /></a></div>
 						<?php
 					}
 					?>
 					<div class='navpath' style="margin:10px;clear:both;">
-						<a href='../../index.php'><?php echo $LANG['HOME']; ?></a> &gt;&gt;
+						<a href='../../index.php'><?php echo htmlspecialchars($LANG['HOME'], HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 						<?php
 						if(is_numeric($collid)){
 							?>
-							<a href="../misc/collprofiles.php?collid=<?php echo $collid; ?>&emode=1"><?php echo $LANG['COL_MAN_MENU']; ?></a> &gt;&gt;
+							<a href="../misc/collprofiles.php?collid=<?php echo htmlspecialchars( $collid, HTML_SPECIAL_CHARS_FLAGS); ?>&emode=1"><?php echo htmlspecialchars($LANG['COL_MAN_MENU'], HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 							<?php
 						}
 						else{
 							?>
-							<a href="../../profile/viewprofile.php?tabindex=1"><?php echo $LANG['SPEC_MANAGEMENT']; ?></a> &gt;&gt;
+							<a href="../../profile/viewprofile.php?tabindex=1"><?php echo htmlspecialchars($LANG['SPEC_MANAGEMENT'], HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 							<?php
 						}
 						?>
@@ -273,7 +273,7 @@ if($isEditor && $submitAction){
 											</select>
 										</div>
 										<div style="float:left;">
-											<img src="../../images/add.png" onclick="toggle('advfilterdiv')" title="<?php echo $LANG['ADVANCED_OPT']; ?>" />
+											<img src="../../images/add.png" style="width:1.5em;" onclick="toggle('advfilterdiv')" title="<?php echo $LANG['ADVANCED_OPT']; ?>" />
 										</div>
 									</div>
 								</div>
@@ -311,19 +311,19 @@ if($isEditor && $submitAction){
 						<form name="georefform" method="post" action="batchgeoreftool.php" onsubmit="return verifyGeorefForm(this)">
 							<div style="float:right;">
 								<span>
-									<a href="#" onclick="geoCloneTool();"><img src="../../images/list.png" title="<?php echo $LANG['SEARCH_CLONES']; ?>" style="width:15px;" /></a>
+									<a href="#" onclick="geoCloneTool();"><img src="../../images/list.png" title="<?php echo $LANG['SEARCH_CLONES']; ?>" style="width:1.3em;" /></a>
 								</span>
 								<span style="margin-left:10px;">
-									<a href="#" onclick="geoLocateLocality();"><img src="../../images/geolocate.png" title="<?php echo $LANG['GEOLOCATE_LOCALITY']; ?>" style="width:15px;" /></a>
+									<a href="#" onclick="geoLocateLocality();"><img src="../../images/geolocate.png" title="<?php echo $LANG['GEOLOCATE_LOCALITY']; ?>" style="width:1.3em;" /></a>
 								</span>
 								<span style="margin-left:10px;">
-									<a href="#" onclick="analyseLocalityStr();"><img src="../../images/find.png" title="<?php echo $LANG['ANALYZE_FOR_COORDS']; ?>" style="width:15px;" /></a>
+									<a href="#" onclick="analyseLocalityStr();"><img src="../../images/find.png" title="<?php echo $LANG['ANALYZE_FOR_COORDS']; ?>" style="width:1.3em;" /></a>
 								</span>
 								<?php
 								if(!strpos($collid,',')){
 									?>
 									<span style="margin-left:10px;">
-										<a href="#" onclick="openFirstRecSet();"><img src="../../images/edit.png" title="<?php echo $LANG['EDIT_FIRST_SET']; ?>" style="width:15px;" /></a>
+										<a href="#" onclick="openFirstRecSet();"><img src="../../images/edit.png" title="<?php echo $LANG['EDIT_FIRST_SET']; ?>" style="width:1.3em;" /></a>
 									</span>
 									<?php
 								}
@@ -408,7 +408,7 @@ if($isEditor && $submitAction){
 										<td>
 											<input id="decimallatitude" name="decimallatitude" type="text" value="" style="width:80px;" />
 											<span style="cursor:pointer;padding:3px;" onclick="openMappingAid();">
-												<img src="../../images/world.png" style="border:0px;width:13px;" />
+												<img src="../../images/world.png" style="border:0px;width:1.2em;" />
 											</span>
 										</td>
 									</tr>
@@ -437,7 +437,7 @@ if($isEditor && $submitAction){
 											<span style="margin-left:20px;font-weight:bold;"><?php echo $LANG['DATUM']; ?>:</span>
 											<input id="geodeticdatum" name="geodeticdatum" type="text" value="" style="width:75px;" />
 											<span style="cursor:pointer;margin-left:3px;" onclick="toggle('utmdiv');">
-												<img src="../../images/editplus.png" style="border:0px;width:14px;" />
+												<img src="../../images/editplus.png" style="border:0px;width:1.5em;" />
 											</span>
 										</td>
 									</tr>

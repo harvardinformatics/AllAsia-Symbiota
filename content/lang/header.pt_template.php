@@ -8,7 +8,7 @@ Language: Português do Brasil (Brazilian Portuguese)
 $LANG['H_HOME'] = 'Início';
 
 $LANG['H_SEARCH'] = 'Pesquisar';
-$LANG['H_COLLECTIONS'] = 'Coleções';
+$LANG['H_COLLECTIONS'] = 'Pesquisar Coleções';
 $LANG['H_MAP'] = 'Mapa';
 $LANG['H_DYN_LISTS'] = 'Listas Taxonômicas Dinâmicas';
 $LANG['H_TAXONOMIC_EXPLORER'] = 'Explorar Taxonomia';
@@ -36,4 +36,5 @@ $LANG['H_MY_PROFILE'] = 'Meu Perfil';
 $LANG['H_LOGOUT'] = 'Finalizar Sessão';
 $LANG['H_LOGIN'] = 'Iniciar Sessão';
 $LANG['H_NEW_ACCOUNT'] = 'Nova Conta';
+$LANG['SELECT_LANGUAGE'] = 'Selecione um Idioma';
 ?>

@@ -533,9 +533,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		return $this->searchSupportManager->getFullCollectionList($catId);
 	}
 
-	public function outputFullCollArr($collGrpArr, $targetCatID = 0, $displayIcons = true, $displaySearchButtons = true){
+	public function outputFullCollArr($collGrpArr, $targetCatID = 0, $displayIcons = true, $displaySearchButtons = true, $collTypeLabel = '', $uniqGrouping=''){
 		if(!$this->searchSupportManager) $this->searchSupportManager = new OccurrenceSearchSupport($this->conn);
-		$this->searchSupportManager->outputFullCollArr($collGrpArr, $targetCatID, $displayIcons, $displaySearchButtons);
+		$this->searchSupportManager->outputFullCollArr($collGrpArr, $targetCatID, $displayIcons, $displaySearchButtons, $collTypeLabel, $uniqGrouping);
 	}
 
 	public function getOccurVoucherProjects(){
@@ -728,14 +728,9 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 			$state = $this->cleanInputStr($_REQUEST['state']);
 			if($state){
 				if(strlen($state) == 2 && (!isset($this->searchTermArr['country']) || stripos($this->searchTermArr['country'],'USA') !== false)){
-					$sql = 'SELECT s.statename, c.countryname '.
-						'FROM lkupstateprovince s INNER JOIN lkupcountry c ON s.countryid = c.countryid '.
-						'WHERE c.countryname IN("USA","United States") AND (s.abbrev = "'.$state.'")';
-					if(!$this->lkupTablesExist()){
-						$sql = 'SELECT s.geoTerm AS statename, c.geoTerm AS countryname
-							FROM geographicthesaurus s INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID
-							WHERE c.geoTerm IN("USA","United States") AND (s.abbreviation = "'.$state.'")';
-					}
+					$sql = 'SELECT s.geoTerm AS statename, c.geoTerm AS countryname
+						FROM geographicthesaurus s INNER JOIN geographicthesaurus c ON s.parentID = c.geoThesID
+						WHERE c.geoTerm IN("USA","United States") AND (s.abbreviation = "'.$state.'")';
 					$rs = $this->conn->query($sql);
 					if($r = $rs->fetch_object()){
 						$state = $r->statename;
@@ -930,18 +925,6 @@ class OccurrenceManager extends OccurrenceTaxaManager {
 		if(array_key_exists('footprintwkt',$_REQUEST) && $_REQUEST['footprintwkt']){
 			$this->searchTermArr['footprintwkt'] = $this->cleanInputStr($_REQUEST['footprintwkt']);
 		}
-	}
-
-	private function lkupTablesExist(){
-		$bool = false;
-		// Check to see is old deprecated lookup tables exist
-		$sql = 'SHOW tables LIKE "lkupcountry"';
-		$rs = $this->conn->query($sql);
-		if($rs->num_rows){
-			$bool = true;
-		}
-		$rs->free();
-		return $bool;
 	}
 
 	private function setChecklistVariables($clid){

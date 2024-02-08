@@ -43,7 +43,7 @@ if(!$formSubmit || $formSubmit != 'Search References'){
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 	<title><?php echo $DEFAULT_TITLE; ?> Reference Management</title>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
@@ -110,7 +110,7 @@ if(!$formSubmit || $formSubmit != 'Search References'){
 		<div id="reflistdiv" style="min-height:200px;">
 			<div style="float:right;margin:10px;">
 				<a href="#" onclick="toggle('newreferencediv');">
-					<img src="../images/add.png" alt="Create New Reference" />
+					<img src="../images/add.png" style="width:1.3em" alt="Create New Reference" />
 				</a>
 			</div>
 			<div id="newreferencediv" style="display:none;">
@@ -152,7 +152,7 @@ if(!$formSubmit || $formSubmit != 'Search References'){
 				echo '<div><ul>';
 				foreach($refArr as $refId => $recArr){
 					echo '<li>';
-					echo '<a href="refdetails.php?refid='.$refId.'"><b>'.$recArr["title"].'</b></a>';
+					echo '<a href="refdetails.php?refid=' . htmlspecialchars($refId, HTML_SPECIAL_CHARS_FLAGS) . '"><b>' . htmlspecialchars($recArr["title"], HTML_SPECIAL_CHARS_FLAGS) . '</b></a>';
 					if($recArr["ReferenceTypeId"] == 27){
 						echo ' series.';
 					}

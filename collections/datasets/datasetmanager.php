@@ -117,7 +117,7 @@ if($isEditor){
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET;?>">
 		<title><?php echo $DEFAULT_TITLE.' '.$LANG['DS_OCC_MANAGER']; ?></title>
-		<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+		<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
@@ -273,8 +273,8 @@ if($isEditor){
 	include($SERVER_ROOT.'/includes/header.php');
 	?>
 	<div class='navpath'>
-		<a href='../../index.php'><?php echo $LANG['HOME']; ?></a> &gt;&gt;
-		<a href="../../profile/viewprofile.php?tabindex=1"><?php echo $LANG['MY_PROF']; ?></a> &gt;&gt;
+		<a href='../../index.php'><?php echo htmlspecialchars($LANG['HOME'], HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
+		<a href="../../profile/viewprofile.php?tabindex=1"><?php echo htmlspecialchars($LANG['MY_PROF'], HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 		<a href="index.php">
 			<?php echo $LANG['RETURN_DS_LISTING']; ?>
 		</a> &gt;&gt;
@@ -299,12 +299,12 @@ if($isEditor){
 				?>
 				<div id="tabs" style="margin:10px;">
 					<ul>
-						<li><a href="#occurtab"><span><?php echo $LANG['OCC_LIST']; ?></span></a></li>
+						<li><a href="#occurtab"><span><?php echo htmlspecialchars($LANG['OCC_LIST'], HTML_SPECIAL_CHARS_FLAGS); ?></span></a></li>
 						<?php
 						if($isEditor == 1){
 							?>
-							<li><a href="#admintab"><span><?php echo $LANG['GEN_MANAGEMENT']; ?></span></a></li>
-							<li><a href="#accesstab"><span><?php echo $LANG['USER_ACCESS']; ?></span></a></li>
+							<li><a href="#admintab"><span><?php echo htmlspecialchars($LANG['GEN_MANAGEMENT'], HTML_SPECIAL_CHARS_FLAGS); ?></span></a></li>
+							<li><a href="#accesstab"><span><?php echo htmlspecialchars($LANG['USER_ACCESS'], HTML_SPECIAL_CHARS_FLAGS); ?></span></a></li>
 							<?php
 						}
 						?>
@@ -335,10 +335,7 @@ if($isEditor){
 												<input type="checkbox" name="occid[]" value="<?php echo $occid; ?>" />
 											</td>
 											<td>
-												<?php echo $recArr['catnum']; ?>
-												<a href="#" onclick="openIndPopup(<?php echo $occid; ?>); return false;">
-													<img src="../../images/info.png" style="width:15px;" />
-												</a>
+												<?php echo '<a href="#" onclick="openIndPopup(' . $occid . '); return false;">' . $recArr['catnum'] . '</a>'; ?>
 											</td>
 											<td>
 												<?php echo $recArr['coll']; ?>
@@ -377,7 +374,7 @@ if($isEditor){
 						else{
 							?>
 							<div style="font-weight:bold; margin:15px"><?php echo $LANG['NO_OCCS_DS']; ?></div>
-							<div style="margin:15px"><?php echo $LANG['LINK_OCCS_VIA'].' <a href="../index.php">'.$LANG['OCC_SEARCH'].'</a> '.$LANG['OR_VIA_OCC_PROF']; ?></div>
+							<div style="margin:15px"><?php echo $LANG['LINK_OCCS_VIA'].' <a href="../index.php">' . htmlspecialchars($LANG['OCC_SEARCH'], HTML_SPECIAL_CHARS_FLAGS) . '</a> ' . htmlspecialchars($LANG['OR_VIA_OCC_PROF'], HTML_SPECIAL_CHARS_FLAGS); ?></div>
 							<?php
 						}
 						?>
@@ -450,7 +447,7 @@ if($isEditor){
 															<input name="uid" type="hidden" value="<?php echo $uid; ?>" />
 															<input name="datasetid" type="hidden" value="<?php echo $datasetId; ?>" />
 															<input name="tabindex" type="hidden" value="2" />
-															<input name="submitimage" type="image" src="../../images/drop.png" />
+															<input name="submitimage" type="image" src="../../images/drop.png" style="width:1.2em" />
 														</form>
 													</li>
 													<?php

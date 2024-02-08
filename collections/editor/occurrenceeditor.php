@@ -3,7 +3,6 @@ include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/editor/occurrenceeditor.'.$LANG_TAG.'.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
-
 $occId = array_key_exists('occid', $_REQUEST) ? filter_var($_REQUEST['occid'], FILTER_SANITIZE_NUMBER_INT) : '';
 $collId = array_key_exists('collid', $_REQUEST) ? filter_var($_REQUEST['collid'], FILTER_SANITIZE_NUMBER_INT) : false;
 $tabTarget = array_key_exists('tabtarget', $_REQUEST) ? filter_var($_REQUEST['tabtarget'], FILTER_SANITIZE_NUMBER_INT) : 0;
@@ -41,7 +40,6 @@ $imgArr = array();
 $specImgArr = array();
 $fragArr = array();
 $qryCnt = false;
-$moduleActivation = array();
 $statusStr = '';
 $navStr = '';
 
@@ -65,16 +63,6 @@ if($SYMB_UID){
 		}
 		elseif($collMap['colltype']=='Observations'){
 			$collType = 'obs';
-		}
-		$propArr = $occManager->getDynamicPropertiesArr();
-		if(isset($propArr['modules-panel'])){
-			foreach($propArr['modules-panel'] as $module){
-				if(isset($module['paleo']['status']) && $module['paleo']['status']) $moduleActivation[] = 'paleo';
-				elseif(isset($module['matSample']['status']) && $module['matSample']['status']){
-					$moduleActivation[] = 'matSample';
-					if($tabTarget > 3) $tabTarget++;
-				}
-			}
 		}
 	}
 
@@ -219,12 +207,12 @@ if($SYMB_UID){
 				if($cloneArr){
 					$statusStr = (isset($LANG['CLONES_CREATED'])?$LANG['CLONES_CREATED']:'Success! The following new clone record(s) have been created').' ';
 					$statusStr .= '<div style="margin:5px 10px;color:black">';
-					$statusStr .= '<div><a href="occurrenceeditor.php?occid='.$occId.'" target="_blank">#'.$occId.'</a> - '.(isset($LANG['CLONE_SOURCE'])?$LANG['CLONE_SOURCE']:'clone source').'</div>';
+					$statusStr .= '<div><a href="occurrenceeditor.php?occid=' . htmlspecialchars($occId, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">#' . htmlspecialchars($occId, HTML_SPECIAL_CHARS_FLAGS) . '</a> - ' . htmlspecialchars((isset($LANG['CLONE_SOURCE'])?$LANG['CLONE_SOURCE']:'clone source'), HTML_SPECIAL_CHARS_FLAGS) . '</div>';
 					$occId = current($cloneArr);
 					$occManager->setOccId($occId);
 					foreach($cloneArr as $cloneOccid){
 						if($cloneOccid==$occId) $statusStr .= '<div>#'.$cloneOccid.' - '.(isset($LANG['THIS_RECORD'])?$LANG['THIS_RECORD']:'this record').'</div>';
-						else $statusStr .= '<div><a href="occurrenceeditor.php?occid='.$cloneOccid.'" target="_blank">#'.$cloneOccid.'</a></div>';
+						else $statusStr .= '<div><a href="occurrenceeditor.php?occid=' . htmlspecialchars($cloneOccid, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">#' . htmlspecialchars($cloneOccid, HTML_SPECIAL_CHARS_FLAGS) . '</a></div>';
 					}
 					$statusStr .= '</div>';
 					if(isset($_POST['targetcollid']) && $_POST['targetcollid'] && $_POST['targetcollid'] != $collId){
@@ -274,7 +262,7 @@ if($SYMB_UID){
 			}
 			elseif($action == 'Remap Image'){
 				if($occManager->remapImage($_POST['imgid'], $_POST['targetoccid'])){
-					$statusStr = (isset($LANG['IMAGE_REMAP_SUCCESS'])?$LANG['IMAGE_REMAP_SUCCESS']:'SUCCESS: Image remapped to record').' <a href="occurrenceeditor.php?occid='.$_POST["targetoccid"].'" target="_blank">'.$_POST["targetoccid"].'</a>';
+					$statusStr = (isset($LANG['IMAGE_REMAP_SUCCESS'])?$LANG['IMAGE_REMAP_SUCCESS']:'SUCCESS: Image remapped to record').' <a href="occurrenceeditor.php?occid=' . htmlspecialchars($_POST["targetoccid"], HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">' . htmlspecialchars($_POST["targetoccid"], HTML_SPECIAL_CHARS_FLAGS) . '</a>';
 				}
 				else{
 					$statusStr = (isset($LANG['IMAGE_REMAP_ERROR'])?$LANG['IMAGE_REMAP_ERROR']:'ERROR linking image to new specimen').': '.$occManager->getErrorStr();
@@ -283,7 +271,7 @@ if($SYMB_UID){
 			elseif($action == 'remapImageToNewRecord'){
 				$newOccid = $occManager->remapImage($_POST['imgid'], 'new');
 				if($newOccid){
-					$statusStr = (isset($LANG['IMAGE_REMAP_SUCCESS'])?$LANG['IMAGE_REMAP_SUCCESS']:'SUCCESS: Image remapped to record').' <a href="occurrenceeditor.php?occid='.$newOccid.'" target="_blank">'.$newOccid.'</a>';
+					$statusStr = (isset($LANG['IMAGE_REMAP_SUCCESS'])?$LANG['IMAGE_REMAP_SUCCESS']:'SUCCESS: Image remapped to record').' <a href="occurrenceeditor.php?occid=' . htmlspecialchars($newOccid, HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">' . htmlspecialchars($newOccid, HTML_SPECIAL_CHARS_FLAGS) . '</a>';
 				}
 				else{
 					$statusStr = (isset($LANG['NEW_IMAGE_ERROR'])?$LANG['NEW_IMAGE_ERROR']:'ERROR linking image to new blank specimen').': '.$occManager->getErrorStr();
@@ -291,7 +279,7 @@ if($SYMB_UID){
 			}
 			elseif($action == "Disassociate Image"){
 				if($occManager->remapImage($_POST["imgid"])){
-					$statusStr = (isset($LANG['DISASS_SUCCESS'])?$LANG['DISASS_SUCCESS']:'SUCCESS disassociating image').' <a href="../../imagelib/imgdetails.php?imgid='.$_POST["imgid"].'" target="_blank">#'.$_POST["imgid"].'</a>';
+					$statusStr = (isset($LANG['DISASS_SUCCESS'])?$LANG['DISASS_SUCCESS']:'SUCCESS disassociating image').' <a href="../../imagelib/imgdetails.php?imgid=' . htmlspecialchars($_POST["imgid"], HTML_SPECIAL_CHARS_FLAGS) . '" target="_blank">#' . htmlspecialchars($_POST["imgid"], HTML_SPECIAL_CHARS_FLAGS) . '</a>';
 				}
 				else{
 					$statusStr = (isset($LANG['DISASS_ERORR'])?$LANG['DISASS_ERORR']:'ERROR disassociating image').': '.$occManager->getErrorStr();
@@ -411,7 +399,7 @@ if($SYMB_UID){
 		if($occIndex<$qryCnt-1) $navStr .= '</a> ';
 		if(!$crowdSourceMode){
 			$navStr .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid='.$collId.'" onclick="return verifyLeaveForm()" title="'.(isset($LANG['NEW_REC'])?$LANG['NEW_REC']:'New Record').'">&gt;*</a>';
+			$navStr .= '<a href="occurrenceeditor.php?gotomode=1&collid=' . htmlspecialchars($collId, HTML_SPECIAL_CHARS_FLAGS) . '" onclick="return verifyLeaveForm()" title="' . htmlspecialchars((isset($LANG['NEW_REC'])?$LANG['NEW_REC']:'New Record'), HTML_SPECIAL_CHARS_FLAGS) . '">&gt;*</a>';
 		}
 		$navStr .= '</b>';
 	}
@@ -450,7 +438,7 @@ else{
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['OCCEDITOR'])?$LANG['OCCEDITOR']:'Occurrence Editor'); ?></title>
-	<link href="<?php echo $CSS_BASE_PATH; ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
     <?php
     if($crowdSourceMode == 1){
 		?>
@@ -459,11 +447,11 @@ else{
     }
     else{
 		?>
-		<link href="<?php echo $CSS_BASE_PATH; ?>/symbiota/collections/editor/occurrenceeditor.css?ver=6.css" type="text/css" rel="stylesheet" id="editorCssLink" >
+		<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/symbiota/collections/editor/occurrenceeditor.css?ver=6.css" type="text/css" rel="stylesheet" id="editorCssLink" >
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){
-				echo '<link href="includes/config/'.$cssVal.'?ver=170601" type="text/css" rel="stylesheet" />';
+				echo '<link href="includes/config/' . htmlspecialchars($cssVal, HTML_SPECIAL_CHARS_FLAGS) . '?ver=170601" type="text/css" rel="stylesheet" />';
 			}
 		}
 		if(isset($JSARR)){
@@ -517,6 +505,7 @@ else{
 	<script src="../../js/symb/collections.georef.js?ver=2" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.main.js?ver=5" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.tools.js?ver=4" type="text/javascript"></script>
+	<script src="../../js/symb/collections.editor.autocomplete.js?ver=1" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.imgtools.js?ver=3" type="text/javascript"></script>
 	<script src="../../js/jquery.imagetool-1.7.js?ver=140310" type="text/javascript"></script>
 	<script src="../../js/symb/collections.editor.query.js?ver=6" type="text/javascript"></script>
@@ -537,8 +526,7 @@ else{
 			if($isEditor && $isEditor != 3){
 				?>
 				<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
-					<a href="#" title="<?php echo $LANG['SEARCH_FILTER']; ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:18px;" /></a>
-				</div>
+					<a href="#" title="<?php echo htmlspecialchars($LANG['SEARCH_FILTER'], HTML_SPECIAL_CHARS_FLAGS); ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:1.3em;" /></a>				</div>
 				<?php
 			}
 			?>
@@ -561,7 +549,7 @@ else{
 					if($collections_editor_occurrenceeditorCrumbs){
 						?>
 						<div class="navpath">
-							<a href='../../index.php'><?php echo (isset($LANG['HOME'])?$LANG['Home']:'Home'); ?></a> &gt;&gt;
+							<a href='../../index.php'><?php echo htmlspecialchars((isset($LANG['HOME'])?$LANG['Home']:'Home'), HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 							<?php
 							echo $collections_editor_occurrenceeditorCrumbs;
 							echo '<b>'.(isset($LANG['EDITOR'])?$LANG['EDITOR']:'Editor').'</b>';
@@ -573,28 +561,28 @@ else{
 				else{
 					?>
 					<div class='navpath'>
-						<a href="../../index.php" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['HOME'])?$LANG['HOME']:'Home'); ?></a> &gt;&gt;
+						<a href="../../index.php" onclick="return verifyLeaveForm()"><?php echo htmlspecialchars((isset($LANG['HOME'])?$LANG['HOME']:'Home'), HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 						<?php
 						if($crowdSourceMode){
 							?>
-							<a href="../specprocessor/crowdsource/index.php"><?php echo (isset($LANG['CENTRAL_CROWD'])?$LANG['CENTRAL_CROWD']:'Crowd Source Central'); ?></a> &gt;&gt;
+							<a href="../specprocessor/crowdsource/index.php"><?php echo htmlspecialchars((isset($LANG['CENTRAL_CROWD'])?$LANG['CENTRAL_CROWD']:'Crowd Source Central'), HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 							<?php
 						}
 						else{
 							if($isGenObs){
 								?>
-								<a href="../../profile/viewprofile.php?tabindex=1" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['PERS_MANAGEMENT'])?$LANG['PERS_MANAGEMENT']:'Personal Management'); ?></a> &gt;&gt;
+								<a href="../../profile/viewprofile.php?tabindex=1" onclick="return verifyLeaveForm()"><?php echo htmlspecialchars((isset($LANG['PERS_MANAGEMENT'])?$LANG['PERS_MANAGEMENT']:'Personal Management'), HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 								<?php
 							}
 							else{
 								if($isEditor == 1 || $isEditor == 2){
 									?>
-									<a href="../misc/collprofiles.php?collid=<?php echo $collId; ?>&emode=1" onclick="return verifyLeaveForm()"><?php echo (isset($LANG['COL_MANAGEMENT'])?$LANG['COL_MANAGEMENT']:'Collection Management'); ?></a> &gt;&gt;
+									<a href="../misc/collprofiles.php?collid=<?php echo htmlspecialchars($collId, HTML_SPECIAL_CHARS_FLAGS); ?>&emode=1" onclick="return verifyLeaveForm()"><?php echo htmlspecialchars((isset($LANG['COL_MANAGEMENT'])?$LANG['COL_MANAGEMENT']:'Collection Management'), HTML_SPECIAL_CHARS_FLAGS); ?></a> &gt;&gt;
 									<?php
 								}
 							}
 						}
-						if($occId) echo '<a href="../individual/index.php?occid='.$occManager->getOccId().'">'.(isset($LANG['PUBLIC_DISPLAY'])?$LANG['PUBLIC_DISPLAY']:'Public Display').'</a> &gt;&gt;';
+						if($occId) echo '<a href="../individual/index.php?occid=' . htmlspecialchars($occManager->getOccId(), HTML_SPECIAL_CHARS_FLAGS) . '">' . htmlspecialchars((isset($LANG['PUBLIC_DISPLAY'])?$LANG['PUBLIC_DISPLAY']:'Public Display'), HTML_SPECIAL_CHARS_FLAGS) . '</a> &gt;&gt;';
 						?>
 						<b><?php if($isEditor == 3) echo $LANG['TAXONOMIC_EDITOR']; ?></b>
 					</div>
@@ -639,7 +627,7 @@ else{
 							<?php echo $LANG['LOCK_EXPLAIN']; ?>
 						</div>
 						<div style="margin:20px;font-weight:bold;">
-							<a href="../individual/index.php?occid=<?php echo $occManager->getOccId(); ?>" target="_blank"><?php echo (isset($LANG['READ_ONLY'])?$LANG['READ_ONLY']:'Read-only Display'); ?></a>
+							<a href="../individual/index.php?occid=<?php echo htmlspecialchars($occManager->getOccId(), HTML_SPECIAL_CHARS_FLAGS); ?>" target="_blank"><?php echo htmlspecialchars((isset($LANG['READ_ONLY'])?$LANG['READ_ONLY']:'Read-only Display'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 						</div>
 					</div>
 					<?php
@@ -668,48 +656,48 @@ else{
 										$userEmail = ($person?$person->getEmail():'');
 
 										$anchorVars = 'occid='.$occManager->getOccId().'&occindex='.$occIndex.'&csmode='.$crowdSourceMode.'&collid='.$collId;
-										$detVars = 'identby='.urlencode($occArr['identifiedby']).'&dateident='.urlencode($occArr['dateidentified']).
-											'&sciname='.urlencode($occArr['sciname']).'&em='.$isEditor.
-											'&annotatorname='.urlencode($USER_DISPLAY_NAME).'&annotatoremail='.urlencode($userEmail).
-											(isset($collMap['collectioncode'])?'&collectioncode='.urlencode($collMap['collectioncode']):'').
-											(isset($collMap['institutioncode'])?'&institutioncode='.urlencode($collMap['institutioncode']):'').
-											'&catalognumber='.urlencode($occArr['catalognumber']??'');
+										$detVars = 'identby=' . urlencode($occArr['identifiedby'] ?? '') . '&dateident=' . urlencode($occArr['dateidentified'] ?? '') .
+											'&sciname=' . urlencode($occArr['sciname'] ?? '') . '&em=' . $isEditor . 
+											'&annotatorname=' . urlencode($USER_DISPLAY_NAME ?? '') . '&annotatoremail=' . urlencode($userEmail ?? '') . 
+											(isset($collMap['collectioncode']) ? '&collectioncode=' . urlencode($collMap['collectioncode']) : '') . 
+											(isset($collMap['institutioncode']) ? '&institutioncode=' . urlencode($collMap['institutioncode']) : '') . 
+											'&catalognumber=' . urlencode($occArr['catalognumber'] ?? '');
 										if($isEditor < 4){
 											?>
 											<li id="detTab">
-												<a href="includes/determinationtab.php?<?php echo $anchorVars.'&'.$detVars; ?>" style=""><?php echo (isset($LANG['DET_HISTORY'])?$LANG['DET_HISTORY']:'Determination History'); ?></a>
+												<a href="includes/determinationtab.php?<?php echo htmlspecialchars($anchorVars, HTML_SPECIAL_CHARS_FLAGS) . '&' . htmlspecialchars($detVars, HTML_SPECIAL_CHARS_FLAGS); ?>" style=""><?php echo htmlspecialchars((isset($LANG['DET_HISTORY'])?$LANG['DET_HISTORY']:'Determination History'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 											</li>
 											<?php
 										}
 										if($isEditor == 1 || $isEditor == 2){
 											?>
 											<li id="imgTab">
-												<a href="includes/imagetab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['IMAGES'])?$LANG['IMAGES']:'Images'); ?></a>
+												<a href="includes/imagetab.php?<?php echo htmlspecialchars($anchorVars, HTML_SPECIAL_CHARS_FLAGS); ?>" style=""><?php echo htmlspecialchars((isset($LANG['IMAGES'])?$LANG['IMAGES']:'Images'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 											</li>
 											<?php
-											if(in_array('matSample',$moduleActivation)){
+											if(isset($collMap['matSampleActivated'])){
 												?>
 												<li id="matSampleTab">
-													<a href="includes/materialsampleinclude.php?<?php echo $anchorVars; ?>"><?php echo $LANG['MATERIAL_SAMPLE']; ?></a>
+													<a href="includes/materialsampleinclude.php?<?php echo htmlspecialchars($anchorVars, HTML_SPECIAL_CHARS_FLAGS); ?>"><?php echo htmlspecialchars($LANG['MATERIAL_SAMPLE'], HTML_SPECIAL_CHARS_FLAGS); ?></a>
 												</li>
 												<?php
 											}
 											?>
 											<li id="resourceTab">
-												<a href="includes/resourcetab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['LINKED_RES'])?$LANG['LINKED_RES']:'Linked Resources'); ?></a>
+												<a href="includes/resourcetab.php?<?php echo htmlspecialchars($anchorVars, HTML_SPECIAL_CHARS_FLAGS); ?>" style=""><?php echo htmlspecialchars((isset($LANG['LINKED_RES'])?$LANG['LINKED_RES']:'Linked Resources'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 											</li>
 											<?php
 											if($occManager->traitCodingActivated()){
 												$traitAnchor = $anchorVars;
 												?>
 												<li id="traitTab">
-													<a href="includes/traittab.php?<?php echo $traitAnchor; ?>" style=""><?php echo (isset($LANG['TRAITS'])?$LANG['TRAITS']:'Traits'); ?></a>
+													<a href="includes/traittab.php?<?php echo htmlspecialchars($traitAnchor, HTML_SPECIAL_CHARS_FLAGS); ?>" style=""><?php echo htmlspecialchars((isset($LANG['TRAITS'])?$LANG['TRAITS']:'Traits'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 												</li>
 												<?php
 											}
 											?>
 											<li id="adminTab">
-												<a href="includes/admintab.php?<?php echo $anchorVars; ?>" style=""><?php echo (isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'); ?></a>
+												<a href="includes/admintab.php?<?php echo htmlspecialchars($anchorVars, HTML_SPECIAL_CHARS_FLAGS); ?>" style=""><?php echo htmlspecialchars((isset($LANG['ADMIN'])?$LANG['ADMIN']:'Admin'), HTML_SPECIAL_CHARS_FLAGS); ?></a>
 											</li>
 											<?php
 										}
@@ -798,7 +786,7 @@ else{
 																	<input class="idNameInput" name="idname[]" type="text" value="" onchange="fieldChanged('idname');" autocomplete="off" />
 																</div>
 																<div class="divTableCell">
-																	<input class="idValueInput" name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" /></a>
+																	<input class="idValueInput" name="idvalue[]" type="text" value="" onchange="fieldChanged('idvalue');" autocomplete="off" /><a href="#" onclick="addIdentifierField(this);return false" tabindex="-1"><img src="../../images/plus.png" style="width:1em;" /></a>
 																</div>
 															</div>
 														</div>
@@ -828,7 +816,7 @@ else{
 												if($DUPE_SEARCH){
 													?>
 													<div id="dupesDiv">
-														<input type="button" value="Duplicates" onclick="searchDupes(this.form);" /><br/>
+														<button value="Duplicates" onclick="searchDupes(this.form);" ><?php echo $LANG['DUPLICATES']; ?></button><br/>
 														<input type="checkbox" name="autodupe" value="1" onchange="autoDupeChanged(this)" tabindex="-1" />
 														<?php echo (isset($LANG['AUTO_SEARCH'])?$LANG['AUTO_SEARCH']:'Auto search'); ?>
 													</div>
@@ -852,14 +840,14 @@ else{
 													<input type="text" name="verbatimeventdate" maxlength="255" value="<?php echo array_key_exists('verbatimeventdate',$occArr)?$occArr['verbatimeventdate']:''; ?>" onchange="verbatimEventDateChanged(this)" />
 												</div>
 												<div id="dateToggleDiv">
-													<a href="#" onclick="toggle('dateextradiv');return false;" tabindex="-1"><img class="editimg" src="../../images/editplus.png" /></a>
+													<a href="#" onclick="toggle('dateextradiv');return false;" tabindex="-1"><img class="editimg" src="../../images/editplus.png" style="width:1.5em"/></a>
 												</div>
 												<?php
 												if($loanArr = $occManager->getLoanData()){
 													?>
 													<fieldset style="float:right;margin:3px;padding:5px;border:1px solid red;">
 														<legend style="color:red;"><?php echo (isset($LANG['OUT_ON_LOAN'])?$LANG['OUT_ON_LOAN']:'Out On Loan'); ?></legend>
-														<b><?php echo (isset($LANG['TO'])?$LANG['TO']:'To'); ?>:</b> <a href="../loans/outgoing.php?tabindex=1&collid=<?php echo $occManager->getCollId().'&loanid='.$loanArr['id']; ?>"><?php echo $loanArr['code']; ?></a><br/>
+														<b><?php echo (isset($LANG['TO'])?$LANG['TO']:'To'); ?>:</b> <a href="../loans/outgoing.php?tabindex=1&collid=<?php echo htmlspecialchars($occManager->getCollId(), HTML_SPECIAL_CHARS_FLAGS) . '&loanid=' . htmlspecialchars($loanArr['id'], HTML_SPECIAL_CHARS_FLAGS); ?>"><?php echo htmlspecialchars($loanArr['code'], HTML_SPECIAL_CHARS_FLAGS); ?></a><br/>
 														<b><?php echo (isset($LANG['DUE_DATE'])?$LANG['DUE_DATE']:'Due date'); ?>:</b> <?php echo (isset($loanArr['date'])?$loanArr['date']:(isset($LANG['NOT_DEFINED'])?$LANG['NOT_DEFINED']:'Not Defined')); ?>
 													</fieldset>
 													<?php
@@ -969,7 +957,7 @@ else{
 													<input type="text" name="dateidentified" maxlength="45" value="<?php echo array_key_exists('dateidentified',$occArr)?$occArr['dateidentified']:''; ?>" onchange="fieldChanged('dateidentified');" />
 												</div>
 												<div id="idrefToggleDiv" onclick="toggle('idrefdiv');">
-													<img class="editimg" src="../../images/editplus.png" />
+													<img class="editimg" src="../../images/editplus.png" style="width:1.5em;" />
 												</div>
 											</div>
 											<div  id="idrefdiv">
@@ -1030,7 +1018,7 @@ else{
 												<br />
 												<textarea id="fflocality" name="locality" onchange="fieldChanged('locality');"><?php echo array_key_exists('locality',$occArr)?$occArr['locality']:''; ?></textarea>
 												<a id="localityExtraToggle" onclick="toggle('localityExtraDiv');">
-													<img class="editimg" src="../../images/editplus.png" />
+													<img class="editimg" src="../../images/editplus.png" style="width:1.5em;"/>
 												</a>
 											</div>
 											<?php
@@ -1105,17 +1093,17 @@ else{
 													<br/>
 													<input type="text" id="coordinateuncertaintyinmeters" name="coordinateuncertaintyinmeters" maxlength="10" value="<?php echo array_key_exists('coordinateuncertaintyinmeters',$occArr)?$occArr['coordinateuncertaintyinmeters']:''; ?>" onchange="coordinateUncertaintyInMetersChanged(this.form);" title="<?php echo (isset($LANG['UNCERTAINTY_METERS'])?$LANG['UNCERTAINTY_METERS']:'Uncertainty in Meters'); ?>" />
 												</div>
-												<div id="googleDiv" onclick="openMappingAid();" title="<?php echo (isset($LANG['GOOGLE_MAPS'])?$LANG['GOOGLE_MAPS']:'Google Maps'); ?>">
-													<img src="../../images/world.png" />
+												<div id="googleDiv" onclick="openMappingAid();" title="<?php echo (isset($LANG['MAP_COORDS'])?$LANG['MAP_COORDS']:'Map Coordinates'); ?>">
+													<img src="../../images/world.png" style="width:1.2em;" />
 												</div>
 												<div id="geoLocateDiv" title="<?php echo (isset($LANG['GEOLOCATE_LOC'])?$LANG['GEOLOCATE_LOC']:'GeoLocate Locality'); ?>">
-													<a href="#" onclick="geoLocateLocality();" tabindex="-1"><img src="../../images/geolocate.png"/></a>
+													<a href="#" onclick="geoLocateLocality();" tabindex="-1"><img src="../../images/geolocate.png" style="width:1.2em;" /></a>
 												</div>
 												<div id="coordCloningDiv" title="<?php echo (isset($LANG['COORD_CLONE_TOOL'])?$LANG['COORD_CLONE_TOOL']:'Coordinate Cloning Tool'); ?>" >
-													<input type="button" value="C" tabindex="-1" onclick="geoCloneTool()" />
+													<button value="C" tabindex="-1" onclick="geoCloneTool()" ><?php echo (isset($LANG['C'])?$LANG['C']:'C') ?></button>
 												</div>
 												<div id="geoToolsDiv" title="<?php echo (isset($LANG['CONVERSION_TOOLS'])?$LANG['CONVERSION_TOOLS']:'Tools for converting additional formats'); ?>" >
-													<input type="button" value="F" tabindex="-1" onclick="toggleCoordDiv()" />
+													<button value="F" tabindex="-1" onclick="toggleCoordDiv()" ><?php echo (isset($LANG['F'])?$LANG['F']:'F') ?></button>
 												</div>
 												<div id="geodeticDatumDiv">
 													<?php echo $LANG['DATUM']; ?>
@@ -1170,7 +1158,7 @@ else{
 													</div>
 												</div>
 												<div id="georefExtraToggleDiv" onclick="toggle('georefExtraDiv');">
-													<img class="editimg" src="../../images/editplus.png" tabindex="-1" />
+													<img class="editimg" src="../../images/editplus.png" style="width:1.5em;" tabindex="-1" />
 												</div>
 											</div>
 											<?php
@@ -1239,7 +1227,7 @@ else{
 											</div>
 										</fieldset>
 										<?php
-										if(in_array('paleo',$moduleActivation)) include('includes/paleoinclude.php');
+										if(isset($collMap['paleoActivated'])) include('includes/paleoinclude.php');
 										?>
 										<fieldset>
 											<legend><?php echo $LANG['MISC']; ?></legend>
@@ -1591,7 +1579,7 @@ else{
 															<div class="fieldGroupDiv">
 																<label><?php echo $LANG['NUMBER_RECORDS']; ?>:</label> <input id="clonecount" name="clonecount" type="text" value="1" style="width:40px" />
 															</div>
-															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();"><?php echo $LANG['PRE_POPULATE']; ?></a></div>
+															<div class="fieldGroupDiv"><a href="#" onclick="return prePopulateCatalogNumbers();"><?php echo htmlspecialchars($LANG['PRE_POPULATE'], HTML_SPECIAL_CHARS_FLAGS); ?></a></div>
 															<fieldset id="cloneCatalogNumber-Fieldset" style="display:none">
 																<div id="cloneCatalogNumberDiv" class="fieldGroupDiv"></div>
 															</fieldset>
