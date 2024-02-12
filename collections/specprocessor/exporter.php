@@ -98,7 +98,7 @@ $advFieldArr = array('family'=>'Family','sciname'=>'Scientific Name','identified
 	<body>
 		<!-- This is inner text! -->
 		<div id="innertext" style="background-color:white;">
-			<div style="float:right;width:165px;margin-right:50px">
+			<div style="float:right;width:165px;margin-right:100px">
 				<fieldset>
 					<legend><b><?php echo $LANG['EXP_TYPE']; ?></b></legend>
 					<form name="submenuForm" method="post" action="index.php">
