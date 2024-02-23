@@ -63,7 +63,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function getMetadata(){
-		return $this->metadataArr;
+		return $this->cleanOutArray($this->metadataArr);
 	}
 
 	public function setGuid($guid){
@@ -106,7 +106,7 @@ class OccurrenceIndividual extends Manager{
 				return false;
 			}
 		}
-		return $this->occArr;
+		return $this->cleanOutArray($this->occArr);
 	}
 
 	public function setOccurData(){
@@ -125,7 +125,7 @@ class OccurrenceIndividual extends Manager{
 		*/
 		$sql = 'SELECT o.*, MAKEDATE(YEAR(o.eventDate),o.enddayofyear) AS eventdateend FROM omoccurrences o ';
 		if($this->occid) $sql .= 'WHERE (o.occid = '.$this->occid.')';
-		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->dbpk.'")';
+		elseif($this->collid && $this->dbpk) $sql .= 'WHERE (o.collid = '.$this->collid.') AND (o.dbpk = "'.$this->cleanInStr($this->dbpk).'")';
 		else{
 			$this->errorMessage = 'NULL identifier';
 			return false;
@@ -277,11 +277,13 @@ class OccurrenceIndividual extends Manager{
 			while($r = $rs->fetch_object()){
 				$identifierTag = $r->identifiername;
 				if(!$identifierTag) $identifierTag = 0;
-				$retArr[$identifierTag][] = $r->identifiervalue;
+				$retArr[$r->idomoccuridentifiers]['name'] = $identifierTag;
+				$retArr[$r->idomoccuridentifiers]['value'] = $r->identifiervalue;
 			}
 			$rs->free();
 		}
-		if($retArr) $this->occArr['othercatalognumbers'] = json_encode($retArr);
+		if($retArr) $this->occArr['othercatalognumbers'] = $retArr;
+		elseif($this->occArr['othercatalognumbers']) $this->occArr['othercatalognumbers'][0]['value'] = $this->occArr['othercatalognumbers'];
 	}
 
 	private function setPaleo(){
@@ -473,8 +475,8 @@ class OccurrenceIndividual extends Manager{
 			}
 			elseif(strpos($iUrl,'--OTHERCATALOGNUMBERS--') !== false && $this->occArr['othercatalognumbers']){
 				if(substr($this->occArr['othercatalognumbers'],0,1) == '{'){
-					if($ocnArr = json_decode($this->occArr['othercatalognumbers'],true)){
-						foreach($ocnArr as $idKey => $idArr){
+					if($this->occArr['othercatalognumbers']){
+						foreach($this->occArr['othercatalognumbers'] as $idKey => $idArr){
 							if(!$displayStr || $idKey == 'NEON sampleID' || $idKey == 'NEON sampleCode (barcode)'){
 								$displayStr = $idArr[0];
 								if($idKey == 'NEON sampleCode (barcode)') $iUrl = str_replace('sampleTag','barcode',$iUrl);
@@ -1256,7 +1258,7 @@ class OccurrenceIndividual extends Manager{
 	}
 
 	public function setDisplayFormat($f){
-		if(!in_array($f,array('json','xml','rdf','turtle','html'))) $f = 'html';
+		if(!in_array($f, array('json','xml','rdf','turtle','html'))) $f = 'html';
 		$this->displayFormat = $f;
 	}
 }
