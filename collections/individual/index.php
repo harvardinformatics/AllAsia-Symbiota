@@ -456,9 +456,10 @@ $traitArr = $indManager->getTraitArr();
 							?>
 							<div id="assoccatnum-div" class="assoccatnum-div bottom-breathing-room-sm-rel">
 								<?php
-								foreach($occArr['othercatalognumbers'] as $catTag => $catValueArr){
-									if(!$catTag) $catTag = $LANG['OTHER_CATALOG_NUMBERS'];
-									echo '<div><label>'.$catTag.':</label> '.implode('; ', $catValueArr).'</div>';
+								foreach($occArr['othercatalognumbers'] as $catValueArr){
+									$catTag = $LANG['OTHER_CATALOG_NUMBERS'];
+									if(!empty($catValueArr['name'])) $catTag = $catValueArr['name'];
+									echo '<div><label>'.$catTag.':</label> ' . $catValueArr['value'] . '</div>';
 								}
 								?>
 							</div>
@@ -1081,10 +1082,12 @@ $traitArr = $indManager->getTraitArr();
 								if($collMetadata['email']){
 									$otherCatNum = '';
 									if($occArr['othercatalognumbers']){
-										foreach($occArr['othercatalognumbers'] as ){
+										foreach($occArr['othercatalognumbers'] as $identArr){
+											$otherCatNum .= $identArr['value'] . ', ';
 										}
+										$otherCatNum = ' (' . trim($otherCatNum, ', ') . ')';
 									}
-									$emailSubject = $DEFAULT_TITLE.' occurrence: '.$occArr['catalognumber'].' ('.$occArr['othercatalognumbers'].')';
+									$emailSubject = $DEFAULT_TITLE . ' occurrence: ' . $occArr['catalognumber'] . $otherCatNum;
 									$refPath = $indManager->getDomain().$CLIENT_ROOT.'/collections/individual/index.php?occid='.$occArr['occid'];
 									$emailBody = $LANG['SPECIMEN_REFERENCED'].': '.$refPath;
 									$emailRef = 'subject=' . urlencode($emailSubject) . '&cc=' . urlencode($ADMIN_EMAIL) . '&body=' . urlencode($emailBody);
