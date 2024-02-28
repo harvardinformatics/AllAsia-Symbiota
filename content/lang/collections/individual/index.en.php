@@ -155,4 +155,12 @@ $LANG['VALUE'] = 'Value';
 $LANG['LAT_LNG'] = 'Latitude/Longitude';
 $LANG['FULL_RECORD_DETAILS'] = 'Full Record Details';
 $LANG['SKIP_NAV'] = 'Skip Navigation';
+
+//Used within OccurrenceIndividual class
+$LANG['INAPPROPRIATE'] = 'inappropriate comment reported';
+$LANG['REPORTED_AS_INAPPROPRIATE'] = 'The following comment has been recorted as inappropriate';
+$LANG['EMAIL_NOT_DEFINED'] = 'ERROR: Portal admin email not defined in central configuration file';
+$LANG['PRIVATE_STATUS'] = 'private status';
+$LANG['UNABLE_TO_VERIFY_TARGET'] = 'ERROR deleting voucher: unable to verify target checklist for voucher';
+$LANG['PERMISSION_ERROR'] = 'ERROR deleting voucher: permission error';
 ?>
