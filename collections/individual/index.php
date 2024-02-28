@@ -14,7 +14,7 @@ $indManager = new OccurrenceIndividual($submit ? 'write' : 'readonly');
 
 $occid = array_key_exists('occid', $_REQUEST) ? $indManager->sanitizeInt($_REQUEST['occid']) : 0;
 $collid = array_key_exists('collid', $_REQUEST) ? $indManager->sanitizeInt($_REQUEST['collid']) : 0;
-$pk = array_key_exists('pk', $_REQUEST) ? $_REQUEST['pk'] :'';
+$pk = array_key_exists('pk', $_REQUEST) ? $_REQUEST['pk'] : '';
 $guid = array_key_exists('guid', $_REQUEST) ? $_REQUEST['guid'] : '';
 $tabIndex = array_key_exists('tabindex', $_REQUEST) ? $indManager->sanitizeInt($_REQUEST['tabindex']) : 0;
 $clid = array_key_exists('clid', $_REQUEST) ? $indManager->sanitizeInt($_REQUEST['clid']) : 0;
