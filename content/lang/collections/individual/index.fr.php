@@ -4,6 +4,8 @@
  Language: Français (French)
  ------------------
  */
+
+
 $LANG['DETAILS'] = 'Détails';
 $LANG['MAP'] = 'Carte';
 $LANG['GENETIC'] = 'Génétique';
@@ -157,11 +159,10 @@ $LANG['FULL_RECORD_DETAILS'] = 'Détails Complets du Dossier';
 $LANG['SKIP_NAV'] = 'Sauter la Navigation';
 
 //Used within OccurrenceIndividual class
-$LANG['INAPPROPRIATE'] = 'inappropriate comment reported';
-$LANG['REPORTED_AS_INAPPROPRIATE'] = 'The following comment has been recorted as inappropriate';
-$LANG['EMAIL_NOT_DEFINED'] = 'ERROR: Portal admin email not defined in central configuration file';
-$LANG['PRIVATE_STATUS'] = 'private status';
-$LANG['UNABLE_TO_VERIFY_TARGET'] = 'ERROR deleting voucher: unable to verify target checklist for voucher';
-$LANG['PERMISSION_ERROR'] = 'ERROR deleting voucher: permission error';
-
+$LANG['INAPPROPRIATE'] = 'Commentaire inapproprié signalé';
+$LANG['REPORTED_AS_INAPPROPRIATE'] = 'Le commentaire suivant a été enregistré comme inapproprié';
+$LANG['EMAIL_NOT_DEFINED'] = "ERREUR : adresse e-mail de l'administrateur du portail non définie dans le fichier de configuration central";
+$LANG['PRIVATE_STATUS'] = 'statut privé';
+$LANG['UNABLE_TO_VERIFY_TARGET'] = 'ERREUR lors de la suppression du bon : impossible de vérifier la liste de contrôle cible pour le bon';
+$LANG['PERMISSION_ERROR'] = "ERREUR lors de la suppression du bon : erreur d'autorisation";
 ?>
