@@ -7,7 +7,7 @@ Date Translated: 2024-03-06
 ------------------
 */
 
-include_once($SERVER_ROOT . '/content/lang/collections/associations.en.php');
+include_once($SERVER_ROOT . '/content/lang/collections/associations.es.php');
 
 $LANG['IMPORT_FILE'] = 'Importar archivo';
 $LANG['IS_TOO_BIG'] = 'MB) es mayor de lo permitido (límite actual';
