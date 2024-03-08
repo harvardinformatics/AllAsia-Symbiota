@@ -1163,6 +1163,17 @@ function openOccurrenceSearch(target) {
 	if (occWindow.opener == null) occWindow.opener = self;
 }
 
+function securityChangedByUser(f){
+	securityChanged(f);
+	if(f.localitysecurity.value == 1){
+		f.lockLocalitySecurity.checked = true;
+	}
+	else{
+		f.lockLocalitySecurity.checked = false;
+	}
+	securityLockChanged(f.lockLocalitySecurity);
+}
+
 function securityChanged(f){
 	fieldChanged('localitysecurity');
 	$("#locsecreason").show();
@@ -1180,12 +1191,15 @@ function localitySecurityReasonChanged(){
 
 function securityLockChanged(cb){
 	if(cb.checked == true){
-		if($("input[name=localitysecurityreason]").val() == '') $("input[name=localitysecurityreason]").val("[Security Setting Locked]");
+		if($("input[name=localitysecurityreason]").val() == ''){
+			$("input[name=localitysecurityreason]").val("[Security Setting Locked]");
+			fieldChanged('localitysecurityreason');
+		} 
 	}
 	else{
 		$("input[name=localitysecurityreason]").val("")
+		fieldChanged('localitysecurityreason');
 	}
-	fieldChanged('localitysecurityreason');
 }
 
 function autoProcessingStatusChanged(selectObj){
