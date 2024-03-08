@@ -31,7 +31,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 ?>
 <html>
 	<head>
-		<title><?= $DEFAULT_TITLE ?> Import Extended Data</title>
+		<title><?= $DEFAULT_TITLE ?> <?= $LANG['IMPORT_EXTEND'] ?> </title>
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>

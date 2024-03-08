@@ -9,6 +9,7 @@ Date Translated: 2024-03-06
 
 include_once($SERVER_ROOT . '/content/lang/collections/associations.fr.php');
 
+$LANG['IMPORT_EXTEND'] = 'Importer des données étendues';
 $LANG['IMPORT_FILE'] = 'Importer le fichier';
 $LANG['IS_TOO_BIG'] = 'Mo) est plus grand que ce qui est autorisé (limite actuelle';
 $LANG['MAYBE_ZIP'] = ' Notez que la taille du fichier d\'importation peut être réduite en le compressant dans un fichier zip.';
@@ -16,10 +17,10 @@ $LANG['SELECT_FILE'] = 'Sélectionner un fichier à importer';
 $LANG['SELECT_IMPORT_TYPE'] = 'Sélectionnez un type d\'importation';
 $LANG['SELECT_ASSOC_TYPE'] = 'Sélectionnez un type d\'association';
 $LANG['ERR_DUPLICATE_SOURCE'] = 'ERREUR : Les noms de champs source doivent être uniques (champ en double :';
-$LANG['ERR_DUPLICATE_TARGET'] = "ERREUR : Impossible de mapper plusieurs fois le même champ cible (";
+$LANG['ERR_DUPLICATE_TARGET'] = "ERREUR: Impossible de mapper plusieurs fois le même champ cible (";
 $LANG['ERR_NOT_AUTH'] = 'ERREUR : non autorisé à accéder à cette page';
 $LANG['ERR_COLL_NOT_VALID'] = 'ERREUR : Identifiant de collection non valide';
-$LANG['NEED_CAT'] = 'ERREUR : le numéro de catalogue du sujet, l\'ID d\'occurrence ou un autre numéro de catalogue est requis';
+$LANG['NEED_CAT'] = 'ERREUR: le numéro de catalogue du sujet, l\'ID d\'occurrence ou un autre numéro de catalogue est requis';
 $LANG['SELECT_RELATIONSHIP'] = 'Sélectionner une relation (obligatoire)';
 $LANG['COLLECTION_MENU'] = 'Menu de gestion des collections';
 $LANG['DATA_IMPORTER'] = 'Importateur de données étendu';

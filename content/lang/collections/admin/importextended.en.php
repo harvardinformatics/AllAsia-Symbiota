@@ -7,6 +7,7 @@ Language: English
 
 include_once($SERVER_ROOT . '/content/lang/collections/associations.en.php');
 
+$LANG['IMPORT_EXTEND'] = 'Import Extended Data';
 $LANG['IMPORT_FILE'] = 'Import file';
 $LANG['IS_TOO_BIG'] = 'MB) is larger than is allowed (current limit';
 $LANG['MAYBE_ZIP'] = ' Note that import file size can be reduced by compressing within a zip file.';

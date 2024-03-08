@@ -6,7 +6,6 @@
  Used by: editor/includes/resourcetab.es.php, admin/importextended.es.php
  */
 
-$LANG['HOME'] = 'Inicio';
 $LANG['ASSOC_OCC'] = 'Ocurrencias Asociadas';
 $LANG['CREATE_NEW_ASSOC'] = 'Crear Nueva Asociación';
 $LANG['ASSOCIATION_TYPE'] = 'Typo de Asociación';
