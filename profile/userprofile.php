@@ -12,6 +12,7 @@ if(!is_numeric($userId)) $userId = 0;
 $pHandler = new ProfileManager();
 $pHandler->setUid($userId);
 $person = $pHandler->getPerson();
+$isAccessiblePreferred = $pHandler->getAccessibilityPreference($SYMB_UID);
 
 $isSelf = true;
 if($userId != $SYMB_UID) $isSelf = false;
@@ -48,10 +49,10 @@ if($isEditor){
 				echo '<div>Login name: '.($person->getUserName()?$person->getUserName():'not registered').'</div>';
 				?>
 				<div style="font-weight:bold;margin-top:10px;">
-					<div><a href="#" onclick="toggleEditingTools('profileeditdiv');return false;"><?php echo (isset($LANG['EDIT_PROFILE'])?$LANG['EDIT_PROFILE']:'Edit Profile'); ?></a></div>
-					<div><a href="#" onclick="toggleEditingTools('pwdeditdiv');return false;"><?php echo (isset($LANG['CHANGE_PASSWORD'])?$LANG['CHANGE_PASSWORD']:'Change Password'); ?></a></div>
-					<div><a href="#" onclick="toggleEditingTools('logineditdiv');return false;"><?php echo (isset($LANG['CHANGE_LOGIN'])?$LANG['CHANGE_LOGIN']:'Change Login'); ?></a></div>
-					<div><a href="#" onclick="toggleEditingTools('managetokensdiv');return false;"><?php echo (isset($LANG['MANAGE_ACCESS'])?$LANG['MANAGE_ACCESS']:'Manage Access'); ?></a></div>
+					<div><a href="#" onclick="toggleEditingTools('profileeditdiv');return false;"><?php echo htmlspecialchars((isset($LANG['EDIT_PROFILE'])?$LANG['EDIT_PROFILE']:'Edit Profile'), HTML_SPECIAL_CHARS_FLAGS); ?></a></div>
+					<div><a href="#" onclick="toggleEditingTools('pwdeditdiv');return false;"><?php echo htmlspecialchars((isset($LANG['CHANGE_PASSWORD'])?$LANG['CHANGE_PASSWORD']:'Change Password'), HTML_SPECIAL_CHARS_FLAGS); ?></a></div>
+					<div><a href="#" onclick="toggleEditingTools('logineditdiv');return false;"><?php echo htmlspecialchars((isset($LANG['CHANGE_LOGIN'])?$LANG['CHANGE_LOGIN']:'Change Login'), HTML_SPECIAL_CHARS_FLAGS); ?></a></div>
+					<div><a href="#" onclick="toggleEditingTools('managetokensdiv');return false;"><?php echo htmlspecialchars((isset($LANG['MANAGE_ACCESS'])?$LANG['MANAGE_ACCESS']:'Manage Access'), HTML_SPECIAL_CHARS_FLAGS); ?></a></div>
 				</div>
 			</div>
 		</div>
@@ -81,6 +82,15 @@ if($isEditor){
 							<td>
 								<div>
 									<input id="email" name="email" type="email" size="40" value="<?php echo $person->getEmail();?>" required />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><b><?php echo (isset($LANG['ACCESSIBILITY_PREF'])?$LANG['ACCESSIBILITY_PREF']:'Accessibility Preferences'); ?>:</b></td>
+							<td>
+								<div>
+									<input type="checkbox" name="accessibility-pref" id="accessibility-pref" value="1" <?php echo $isAccessiblePreferred ? 'checked' : ''; ?> />
+									<label for="accessibility-pref"><?php echo (isset($LANG['ACCESSIBILITY_PREF_DESC'])?$LANG['ACCESSIBILITY_PREF_DESC']:'Check to indicate a preference for accessibility-optimized styles'); ?></label>
 								</div>
 							</td>
 						</tr>
@@ -244,7 +254,7 @@ if($isEditor){
 			<div>
 				<b><u><?php echo (isset($LANG['TAXON_RELS'])?$LANG['TAXON_RELS']:'Taxonomic Relationships'); ?></u></b>
 				<a href="#" onclick="toggle('addtaxonrelationdiv')" title="<?php echo (isset($LANG['ADD_TAXON_REL'])?$LANG['ADD_TAXON_REL']:'Add a New Taxonomic Relationship'); ?>">
-					<img style='border:0px;width:15px;' src='../images/add.png'/>
+					<img style='border:0px;width:1.3em;' src='../images/add.png'/>
 				</a>
 			</div>
 			<div id="addtaxonrelationdiv" style="display:none;">
@@ -295,7 +305,7 @@ if($isEditor){
 						echo $utArr['sciname'];
 						if($utArr['geographicScope']) echo ' - '.$utArr['geographicScope'].' ';
 						if($utArr['notes']) echo ', '.$utArr['notes'];
-						echo ' <a href="viewprofile.php?action=delusertaxonomy&utid='.$utid.'&userid='.$userId.'"><img src="../images/drop.png" style="width:14px;" /></a>';
+						echo ' <a href="viewprofile.php?action=delusertaxonomy&utid=' . htmlspecialchars($utid, HTML_SPECIAL_CHARS_FLAGS) . '&userid=' . htmlspecialchars($userId, HTML_SPECIAL_CHARS_FLAGS) . '"><img src="../images/drop.png" style="width:1.2em;" /></a>';
 						echo '</li>';
 					}
 					echo '</ul>';

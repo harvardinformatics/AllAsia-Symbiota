@@ -59,8 +59,8 @@ if($isEditor){
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
-		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
-		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<?php
@@ -68,8 +68,8 @@ if($isEditor){
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
-			<a href="<?php echo $CLIENT_ROOT; ?>/index.php">Home</a> &gt;&gt;
-			<a href="../misc/collprofiles.php?emode=1&collid=<?php echo $collId; ?>">Collection Management Menu</a> &gt;&gt;
+			<a href="<?php echo htmlspecialchars($CLIENT_ROOT, HTML_SPECIAL_CHARS_FLAGS); ?>/index.php">Home</a> &gt;&gt;
+			<a href="../misc/collprofiles.php?emode=1&collid=<?php echo htmlspecialchars($collId, HTML_SPECIAL_CHARS_FLAGS); ?>">Collection Management Menu</a> &gt;&gt;
 			<b>Batch GeoLocate Tools</b>
 		</div>
 		<!-- This is inner text! -->
@@ -130,7 +130,7 @@ if($isEditor){
 							<?php
 							foreach($occRecArr as $occid => $occArr){
 								echo '<tr>';
-								echo '<td><a href="">'.$occid.'</a></td>';
+								echo '<td><a href="">' . htmlspecialchars($occid, HTML_SPECIAL_CHARS_FLAGS) . '</a></td>';
 								echo '<td>'.$occArr['loc'].'</td>';
 								echo '<td></td>';
 								echo '<td><input name="lat-'.$occid.'" type="text" value="'.$occArr['declat'].'" /></td>';

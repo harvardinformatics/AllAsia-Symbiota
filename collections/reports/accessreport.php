@@ -60,8 +60,8 @@ else{
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
-		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery.js" type="text/javascript"></script>
-		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+		<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
 		<script>
 			function validateFilterForm(f){
 				if(f.startdate.value != "" && f.enddate.value != "" && f.startdate.value > f.enddate.value){
@@ -103,7 +103,7 @@ else{
 		include($SERVER_ROOT.'/includes/header.php');
 		echo '<div class="navpath">';
 		echo '<a href="../../index.php">Home</a> &gt;&gt; ';
-		echo '<a href="../misc/collprofiles.php?collid='.$collid.'&emode=1">Collection Management Panel</a> &gt;&gt; ';
+		echo '<a href="../misc/collprofiles.php?collid=' . htmlspecialchars($collid, HTML_SPECIAL_CHARS_FLAGS) . '&emode=1">Collection Management Panel</a> &gt;&gt; ';
 		echo '<b>Occurrence Access Reports</b>';
 		echo '</div>';
 		?>
@@ -117,7 +117,7 @@ else{
 					List View = viewing basic field data through a list view (e.g. default occurrence listing tab within the general search interface),
 					Map View = occurrence represented as a dot within any of the map-based search interfaces
 				</div>
-				<div id="desc_info" style="float:left;margin-left:5px;"><a href="#" onclick="toggle('desc_details');toggle('desc_info');"><img src="../../images/info.png" style="width:12px" /></a></div>
+				<div id="desc_info" style="float:left;margin-left:5px;"><a href="#" onclick="toggle('desc_details');toggle('desc_info');"><img src="../../images/info.png" style="width:1.2em" /></a></div>
 			</div>
 			<?php
 			if($isEditor){
@@ -127,7 +127,7 @@ else{
 				$navPageBase = 'accessreport.php?collid='.$collid.'&display='.$display.'&duration='.$duration.'&startdate='.$startDate.'&enddate='.$endDate.'&accesstype='.$accessType;
 				$navStr = '<div class="navbarDiv" style="float:right;">';
 				if($pageNum){
-					$navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum-1).'&limitcnt='.$limitCnt.'" title="Previous '.$limitCnt.' records">&lt;&lt;</a>';
+					$navStr .= '<a href="' . htmlspecialchars($navPageBase, HTML_SPECIAL_CHARS_FLAGS) . '&pagenum=' .htmlspecialchars(($pageNum-1), HTML_SPECIAL_CHARS_FLAGS) . '&limitcnt=' . htmlspecialchars($limitCnt, HTML_SPECIAL_CHARS_FLAGS) . '" title="Previous ' . htmlspecialchars($limitCnt, HTML_SPECIAL_CHARS_FLAGS) . ' records">&lt;&lt;</a>';
 				}
 				else{
 					$navStr .= '&lt;&lt;';
@@ -136,7 +136,7 @@ else{
 				$navStr .= ($pageNum*$limitCnt).'-'.$subsetCnt.' of '.$recCnt.' records';
 				$navStr .= ' | ';
 				if($subsetCnt < $recCnt){
-					$navStr .= '<a href="'.$navPageBase.'&pagenum='.($pageNum+1).'&limitcnt='.$limitCnt.'" title="Next '.$limitCnt.' records">&gt;&gt;</a>';
+					$navStr .= '<a href="' . htmlspecialchars($navPageBase, HTML_SPECIAL_CHARS_FLAGS) . '&pagenum=' .htmlspecialchars(($pageNum+1), HTML_SPECIAL_CHARS_FLAGS) . '&limitcnt=' . htmlspecialchars($limitCnt, HTML_SPECIAL_CHARS_FLAGS) . '" title="Next ' . htmlspecialchars($limitCnt, HTML_SPECIAL_CHARS_FLAGS) . ' records">&gt;&gt;</a>';
 				}
 				else{
 					$navStr .= '&gt;&gt;';
@@ -192,7 +192,7 @@ else{
 				</div>
 				<div style="font-weight:bold;font-size:130%;">
 					<?php echo $collName; ?>
-					<a href="<?php echo $navPageBase.'&action=export'; ?>" title="Download Results"><img src="../../images/dl.png" style="margin-left:10px;width:14px;" /></a>
+					<a href="<?php echo htmlspecialchars($navPageBase, HTML_SPECIAL_CHARS_FLAGS) . '&action=export'; ?>" title="Download Results"><img src="../../images/dl.png" style="margin-left:10px;width:1.3em;" /></a>
 				</div>
 				<div style="width:400px">
 					<div style="clear:both"><?php echo $navStr; ?></div>

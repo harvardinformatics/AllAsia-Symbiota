@@ -12,8 +12,8 @@ header("Content-Type: text/html; charset=".$CHARSET);
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	?>
-	<script type="text/javascript" src="../../js/jquery.js"></script>
-	<script type="text/javascript" src="../../js/jquery-ui.js"></script>
+	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+	<script src="<?php echo $CLIENT_ROOT; ?>/js/jquery-ui.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 
 		$(document).ready(function() {
@@ -47,7 +47,7 @@ header("Content-Type: text/html; charset=".$CHARSET);
 		<fieldset style="width:450px;">
 			<legend><b><?php echo $LANG['ASSOC_SPP_AID']; ?></b></legend>
 			<div style="">
-				<?php echo $LANG['TAXON']; ?>:
+				<label for="taxonname"><?php echo $LANG['TAXON']; ?>:</label>
 				<input id="taxonname" type="text" style="width:350px;" /><br/>
 				<button id="transbutton" type="button" value="Add Name" onclick="addName();"><?php echo $LANG['ADD_NAME']; ?></button>
 			</div>
