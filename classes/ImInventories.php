@@ -77,7 +77,7 @@ class ImInventories extends Manager{
 			$type = (!empty($fieldArr['type']) ? $fieldArr['type'] : 'static');
 			$locality = (!empty($fieldArr['locality']) ? $fieldArr['locality'] : NULL);
 			$publication = (!empty($fieldArr['publication']) ? $fieldArr['publication'] : NULL);
-			$abstract = (!empty($fieldArr['abstract']) ? strip_tags($fieldArr['abstract'], '<i><u><b><a>') : NULL);
+			$abstract = (!empty($fieldArr['abstract']) ? strip_tags($fieldArr['abstract'], '<p><sub><sup><span><br><em><i><u><b><a>') : NULL);
 			$notes = (!empty($fieldArr['notes']) ? $fieldArr['notes'] : NULL);
 			$latCentroid = (!empty($fieldArr['latcentroid']) && is_numeric($fieldArr['latcentroid']) ? $fieldArr['latcentroid'] : NULL);
 			$longCentroid = (!empty($fieldArr['longcentroid']) && is_numeric($fieldArr['longcentroid']) ? $fieldArr['longcentroid'] : NULL);
