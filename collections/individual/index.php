@@ -110,7 +110,7 @@ if($SYMB_UID){
 	}
 	elseif($submit == 'reportcomment' && is_numeric($_GET['repcomid'])){
 		if($indManager->reportComment($_GET['repcomid'])){
-			$statusStr = $LANG['FLAGGEDCOMMENT'];
+			$statusStr = $LANG['FLAGGED_COMMENT'];
 		}
 		else{
 			$statusStr = $indManager->getErrorMessage();
@@ -151,7 +151,7 @@ $traitArr = $indManager->getTraitArr();
 <!DOCTYPE html>
 <html lang="<?= $LANG_TAG ?>">
 <head>
-	<title><?= $DEFAULT_TITLE . ' ' . $LANG['DETAILEDCOLREC'] ?></title>
+	<title><?= $DEFAULT_TITLE . ' - ' . $LANG['OCCURRENCE_PROFILE'] ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?= $CHARSET; ?>">
 	<link href="<?= $CSS_BASE_PATH ?>/jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
