@@ -47,10 +47,9 @@ elseif($collid && isset($USER_RIGHTS['CollAdmin']) && in_array($collid, $USER_RI
 			<form name="buform" action="../download/downloadhandler.php" method="post" onsubmit="return submitBuForm(this);">
 				<fieldset>
 					<legend><?= $LANG['DOWNLOAD_MODULE'] ?></legend>
-					<label><?= $LANG['ENCODING'] ?></label>:
 					<div style="height:50px; margin: 10px">
-						<input type="radio" id="cset" name="cset" value="iso-8859-1" <?= (!$cSet || $cSet == 'iso88591' ? 'checked' : ''); ?> /> ISO-8859-1 (western)<br/>
-						<input type="radio" id="cset" name="cset" value="utf-8" <?= ($cSet == 'utf8' ? 'checked' : ''); ?> /> UTF-8 (unicode)
+						<input type="radio" id="cset1" name="cset" value="iso-8859-1" <?= (!$cSet || $cSet == 'iso88591' ? 'checked' : ''); ?> /> <label for="cset1">ISO-8859-1 (western)</label><br/>
+						<input type="radio" id="cset2" name="cset" value="utf-8" <?= ($cSet == 'utf8' ? 'checked' : ''); ?> /> <label for="cset2">UTF-8 (unicode)</label>
 					</div>
 					<div>
 						<div style="float:left">
