@@ -43,7 +43,7 @@ class Controller extends BaseController{
 	 * Input: security token
 	 * Return: user object with role/permission settings
 	 */
-	public function authenicate(Request $request){
+	public function authenticate(Request $request){
 		$this->validate($request, [
 			'apiToken' => 'required'
 		]);
