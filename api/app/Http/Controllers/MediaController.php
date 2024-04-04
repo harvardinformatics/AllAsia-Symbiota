@@ -32,6 +32,22 @@ class MediaController extends Controller{
 		unset($this->updateRules['format']);
 	}
 
+	/**
+	 * @OA\Get(
+	 *	 path="/api/v2/media",
+	 *	 operationId="/api/v2/media",
+	 *	 tags={""},
+	 *	 @OA\Response(
+	 *		 response="200",
+	 *		 description="Returns list of media records",
+	 *		 @OA\JsonContent()
+	 *	 ),
+	 *	 @OA\Response(
+	 *		 response="400",
+	 *		 description="Error: Bad request. ",
+	 *	 ),
+	 * )
+	 */
 	public function showAllMedia(){
 		return response()->json(Media::skip(0)->take(100)->get());
 	}
