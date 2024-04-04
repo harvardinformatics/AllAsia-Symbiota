@@ -87,7 +87,7 @@ class MediaController extends Controller{
 	 *	 @OA\Parameter(
 	 *		 name="apiToken",
 	 *		 in="query",
-	 *		 description="API security token to authenicate post action",
+	 *		 description="API security token to authenticate post action",
 	 *		 required=true,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
@@ -247,7 +247,7 @@ class MediaController extends Controller{
 	 * )
 	 */
 	public function insert(Request $request){
-		if($user = $this->authenicate($request)){
+		if($user = $this->authenticate($request)){
 			$request->validate($this->rulesInsert);
 
 			$inputArr = $request->all();
@@ -273,7 +273,7 @@ class MediaController extends Controller{
 	 *	 @OA\Parameter(
 	 *		 name="apiToken",
 	 *		 in="query",
-	 *		 description="API security token to authenicate post action",
+	 *		 description="API security token to authenticate post action",
 	 *		 required=true,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
@@ -433,7 +433,7 @@ class MediaController extends Controller{
 	 * )
 	 */
 	public function update($id, Request $request){
-		if($user = $this->authenicate($request)){
+		if($user = $this->authenticate($request)){
 			$media = Media::findOrFail($id);
 			$this->validate($request, $this->rulesUpdate);
 
@@ -460,7 +460,7 @@ class MediaController extends Controller{
 	 *	 @OA\Parameter(
 	 *		 name="apiToken",
 	 *		 in="query",
-	 *		 description="API security token to authenicate post action",
+	 *		 description="API security token to authenticate post action",
 	 *		 required=true,
 	 *		 @OA\Schema(type="string")
 	 *	 ),
@@ -480,7 +480,7 @@ class MediaController extends Controller{
 	 * )
 	 */
 	public function delete($id, Request $request){
-		if($user = $this->authenicate($request)){
+		if($user = $this->authenticate($request)){
 			Media::findOrFail($id)->delete();
 			return response('Media object deleted successfully', 200);
 		}

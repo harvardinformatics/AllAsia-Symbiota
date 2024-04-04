@@ -443,7 +443,7 @@
                     {
                         "name": "apiToken",
                         "in": "query",
-                        "description": "API security token to authenicate post action",
+                        "description": "API security token to authenticate post action",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -714,7 +714,7 @@
                     {
                         "name": "apiToken",
                         "in": "query",
-                        "description": "API security token to authenicate post action",
+                        "description": "API security token to authenticate post action",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -756,7 +756,7 @@
                     {
                         "name": "apiToken",
                         "in": "query",
-                        "description": "API security token to authenicate post action",
+                        "description": "API security token to authenticate post action",
                         "required": true,
                         "schema": {
                             "type": "string"
