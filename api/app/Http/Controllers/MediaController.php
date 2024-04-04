@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class MediaController extends Controller{
 
-	protected $insertRules = [
+	private $rulesInsert = [
 			'apiToken' => 'required',
 			'originalUrl' => 'required',
 			'format' => 'required',
@@ -18,7 +18,7 @@ class MediaController extends Controller{
 			'photographerUid' => 'integer|exists:users,uid'
 	];
 
-	protected $updateRules = [];
+	private $rulesUpdate = [];
 
 	/**
 	 * Media controller instance.
@@ -27,9 +27,9 @@ class MediaController extends Controller{
 	 */
 	public function __construct(){
 		parent::__construct();
-		$this->updateRules = $this->insertRules;
-		unset($this->updateRules['originalUrl']);
-		unset($this->updateRules['format']);
+		$this->rulesUpdate = $this->rulesInsert;
+		unset($this->rulesUpdate['originalUrl']);
+		unset($this->rulesUpdate['format']);
 	}
 
 	/**
@@ -248,7 +248,7 @@ class MediaController extends Controller{
 	 */
 	public function insert(Request $request){
 		if($user = $this->authenicate($request)){
-			$request->validate($this->insertRules);
+			$request->validate($this->rulesInsert);
 
 			$inputArr = $request->all();
 			$this->adjustInputData($inputArr);
@@ -435,7 +435,7 @@ class MediaController extends Controller{
 	public function update($id, Request $request){
 		if($user = $this->authenicate($request)){
 			$media = Media::findOrFail($id);
-			$this->validate($request, $this->updateRules);
+			$this->validate($request, $this->rulesUpdate);
 
 			$inputArr = $request->all();
 			$this->adjustInputData($inputArr);
