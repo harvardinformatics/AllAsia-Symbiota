@@ -52,6 +52,20 @@ ALTER TABLE `omoccurassociations`
   ADD COLUMN `associationType` VARCHAR(45) NOT NULL AFTER `occid`;
 
 ALTER TABLE `omoccurassociations` 
+  ADD COLUMN `objectID` VARCHAR(250) NULL DEFAULT NULL COMMENT 'dwc:relatedResourceID (object identifier)' AFTER `subType`,
+  ADD COLUMN `instanceID` VARCHAR(45) NULL DEFAULT NULL COMMENT 'dwc:resourceRelationshipID, if association was defined externally ' AFTER `accordingTo`,
+  CHANGE COLUMN `identifier` `identifier` VARCHAR(250) NULL DEFAULT NULL COMMENT 'Deprecated field' ,
+  CHANGE COLUMN `sourceIdentifier` `sourceIdentifier` VARCHAR(45) NULL DEFAULT NULL COMMENT 'deprecated field' ;
+  
+UPDATE omoccurassociations
+  SET objectID = identifier
+  WHERE objectID IS NULL AND identifier IS NOT NULL;
+
+UPDATE omoccurassociations
+  SET instanceID = sourceIdentifier
+  WHERE instanceID IS NULL AND sourceIdentifier IS NOT NULL;
+
+ALTER TABLE `omoccurassociations` 
   DROP INDEX `UQ_omoccurassoc_sciname` ,
   ADD UNIQUE INDEX `UQ_omoccurassoc_sciname` (`occid` ASC, `verbatimSciname` ASC, `associationType` ASC);
 
@@ -195,6 +209,47 @@ ALTER TABLE `uploadspectemp`
 ALTER TABLE `uploadspectemp` 
   ADD INDEX `IX_uploadspectemp_occurrenceID` (`occurrenceID` ASC);
 
-# Following `uploadspectemp` index may need to be deleted within BioKIC hosted resources Index_uploadspec_occurid 
 
+-- Ensure these older tables are innoDB
+ALTER TABLE geographicpolygon ENGINE = InnoDB;
+ALTER TABLE geographicthesaurus  ENGINE = InnoDB;
+
+ALTER TABLE geographicpolygon MODIFY COLUMN footprintPolygon geometry NOT NULL;
+
+DROP PROCEDURE IF EXISTS insertGeographicPolygon;
+DROP PROCEDURE IF EXISTS updateGeographicPolygon;
+
+DELIMITER |
+CREATE PROCEDURE insertGeographicPolygon(IN geo_id int, IN geo_json longtext)
+BEGIN
+INSERT INTO geographicpolygon (geoThesID, footprintPolygon, geoJSON) VALUES (geo_id, ST_GeomFromGeoJSON(geo_json), geo_json);
+END |
+CREATE PROCEDURE updateGeographicPolygon(IN geo_id int, IN geo_json longtext)
+BEGIN
+UPDATE geographicpolygon SET geoJSON = geo_json, footprintPolygon = ST_GeomFromGeoJSON(geo_json) WHERE geoThesID = geo_id;
+END | 
+DELIMITER ;
+# Establish a table to track third party auth
+
+CREATE TABLE `usersthirdpartyauth` (
+  `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uid` INT(10) UNSIGNED NOT NULL,
+  `subUuid` VARCHAR(100) NOT NULL,
+  `provider` VARCHAR(200) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_users_uid`
+    FOREIGN KEY (`uid`)
+    REFERENCES `users` (`uid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
+
+# Clean up localitySecurity for occurrences that are cultivated and have not explicitly had their localitySecurity edited to be 1 (and are missing a security reason) more recently than it has been edited to 0.
+
+UPDATE omoccurrences o INNER JOIN omoccuredits e ON o.occid = e.occid
+LEFT JOIN (SELECT occid, ocedid FROM omoccuredits WHERE fieldName = "localitySecurity" AND fieldValueNew = 0) e2 ON e.occid = e2.occid AND e.ocedid < e2.ocedid
+SET o.localitySecurity = 1, o.localitySecurityReason = "[Security Setting Explicitly Locked]"
+WHERE o.localitySecurityReason IS NULL AND e.fieldName = "localitySecurity" AND e.fieldValueNew = 1
+AND e2.occid IS NULL;
+
+UPDATE omoccurrences SET localitySecurity=0 WHERE cultivationStatus=1 AND localitySecurity=1 AND localitySecurityReason IS NULL;
 

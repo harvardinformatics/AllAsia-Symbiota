@@ -312,7 +312,9 @@ class OccurrenceIndividual extends Manager{
 			}
 		}
 		if($retArr) $this->occArr['othercatalognumbers'] = $retArr;
-		elseif($this->occArr['othercatalognumbers']) $this->occArr['othercatalognumbers'][0]['value'] = $this->occArr['othercatalognumbers'];
+		elseif($this->occArr['othercatalognumbers']){
+			$this->occArr['othercatalognumbers'] = array(array('value' => $this->occArr['othercatalognumbers']));
+		}
 	}
 
 	private function setPaleo(){
@@ -381,7 +383,7 @@ class OccurrenceIndividual extends Manager{
 
 	private function setOccurrenceRelationships(){
 		$relOccidArr = array();
-		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, identifier, dynamicProperties, verbatimSciname, tid
+		$sql = 'SELECT assocID, occid, occidAssociate, relationship, subType, resourceUrl, objectID, dynamicProperties, verbatimSciname, tid
 			FROM omoccurassociations
 			WHERE occid = ? OR occidAssociate = ?';
 		if($stmt = $this->conn->prepare($sql)){
@@ -400,21 +402,22 @@ class OccurrenceIndividual extends Manager{
 					$this->occArr['relation'][$r->assocID]['subtype'] = $r->subType;
 					$this->occArr['relation'][$r->assocID]['occidassoc'] = $relOccid;
 					$this->occArr['relation'][$r->assocID]['resourceurl'] = $r->resourceUrl;
-					$this->occArr['relation'][$r->assocID]['identifier'] = $r->identifier;
+					$this->occArr['relation'][$r->assocID]['objectID'] = $r->objectID;
 					$this->occArr['relation'][$r->assocID]['sciname'] = $r->verbatimSciname;
-					if(!$r->identifier && $r->resourceUrl) $this->occArr['relation'][$r->assocID]['identifier'] = 'unknown ID';
 				}
 				$rs->free();
 			}
 		}
 		if($relOccidArr){
-			$sql = 'SELECT o.occid, CONCAT_WS("-",IFNULL(o.institutioncode,c.institutioncode),IFNULL(o.collectioncode,c.collectioncode)) as collcode, IFNULL(o.catalogNumber,o.otherCatalogNumbers) as catnum
+			$sql = 'SELECT o.occid, o.sciname,
+				CONCAT_WS("-",IFNULL(o.institutioncode, c.institutioncode), IFNULL(o.collectioncode, c.collectioncode)) as collcode, IFNULL(o.catalogNumber, o.otherCatalogNumbers) as catnum
 				FROM omoccurrences o INNER JOIN omcollections c ON o.collid = c.collid
 				WHERE o.occid IN(' . implode(',', array_keys($relOccidArr)) . ')';
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				foreach($relOccidArr[$r->occid] as $targetAssocID){
-					$this->occArr['relation'][$targetAssocID]['identifier'] = $r->collcode . ':' . $r->catnum;
+					$this->occArr['relation'][$targetAssocID]['objectID'] = $r->collcode . ':' . $r->catnum;
+					$this->occArr['relation'][$targetAssocID]['sciname'] = $r->sciname;
 				}
 			}
 			$rs->free();
@@ -1301,7 +1304,7 @@ class OccurrenceIndividual extends Manager{
 		if($stmt = $this->conn->prepare($sqlut)){
 			$stmt->bind_param('i', $GLOBALS['SYMB_UID']);
 			$stmt->execute();
-			$tid = ''; 
+			$tid = '';
 			$geographicScope = '';
 			$stmt->bind_result($tid, $geographicScope);
 			while($stmt->fetch()){

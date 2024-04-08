@@ -83,7 +83,8 @@ if(array_key_exists("sf",$_POST)){
 }
 $duManager->loadFieldMap(true);
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="<?php echo $LANG_TAG ?>">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['RESTORE'])?$LANG['RESTORE']:'Restore Backup'); ?></title>
@@ -167,7 +168,7 @@ include($SERVER_ROOT.'/includes/header.php');
 								<input name="uploadfile" type="file" size="50" onchange="verifyFileSize(this)" />
 							</div>
 							<div class="ulfnoptions" style="display:none;margin:15px 0px">
-								<b><?php echo (isset($LANG['RES_URL'])?$LANG['RES_URL']:'Resource Path or URL'); ?>:</b>
+								<b><?php echo (isset($LANG['RESOURCE_URL'])?$LANG['RESOURCE_URL']:'Resource Path or URL'); ?>:</b>
 								<input name="ulfnoverride" type="text" size="70" /><br/>
 								<div>
 									<?php
