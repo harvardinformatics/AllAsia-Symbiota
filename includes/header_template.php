@@ -1,6 +1,7 @@
 <?php
 if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/header.en.php');
 else include_once($SERVER_ROOT.'/content/lang/header.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT.'/includes/head.php');
 
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
 $pHandler = new ProfileManager();
@@ -11,12 +12,12 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 <div class="header-wrapper">
 	<header>
 		<div class="top-wrapper">
-			<a class="skip-link" href="#end-nav"><?php echo $LANG['SKIP_NAV'] ?></a>
+			<a class="screen-reader-only" href="#end-nav"><?php echo $LANG['SKIP_NAV'] ?></a>
 			<nav class="top-login" aria-label="horizontal-nav">
 				<?php
 				if ($USER_DISPLAY_NAME) {
 					?>
-					<div class="welcome-text">
+					<div style="margin-bottom: 0.75rem;">
 						<?php echo (isset($LANG['H_WELCOME'])?$LANG['H_WELCOME']:'Welcome').' '.$USER_DISPLAY_NAME; ?>!
 					</div>
 					<span style="white-space: nowrap; padding: 0.8rem;" class="button button-tertiary">
