@@ -378,8 +378,8 @@ if($isEditor){
 			elseif($action == 'activateTaxa'){
 				echo '<ul>';
 				$loaderManager->transferUpload($taxAuthId);
-				echo "<li>" . $LANG['TAX_UPLOAD_SUCCESS'] . ".</li>";
-				echo "<li>" . $LANG['GO_TO'] . " <a href='taxonomydisplay.php'>" . htmlspecialchars($LANG['TAX_TREE_SEARCH'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a> ' . htmlspecialchars($LANG['TO_QUERY'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . ".</li>";
+				echo '<li>' . $LANG['TAX_UPLOAD_SUCCESS'] . '</li>';
+				echo '<li>' . $LANG['GO_TO'] . ' <a href="taxonomydisplay.php">' . $LANG['TAX_TREE_SEARCH'] . '</a> ' . $LANG['TO_QUERY'] . '</li>';
 				echo '</ul>';
 			}
 			elseif($action == 'loadApiNode'){
@@ -391,9 +391,8 @@ if($isEditor){
 					if(isset($_REQUEST['dskey'])){
 						echo '<fieldset>';
 						echo '<legend>' . $LANG['ACTION_PANEL'] . '</legend>';
-						$id = $_REQUEST['id'];
-						if(!preg_match('/^[A-Za-z\d]+$/',$id)) $id = 0;
-						$datasetKey = (is_numeric($_REQUEST['dskey'])?$_REQUEST['dskey']:0);
+						$id = htmlspecialchars($_REQUEST['id'], HTML_SPECIAL_CHARS_FLAGS);
+						$datasetKey = filter_var($_REQUEST['dskey'], FILTER_SANITIZE_NUMBER_INT);
 						$harvester->addColNode($id, $datasetKey, $sciname, $rankLimit);
 						echo '</fieldset>';
 					}
@@ -425,9 +424,20 @@ if($isEditor){
 									if($colArr['isPreferred']) $targetStatus = '<span style="color:green">' . $LANG['PREF_TARGET'] . '</span>';
 									echo '<div>' . $LANG['TARGET_STATUS'] . ': ' . $targetStatus . '</div>';
 									if(isset($colArr['apiUrl'])) echo '<div>' . $LANG['API_URL'] . ': <a href="' . $colArr['apiUrl'] . '" target="_blank">' . $colArr['apiUrl'] . '</a></div>';
-									$harvestLink = 'batchloader.php?id=' . $cbNameUsageID . '&dskey=' . $colArr['datasetKey'] . '&targetapi=col&taxauthid=' . $_POST['taxauthid'].
-										'&kingdomname=' . $_POST['kingdomname'] . '&ranklimit=' . $_POST['ranklimit'] . '&sciname=' . $sciname . '&action=loadApiNode';
-									if($colArr['datasetKey']) echo '<div><b><a href="' . htmlspecialchars($harvestLink, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($LANG['TARGET_THIS_NODE'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a></b></div>';
+									if($colArr['datasetKey']){
+										?>
+										<form target="batchloader.php" method="post">
+											<input type="hidden" name="id" value="<?= htmlspecialchars($cbNameUsageID, HTML_SPECIAL_CHARS_FLAGS) ?>">
+											<input type="hidden" name="dskey" value="<?= filter_var($colArr['datasetKey'], FILTER_SANITIZE_NUMBER_INT) ?>">
+											<input type="hidden" name="targetapi" value="col">
+											<input type="hidden" name="taxauthid" value="<?= $taxAuthId ?>">
+											<input type="hidden" name="kingdomname" value="<?= $kingdomName ?>">
+											<input type="hidden" name="ranklimit" value="<?= $rankLimit ?>">
+											<input type="hidden" name="sciname" value="<?= $sciname ?>">
+											<button type="submit" name="action" value="loadApiNode" style="margin-top:10px"><?= $LANG['IMPORT_THIS_NODE'] ?></button>
+										</form>
+										<?php
+									}
 								}
 								echo '</div>';
 							}
@@ -596,7 +606,9 @@ if($isEditor){
 								<?php
 								$taxApiList = $loaderManager->getTaxonomicResourceList();
 								foreach($taxApiList as $taKey => $taValue){
-									echo '<input name="targetapi" type="radio" value="' . $taKey . '" ' . ($targetApi == $taKey?'checked':'') . ' /> ' . $taValue . '<br/>';
+									if($taKey == 'col' || $taKey == 'worms'){
+										echo '<input name="targetapi" type="radio" value="' . $taKey . '" '.($targetApi == $taKey?'checked':'') . ' /> ' . $taValue . '<br/>';
+									}
 								}
 								?>
 							</fieldset>
