@@ -33,7 +33,8 @@ if(array_key_exists('taxa', $taxaArr)){
 	}
 }
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="<?php echo $LANG_TAG ?>">
 <head>
 	<title><?php echo $DEFAULT_TITLE; ?> - Taxon Map</title>
 	<?php
@@ -120,6 +121,7 @@ if(array_key_exists('taxa', $taxaArr)){
 	</script>
 </head>
 <body style="background-color:#ffffff;width:100%">
+	<h1 class="page-heading">Taxon Map</h1>
 	<?php
 	if(!$coordArr){
 		?>
