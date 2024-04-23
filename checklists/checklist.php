@@ -27,7 +27,6 @@ $searchSynonyms = array_key_exists('searchsynonyms', $_REQUEST) ? filter_var($_R
 $defaultOverride = array_key_exists('defaultoverride', $_REQUEST) ? filter_var($_REQUEST['defaultoverride'], FILTER_SANITIZE_NUMBER_INT) : 0;
 $printMode = array_key_exists('printmode', $_REQUEST) ? filter_var($_REQUEST['printmode'], FILTER_SANITIZE_NUMBER_INT) : 0;
 
-
 $statusStr='';
 
 //Search Synonyms is default
@@ -195,8 +194,6 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 				<?php echo $clManager->getClName(); ?>
 			</h1>
 			<?php
-			
-			
 			echo '<div style="clear:both;"></div>';
 			$argStr = '&clid='.$clid.'&dynclid='.$dynClid.($showCommon?'&showcommon=1':'').($showSynonyms?'&showsynonyms=1':'').($showVouchers?'&showvouchers=1':'');
 			$argStr .= ($showAuthors?'&showauthors=1':'').($clManager->getThesFilter()?'&thesfilter='.$clManager->getThesFilter():'');
@@ -523,7 +520,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 										</a>
 									</div>
 									<div style="float:left;margin-left:15px" title="<?php echo $LANG['VOUCHERS_DYNAMIC_MAP']; ?>">
-										<a href="../collections/map/index.php?clid=<?php echo $clid . '&cltype=vouchers&taxonfilter=' . $taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">
+										<a href="../collections/map/index.php?clid=<?php echo $clid . '&cltype=vouchers&taxonfilter=' . $taxonFilter; ?>&db=all&type=1&reset=1">
 											<img src="<?php echo $tnUrl; ?>" style="width:<?php echo $tnWidth; ?>px" alt="<?php echo $LANG['IMG_VOUCHERS_DYNAMIC_MAP']; ?>"/><br/>
 											<?php echo $LANG['DYNAMIC_MAP']; ?>
 										</a>
@@ -535,7 +532,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 								//Temporarily turned off
 								?>
 								<span style="margin:5px">
-									<a href="../collections/map/index.php?clid=<?php echo $clid . '&cltype=all&taxonfilter=' . $taxonFilter; ?>&db=all&type=1&reset=1" target="_blank">
+									<a href="../collections/map/index.php?clid=<?php echo $clid . '&cltype=all&taxonfilter=' . $taxonFilter; ?>&db=all&type=1&reset=1">
 										<?php
 										if($coordArr){
 											echo '<img src="../images/world.png" style="width:30px" title="' . $LANG['OCCUR_DYNAMIC_MAP'] . '" alt="' . $LANG['IMG_OCCUR_DYNAMIC_MAP'] . '" />';
@@ -706,7 +703,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 									<i>
 										<a href="<?php echo strip_tags($famUrl); ?>" target="_blank" style="color:black;">
 											<?php echo strip_tags($group);?>
-										</a> 
+										</a>
 									</i>
 								</div>
 								<?php
