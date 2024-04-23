@@ -313,11 +313,11 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 						<fieldset>
 							<legend><?= $LANG['INITIALIZE_IMPORT'] ?></legend>
 							<div class="formField-div">
-								<input name="importFile" type="file" size="50" onchange="verifyFileSize(this)" />
+								<input name="importFile" onchange="verifyFileSize(this)" aria-label="<?php echo $LANG['CHOOSE_FILE'] ?>" />
 							</div>
 							<div class="formField-div">
 								<label for="importType"><?= $LANG['IMPORT_TYPE'] ?>: </label>
-								<select name="importType" onchange="importTypeChanged(this)">
+								<select id="importType" name="importType" onchange="importTypeChanged(this)" aria-label="<?php echo $LANG['IMPORT_TYPE'] ?>">
 									<option value="">-------------------</option>
 									<option value="1"><?= $LANG['ASSOCIATIONS'] ?></option>
 									<?php if($IS_ADMIN) echo '<option value="2">'.$LANG['DETERMINATIONS'].'</option>'; ?>
@@ -329,7 +329,7 @@ if($IS_ADMIN || (array_key_exists('CollAdmin', $USER_RIGHTS) && in_array($collid
 							</div>
 							<div id="associationType-div" class="formField-div" style="display:none">
 								<label for="associationType"><?= $LANG['ASSOCIATION_TYPE'] ?>: </label>
-								<select name="associationType">
+								<select id="associationType" name="associationType" aria-label="<?php echo $LANG['ASSOCIATION_TYPE'] ?>">
 									<option value="">-------------------</option>
 									<option value="resource"><?= $LANG['RESOURCE_LINK'] ?></option>
 									<option value="internalOccurrence"><?= $LANG['INTERNAL_OCCURRENCE'] ?></option>
