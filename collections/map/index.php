@@ -325,12 +325,6 @@ if(isset($_REQUEST['llpoint'])) {
 			$('#loadingOverlay').popup('hide');
 		}
 
-		function openIndPU(occId){
-			newWindow = window.open('../individual/index.php?occid='+occId,'indspec' + occId,'scrollbars=1,toolbar=0,resizable=1,width=1100,height=800,left=20,top=20');
-			if (newWindow.opener == null) newWindow.opener = self;
-			setTimeout(function () { newWindow.focus(); }, 0.5);
-		}
-
 		function buildPanels(cross_portal_enabled) {
          const cross_portal_results = document.getElementById("cross_portal_results");
          const cross_portal_list = document.getElementById("cross_portal_list");
@@ -617,7 +611,6 @@ value="${color}"
 							this.layer_groups[id].addTo(map.mapLayer);
 						} else if(!map.mapLayer.hasLayer(this.group_map[id].cluster)) {
 							this.group_map[id].cluster.addTo(map.mapLayer)
-							this.group_map[id].cluster.addLayer(this.layer_groups[id])
 						}
 					}
 				}
@@ -627,7 +620,6 @@ value="${color}"
 						if(clusteroff) {
 							map.mapLayer.removeLayer(this.layer_groups[id])
 						} else {
-							this.group_map[id].cluster.removeLayer(this.layer_groups[id])
 							map.mapLayer.removeLayer(this.group_map[id].cluster)
 						}
 					}
@@ -647,13 +639,15 @@ value="${color}"
 				}
 
 				addLayer(id) {
-					if(clusteroff) {
-						this.layer_groups[id] = L.layerGroup(this.markers[id]);
-						map.mapLayer.addLayer(this.layer_groups[id]);
-					} else {
-						this.group_map[id].cluster.addLayer(this.layer_groups[id])
+					//First Add layer for both regular layer group and for clustering
+					this.layer_groups[id] = L.layerGroup(this.markers[id]);
+					this.group_map[id].cluster.addLayer(this.layer_groups[id])
 
-						if(!map.mapLayer.hasLayer(this.group_map[id].cluster)) {
+					//Then Decide which is visible
+					if(!heatmap) {
+						if(clusteroff) {
+							map.mapLayer.addLayer(this.layer_groups[id]);
+						} else if(!map.mapLayer.hasLayer(this.group_map[id].cluster)) {
 							this.group_map[id].cluster.addTo(map.mapLayer);
 						}
 					}
@@ -668,7 +662,6 @@ value="${color}"
 							map.mapLayer.addLayer(this.layer_groups[id]);
 						} else {
 							map.mapLayer.removeLayer(this.layer_groups[id]);
-
 							if(!map.mapLayer.hasLayer(this.group_map[id].cluster)) {
 								this.group_map[id].cluster.addTo(map.mapLayer);
 							}
@@ -1099,13 +1092,15 @@ cluster.bindTooltip(`<div style="font-size:1.5rem"><?=$LANG['CLICK_TO_EXPAND']?>
 				}
 
 				addLayer(id) {
-					if(clusteroff) {
-						for(let marker of Object.values(this.markers[id])) {
-							marker.setMap(map.mapLayer)
+					if(!heatmapon) {
+						if(clusteroff) {
+							for(let marker of Object.values(this.markers[id])) {
+								marker.setMap(map.mapLayer)
+							}
+						} else {
+							this.group_map[id].cluster.addMarkers(this.markers[id])
+							this.group_map[id].cluster.setMap(map.mapLayer);
 						}
-					} else {
-						this.group_map[id].cluster.addMarkers(this.markers[id])
-						this.group_map[id].cluster.setMap(map.mapLayer);
 					}
 				}
 
@@ -1289,9 +1284,9 @@ cluster.bindTooltip(`<div style="font-size:1.5rem"><?=$LANG['CLICK_TO_EXPAND']?>
 				e.preventDefault();
 				let formData = new FormData(e.target);
 
-				mapGroups.map(g => {
-					g.taxonMapGroup.resetGroup();
-					g.collectionMapGroup.resetGroup();
+				mapGroups.map(group => {
+					group.taxonMapGroup.resetGroup();
+					group.collectionMapGroup.resetGroup();
 					group.portalMapGroup.resetGroup();
 				});
 
@@ -1338,8 +1333,8 @@ cluster.bindTooltip(`<div style="font-size:1.5rem"><?=$LANG['CLICK_TO_EXPAND']?>
 				genClusters(taxaLegendMap, "taxa");
 				genClusters(collLegendMap, "coll");
 				genClusters(portalLegendMap, "portal");
-
-            autoColorTaxa();
+            
+				autoColorTaxa();
 
 				drawPoints();
 
@@ -1655,7 +1650,7 @@ cluster.bindTooltip(`<div style="font-size:1.5rem"><?=$LANG['CLICK_TO_EXPAND']?>
 		};
 
 		//This is used in occurrencelist.php which is submodule of this
-		function emit_occurrence(occid) {
+		function emit_occurrence_click(occid) {
 			document.dispatchEvent(new CustomEvent('occur_click', {
 				detail: {
 					occid: occid
@@ -1705,12 +1700,6 @@ cluster.bindTooltip(`<div style="font-size:1.5rem"><?=$LANG['CLICK_TO_EXPAND']?>
 							}
 						},
 						rectangleLoader: () => {
-                     console.log({
-								upperLat: parseFloat(document.getElementById("upperlat").value),
-								lowerLat: parseFloat(document.getElementById("bottomlat").value),
-								rightLng: parseFloat(document.getElementById("rightlong").value),
-								leftLng: parseFloat(document.getElementById("leftlong").value)
-							})
 							return {
 								upperLat: parseFloat(document.getElementById("upperlat").value),
 								lowerLat: parseFloat(document.getElementById("bottomlat").value),
