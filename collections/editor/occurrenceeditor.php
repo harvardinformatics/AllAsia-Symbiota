@@ -443,6 +443,8 @@ else{
 	<meta http-equiv="Content-Type" content="text/html; charset=<?= $CHARSET; ?>">
 	<title><?= $DEFAULT_TITLE . ' ' . $LANG['OCCEDITOR'] ?></title>
 	<link href="<?= $CSS_BASE_PATH ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?= $CSS_BASE_PATH ?>/symbiota/variables.css" type="text/css" rel="stylesheet">
+
     <?php
     if($crowdSourceMode == 1){
 		?>
@@ -519,6 +521,23 @@ else{
 		.field-div{ margin: 2px; }
 		select{ height: 20px; margin-bottom: 2px; }
 		#identifierDiv img{ width:10px; margin-left: 5px; }
+		
+		.button-toggle {
+			background-color: transparent; 
+			color: var(--body-text-color); 
+			border-radius: 5px;
+			border: 2px solid var(--darkest-color);
+
+			&.active {
+				background-color: var(--darkest-color); 
+				color: white; 
+			}
+			&:hover {
+				background-color: var(--medium-color);
+				border: 2px solid var(--medium-color);
+				color: var(--light-color);
+			}
+		}
 	</style>
 </head>
 <body>
@@ -526,18 +545,11 @@ else{
 		<div id="titleDiv">
 			<?php
 			if($collMap) echo '<h1 class="page-heading" style="font-size: 1.5rem;"> Occurrence Editor: ' . $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').') </h1>';
-			if($isEditor && $isEditor != 3){
-				?>
-				<div id="querySymbolDiv" style="margin:5px 5px 5px 5px;">
-					<a href="#" title="<?= $LANG['SEARCH_FILTER'] ?>" onclick="toggleQueryForm();"><img src="../../images/find.png" style="width:1.3em;" /></a>				</div>
-				<?php
-			}
 			?>
 		</div>
 		<?php
 		if($isEditor && ($occId || ($collId && $isEditor < 3))){
 			if(!$occArr && !$goToMode) $displayQuery = 1;
-			include 'includes/queryform.php';
 			if($statusStr){
 				?>
 				<div id="statusdiv" style="margin:5px 0px 5px 15px;">
@@ -620,6 +632,17 @@ else{
 									<b><?php if($isEditor == 3) echo $LANG['TAXONOMIC_EDITOR']; ?></b>
 								</div>
 							</div>
+							<?php if($isEditor && $isEditor != 3):?>
+							<div id="querySymbolDiv" style="margin:5px 5px 5px 0px;">
+								<button class="button-toggle" type="button" onclick="toggleQueryForm(); toggleButtonVisuals(this, 'querydiv', [])">
+									<?= $LANG['SEARCH_FILTER'] ?>
+								</button>
+							</div>
+							<div style="margin-bottom:5px">
+								<?php include 'includes/queryform.php'; ?>
+							</div>
+							<?php endif?>
+
 							<div id="occedittabs" style="clear:both;">
 								<ul>
 									<li>
