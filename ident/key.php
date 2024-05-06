@@ -194,7 +194,7 @@ echo '</div>';
 				<legend><?php echo $LANG['FILTER_OPTIONS']; ?></legend>
 				<form name="keyform" id="keyform" action="key.php" method="post">
 					<div>
-						<div style="float:right"><button type="button" onclick="resetForm(this.form)">Reset</button></div>
+						<div class="float-right bottom-breathing-room-rel-sm"><button type="button" onclick="resetForm(this.form)">Reset</button></div>
 						<div><span><?php echo (isset($LANG['TAXON_SEARCH'])?$LANG['TAXON_SEARCH']:'Family/Genus Filter');?>:</span></div>
 						<select name="taxon" onchange="this.form.submit();">
 							<?php
