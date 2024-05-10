@@ -4,7 +4,7 @@ function copyUrl(host){
 	$("body").append($temp);
 	var activeLink = host + window.location.pathname;
 	if(sessionStorage.querystr){
-		activeLink = activeLink + "?" + sessionStorage.querystr;
+		activeLink = activeLink + "?" + encodedQueryStr(sessionStorage.querystr);
    }
 	$temp.val(activeLink).select();
 	document.execCommand("copy");
