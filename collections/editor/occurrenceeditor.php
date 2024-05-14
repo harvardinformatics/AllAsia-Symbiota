@@ -546,7 +546,7 @@ else{
 	</style>
 </head>
 <body>
-	<div id="innertext">
+	<div role="main" id="innertext">
 		<div id="titleDiv">
 			<?php
 			if($collMap) echo '<h1 class="page-heading" style="font-size: 1.5rem;"> Occurrence Editor: ' . $collMap['collectionname'].' ('.$collMap['institutioncode'].($collMap['collectioncode']?':'.$collMap['collectioncode']:'').') </h1>';

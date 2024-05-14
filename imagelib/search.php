@@ -125,7 +125,7 @@ if($action == 'batchAssignTag'){
 		<b><?= $LANG['IMAGE_SEARCH'] ?></b>
 	</div>
 	<!-- This is inner text! -->
-	<div id="innertext">
+	<div role="main" id="innertext">
 		<h1 class="page-heading"><?= $LANG['IMAGE_SEARCH']; ?></h1>
 		<form name="imagesearchform" id="imagesearchform" action="search.php" method="post">
 			<?php
