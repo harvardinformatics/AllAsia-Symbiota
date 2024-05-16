@@ -85,13 +85,15 @@ $projArr = $csManager->getProjectDetails();
 	</script>
 </head>
 <body style="margin-left: 0px; margin-right: 0px;background-color:white;">
-	<div class='navpath'>
-		<a href="../../../index.php"><?php echo htmlspecialchars($LANG['HOME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?></a> &gt;&gt;
-		<a href="index.php"><?php echo htmlspecialchars($LANG['SCORE_BOARD'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?></a> &gt;&gt;
-		<?php
-		if($collid) echo '<a href="../index.php?tabindex=1&collid=' . htmlspecialchars($collid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($LANG['CONTROL_PANEL'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a> &gt;&gt;';
-		?>
-		<b><?php echo $LANG['CROWDSOURCING_REVIEW']; ?></b>
+	<div style="width:850px;clear:both;">
+		<div class='navpath' style="float:left; padding-left: 5px">
+			<a href="../../../index.php"><?php echo htmlspecialchars($LANG['HOME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?></a> &gt;&gt;
+			<a href="index.php"><?php echo htmlspecialchars($LANG['SCORE_BOARD'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?></a> &gt;&gt;
+			<?php
+			if($collid) echo '<a href="../index.php?tabindex=1&collid=' . htmlspecialchars($collid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($LANG['CONTROL_PANEL'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a> &gt;&gt;';
+			?>
+			<b><?php echo $LANG['CROWDSOURCING_REVIEW']; ?></b>
+		</div>
 	</div>
 	<div style="margin:10px;">
 		<h1 class="page-heading">Review Crowdsourced Records</h1>
@@ -284,7 +286,7 @@ $projArr = $csManager->getProjectDetails();
 										</div>
 										<div id="showAddDiv" style="margin:10px"><a href="#" onclick="showAdditionalActions();return false;"><?php echo $LANG['SHOW_ADD_ACTIONS']; ?></a></div>
 										<div id="addActionsDiv" style="display:none;margin:20px 10px;">
-											<div><button name="action" type="submit" value="resetToNotReviewed" onclick="return confirm('<?php echo $LANG['SURE_CHANGE_STATUS']; ?>')"><?php echo $LANG['REMOVE_POINTS_CHANGE_NR']; ?></button></div>
+											<div><button class="button-danger" name="action" type="submit" value="resetToNotReviewed" onclick="return confirm('<?php echo $LANG['SURE_CHANGE_STATUS']; ?>')"><?php echo $LANG['REMOVE_POINTS_CHANGE_NR']; ?></button></div>
 											<div style="margin-top:5px"><button name="action" type="submit" value="resetToOpen" onclick="return confirm('<?php echo $LANG['SURE_RESET_STATUS']; ?>')"><?php echo $LANG['MOVE_BACK_QUEUE']; ?></button></div>
 										</div>
 										<?php
