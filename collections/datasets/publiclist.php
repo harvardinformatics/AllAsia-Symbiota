@@ -5,38 +5,55 @@ include_once($SERVER_ROOT.'/content/lang/collections/datasets/publiclist.'.$LANG
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $datasetManager = new OccurrenceDataset();
+$dArr = $datasetManager->getPublicDatasets();
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $LANG_TAG ?>">
 	<head>
-		<title><?= $LANG['PUB_DAT_LIST'] ?></title>
+		<title>Public Datasets List</title>
 		<?php
 		include_once($SERVER_ROOT.'/includes/head.php');
 		?>
 	</head>
 	<body>
 		<?php
+		$displayLeftMenu = true;
 		include($SERVER_ROOT.'/includes/header.php');
 		?>
 		<div class="navpath">
-			<a href="<?= $CLIENT_ROOT ?>/index.php"> <?= $LANG['H_HOME'] ?> </a> &gt;&gt;
-			<b> <?= $LANG['PUB_DAT_LIST'] ?> </b>
+			<a href="<?php echo htmlspecialchars($CLIENT_ROOT, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE); ?>/index.php"> <?php echo htmlspecialchars($LANG['H_HOME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) ?> </a> &gt;&gt;
+			<b> <?php echo htmlspecialchars($LANG['PUB_DAT_LIST'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) ?> </b>
 		</div>
 		<!-- This is inner text! -->
 		<div role="main" id="innertext">
-			<h1 class="page-heading"><?= $LANG['PUB_DAT_LIST'] ?></h1>
+			<h1 class="page-heading"><?php echo htmlspecialchars($LANG['PUB_DAT_LIST'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) ?></h1>
 			<ul>
 				<?php
-				if($datasetArr = $datasetManager->getPublicDatasets()){
-					foreach($datasetArr as $category => $categoryArr) {
-						if($category) echo '<h3>' . $category . '</h3>';
-						foreach($categoryArr as $dsID => $dsObject){
-							echo '<li><a href="public.php?datasetid=' . $dsID . '">' . $dsObject->name . '</a></li>';
+				if($dArr){
+					$catArr = array();
+					// Creates categories array
+					foreach($dArr as $row) {
+						if (array_key_exists('category', $row)) {
+							($row['category']) ? array_push($catArr, $row['category']) : array_push($catArr, NULL);
+						}
+						else {
+							echo '<li><a href="public.php?datasetid=' . htmlspecialchars($row['datasetid'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($row['name'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a></li>';
 						}
 					}
-				}
-				else{
-					echo $LANG['NO_DATASETS'];
+					if (count($catArr) > 1) {
+						$catArr = array_unique($catArr);
+						foreach($catArr as $cat) {
+							echo ($cat) ? '<h3>'.$cat.'</h3>' : '';
+							foreach($dArr as $row){
+								if ($cat === $row['category']) {
+									echo '<li><a href="public.php?datasetid=' . htmlspecialchars($row['datasetid'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($row['name'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a></li>';
+								}
+							}
+						}
+					}
+					else {
+						echo '<li><a href="public.php?datasetid=' . htmlspecialchars($row['datasetid'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '">' . htmlspecialchars($row['name'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '</a></li>';
+					}
 				}
 				?>
 			</ul>

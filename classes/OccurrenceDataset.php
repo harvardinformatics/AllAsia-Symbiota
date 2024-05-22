@@ -1,7 +1,8 @@
 <?php
-include_once($SERVER_ROOT.'/classes/Manager.php');
+include_once($SERVER_ROOT.'/config/dbconnection.php');
+include_once($SERVER_ROOT.'/classes/DwcArchiverCore.php');
 
-class OccurrenceDataset extends Manager {
+class OccurrenceDataset {
 
 	private $conn;
 	private $collArr = array();
@@ -9,26 +10,34 @@ class OccurrenceDataset extends Manager {
 	private $errorArr = array();
 
 	public function __construct($type = 'write'){
-		parent::__construct(null, $type);
+		$this->conn = MySQLiConnectionFactory::getCon($type);
 	}
 
 	public function __destruct(){
-		parent::__destruct();
+		if(!($this->conn === null)) $this->conn->close();
 	}
 
-	public function getPublicDatasets(){
-		$retArr = array();
-		$sql = 'SELECT datasetID, category, name, notes, description, uid, sortSequence, initialTimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY category, name';
-		if($rs = $this->conn->query($sql)){
-			while($r = $rs->fetch_object()){
-				$category = 0;
-				if($r->category) $category = $this->cleanOutStr($r->category);
-				$retArr[$category][$r->datasetID] = $this->cleanOutArray($r);
-			}
-			$rs->free();
-		}
-		return $retArr;
-	}
+  public function getPublicDatasets(){
+    // Tests if field `category` exists in table
+    $sqlFields = 'SHOW COLUMNS FROM omoccurdatasets LIKE "category"';
+    $fields = $this->conn->query($sqlFields);
+    $catExists = $fields->num_rows?TRUE:FALSE;
+    $fields->free();
+    $retArr = array();
+    $sql = '';
+    if ($catExists) {
+      $sql = 'SELECT datasetid, category, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY category,name';
+
+    } else {
+      $sql = 'SELECT datasetid, name, notes, description, uid, sortsequence, initialtimestamp, ispublic FROM omoccurdatasets WHERE ispublic=1 ORDER BY name';
+    }
+    $rs = $this->conn->query($sql);
+    while($r = $rs->fetch_assoc()){
+      $retArr[] = $r;
+    }
+    $rs->free();
+    return $retArr;
+  }
 
 	public function getPublicDatasetMetadata($dsid){
 		$retArr = array();
@@ -62,7 +71,7 @@ class OccurrenceDataset extends Manager {
 				$retArr['uid'] = $r->uid;
 				$retArr['sort'] = $r->sortsequence;
 				$retArr['ts'] = $r->initialtimestamp;
-				$retArr['ispublic'] = $r->ispublic;
+        $retArr['ispublic'] = $r->ispublic;
 			}
 			$rs->free();
 			//Get roles for current user
