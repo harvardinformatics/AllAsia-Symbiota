@@ -54,7 +54,7 @@ elseif($action == 'addAllToDataset'){
 				menubar: '',
 				toolbar: ['undo redo | bold italic underline | link | alignleft aligncenter alignright | formatselect | bullist numlist | indent outdent | blockquote | image'],
 				branding: false,
-        		default_link_target: "_blank",
+						default_link_target: "_blank",
 				paste_as_text: true
 			});
 		</script>
@@ -119,7 +119,7 @@ elseif($action == 'addAllToDataset'){
 		?>
 		<div>
 		<div style="float:right;margin:10px;" title="<?php echo (isset($LANG['CRT_NEW_DAT']) ? $LANG['CRT_NEW_DAT'] : 'Create New Dataset') ?>" >
-	 		<a href="#" onclick="toggle('adddiv');return false;"><img src="../../images/add.png"  style="width:1.5em;" alt="<?php echo (isset($LANG['ADD_BUTTON']) ? $LANG['ADD_BUTTON'] : 'Add Button') ?>"/> </a>
+	 		<a href="#" onclick="toggle('adddiv');return false;"><img src="../../images/add.png"	style="width:1.5em;" alt="<?php echo (isset($LANG['ADD_BUTTON']) ? $LANG['ADD_BUTTON'] : 'Add Button') ?>"/> </a>
 		</div>
 		<h1 class="page-heading"> <?php echo (isset($LANG['OCC_DAT_MNG']) ? $LANG['OCC_DAT_MNG'] : 'Occurrence Dataset Manager') ?> </h1>
 		<div> <?php echo (isset($LANG['TOOL_DESCR']) ? $LANG['TOOL_DESCR'] : 'These tools will allow you to define and manage dataset profiles. Once a profile is created, you can link occurrence records via the occurrence search and display pages.') ?> </div>
@@ -131,20 +131,20 @@ elseif($action == 'addAllToDataset'){
 						<p><b> <?php echo (isset($LANG['NAME']) ? $LANG['NAME'] : 'Name') ?> </b></p>
 						<input name="name" type="text" style="width:90%" />
 					</div>
-          <div>
-            <p>
-              <input type="checkbox" name="ispublic" id="ispublic" value="1" />
-            <b> <?php echo (isset($LANG['PUB_VIS']) ? $LANG['PUB_VIS'] : 'Publicly Visible') ?> </b>
-            </p>
-          </div>
+					<div>
+						<p>
+							<input type="checkbox" name="ispublic" id="ispublic" value="1" />
+						<b> <?php echo (isset($LANG['PUB_VIS']) ? $LANG['PUB_VIS'] : 'Publicly Visible') ?> </b>
+						</p>
+					</div>
 					<div>
 						<p><b> <?php echo (isset($LANG['NOTES']) ? $LANG['NOTES'] : 'Notes (Internal usage, not displayed publicly)') ?></b></p>
 						<input name="notes" type="text" style="width:90%;" />
 					</div>
-          <div>
-            <p><b> <?php echo (isset($LANG['DESCR']) ? $LANG['DESCR'] : 'Description (Displayed publicly)') ?> </b> </p>
-            <textarea name="description" id="description" cols="100" rows="10"></textarea>
-          </div>
+					<div>
+						<p><b> <?php echo (isset($LANG['DESCR']) ? $LANG['DESCR'] : 'Description (Displayed publicly)') ?> </b> </p>
+						<textarea name="description" id="description" cols="100" rows="10"></textarea>
+					</div>
 					<div style="margin:15px">
 						<button name="submitaction" type="submit" value="createNewDataset"> <?php echo (isset($LANG['CRT_NEW_DAT']) ? $LANG['CRT_NEW_DAT'] : 'Create New Dataset') ?> </button>
 					</div>
