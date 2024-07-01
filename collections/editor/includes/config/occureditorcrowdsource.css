@@ -3,6 +3,10 @@ body{
 	font-size: 12px;
 }
 
+table, tr, th, td {
+	vertical-align: top;
+}
+
 #innertext{
 	padding:	10px;
 	font-size:	12px;
