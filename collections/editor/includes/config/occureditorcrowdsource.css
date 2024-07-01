@@ -51,6 +51,10 @@ body{
 	width: 95px;
 }
 
+#identifierDiv{
+	display: none;
+}
+
 #recordedByDiv {
 	float:left;
 	margin-right: 2px;
@@ -74,6 +78,14 @@ body{
 }
 
 #eventDateDiv input{
+	width:	110px;
+}
+
+#eventDate2Div {
+	float:left;
+}
+
+#eventDate2Div input{
 	width:	110px;
 }
 
@@ -143,7 +155,7 @@ body{
 }
 
 #exstitleinput {
-	width: 500px;
+	width: 400px;
 }
 
 #exsnumberDiv {
@@ -381,7 +393,7 @@ body{
 }
 
 #verbatimCoordinatesDiv input{
-	width:	225px;
+	width:	200px;
 }
 
 #georeferencedByDiv{
@@ -483,6 +495,14 @@ body{
 }
 
 #reproductiveConditionDiv{
+	display:none;
+}
+
+#behaviorDiv{
+	display:none;
+}
+
+#vitalityDiv{
 	display:none;
 }
 
