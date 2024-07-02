@@ -450,12 +450,12 @@ else{
     <?php
     if($crowdSourceMode == 1){
 		?>
-		<link href="includes/config/occureditorcrowdsource.css?ver=3" type="text/css" rel="stylesheet" id="editorCssLink" />
+		<link href="includes/config/occureditorcrowdsource.css?ver=4" type="text/css" rel="stylesheet" id="editorCssLink" />
 		<?php
     }
     else{
 		?>
-		<link href="<?= $CSS_BASE_PATH ?>/symbiota/collections/editor/occurrenceeditor.css?ver=8" type="text/css" rel="stylesheet" id="editorCssLink" >
+		<link href="<?= $CSS_BASE_PATH ?>/symbiota/collections/editor/occurrenceeditor.css?ver=9" type="text/css" rel="stylesheet" id="editorCssLink" >
 		<?php
 		if(isset($CSSARR)){
 			foreach($CSSARR as $cssVal){
@@ -541,6 +541,12 @@ else{
 				border: 2px solid var(--medium-color);
 				color: var(--light-color);
 			}
+		}
+		table, tr, th, td {
+			vertical-align: top;
+		}
+		#labelProcFieldset{
+			padding:15px;
 		}
 	</style>
 </head>
