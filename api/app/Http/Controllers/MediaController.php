@@ -438,7 +438,7 @@ class MediaController extends Controller{
 	 */
 	public function update($id, Request $request){
 		if($user = $this->authenticate($request)){
-			$media = Media::find($id);
+			$media = Media::find($this->getImgid($id));
 			if(!$media){
 				return response()->json(['status' => 'failure', 'error' => 'Media resource not found'], 400);
 			}
