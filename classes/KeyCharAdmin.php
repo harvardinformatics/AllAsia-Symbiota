@@ -281,7 +281,7 @@ class KeyCharAdmin{
 		global $PARAMS_ARR;
 		$statusStr = '';
 		if(is_numeric($formArr['cid']) && is_numeric($formArr['cs'])){
-	 		$imageRootPath = $GLOBALS["imageRootPath"];
+			$imageRootPath = $GLOBALS['IMAGE_ROOT_PATH'];
 			if(substr($imageRootPath,-1) != "/") $imageRootPath .= "/";
 			if(file_exists($imageRootPath)){
 				$imageRootPath .= 'ident/';
@@ -297,7 +297,7 @@ class KeyCharAdmin{
 					}
 				}
 				//Create url prefix
-				$imageRootUrl = $GLOBALS["imageRootUrl"];
+				$imageRootUrl = $GLOBALS['IMAGE_ROOT_URL'];
 				if(substr($imageRootUrl,-1) != "/") $imageRootUrl .= "/";
 				$imageRootUrl .= 'ident/csimgs/';
 

@@ -8,7 +8,7 @@ $clid = array_key_exists('clid', $_REQUEST) ? $_REQUEST['clid'] : 0;
 $dynClid = array_key_exists('dynclid', $_REQUEST) ? $_REQUEST['dynclid'] : 0;
 $taxonFilter = array_key_exists('taxonfilter', $_REQUEST) ? htmlspecialchars($_REQUEST['taxonfilter'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) : '';
 $showCommon = array_key_exists('showcommon', $_REQUEST) ? $_REQUEST['showcommon'] : 0;
-$lang = array_key_exists('lang', $_REQUEST) ? htmlspecialchars($_REQUEST['lang'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) : $defaultLang;
+$lang = array_key_exists('lang', $_REQUEST) ? htmlspecialchars($_REQUEST['lang'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) : $DEFAULT_LANG;
 
 //Sanitation
 if(!is_numeric($clid)) $clid = 0;

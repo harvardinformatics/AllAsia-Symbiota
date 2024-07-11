@@ -70,10 +70,10 @@ class ImageLocalProcessor {
 		ini_set('memory_limit','1024M');
 		//Use deaults located within symbini, if they are available
 		//Will be replaced by values within configuration file, if they are set
-		if(isset($GLOBALS['imgWebWidth']) && $GLOBALS['imgWebWidth']) $this->webPixWidth = $GLOBALS['imgWebWidth'];
-		if(isset($GLOBALS['imgTnWidth']) && $GLOBALS['imgTnWidth']) $this->tnPixWidth = $GLOBALS['imgTnWidth'];
-		if(isset($GLOBALS['imgLgWidth']) && $GLOBALS['imgLgWidth']) $this->lgPixWidth = $GLOBALS['imgLgWidth'];
-		if(isset($GLOBALS['imgFileSizeLimit']) && $GLOBALS['imgFileSizeLimit']) $this->webFileSizeLimit = $GLOBALS['imgFileSizeLimit'];
+		if(!empty($GLOBALS['imgWebWidth'])) $this->webPixWidth = $GLOBALS['imgWebWidth'];
+		if(!empty($GLOBALS['imgTnWidth'])) $this->tnPixWidth = $GLOBALS['imgTnWidth'];
+		if(!empty($GLOBALS['imgLgWidth'])) $this->lgPixWidth = $GLOBALS['imgLgWidth'];
+		if(!empty($GLOBALS['IMG_FILE_SIZE_LIMIT'])) $this->webFileSizeLimit = $GLOBALS['IMG_FILE_SIZE_LIMIT'];
 	}
 
 	function __destruct(){

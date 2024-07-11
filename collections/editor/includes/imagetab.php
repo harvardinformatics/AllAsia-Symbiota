@@ -337,7 +337,7 @@ $photographerArr = $occManager->getPhotographerArr();
 										<div>
 											<b><?php echo $LANG['WEB_URL']; ?>: </b><br/>
 											<input name="url" type="text" value="<?php echo $imgArr["url"]; ?>" style="width:95%;" />
-											<?php if(stripos($imgArr["url"],$imageRootUrl) === 0){ ?>
+											<?php if(stripos($imgArr['url'], $IMAGE_ROOT_URL) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renameweburl" value="1" />
 													<?php echo $LANG['RENAME_FILE']; ?>
@@ -348,7 +348,7 @@ $photographerArr = $occManager->getPhotographerArr();
 										<div>
 											<b><?php echo $LANG['LARGE_IMG_URL']; ?>: </b><br/>
 											<input name="origurl" type="text" value="<?php echo $imgArr["origurl"]; ?>" style="width:95%;" />
-											<?php if(stripos($imgArr["origurl"],$imageRootUrl) === 0){ ?>
+											<?php if(stripos($imgArr['origurl'], $IMAGE_ROOT_URL) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renameorigurl" value="1" />
 													<?php echo $LANG['RENAME_LARGE']; ?>
@@ -359,7 +359,7 @@ $photographerArr = $occManager->getPhotographerArr();
 										<div>
 											<b><?php echo $LANG['THUMB_URL']; ?>: </b><br/>
 											<input name="tnurl" type="text" value="<?php echo $imgArr["tnurl"]; ?>" style="width:95%;" />
-											<?php if(stripos($imgArr["tnurl"],$imageRootUrl) === 0){ ?>
+											<?php if(stripos($imgArr['tnurl'], $IMAGE_ROOT_URL) === 0){ ?>
 												<div style="margin-left:10px;">
 													<input type="checkbox" name="renametnurl" value="1" />
 													<?php echo $LANG['RENAME_THUMB']; ?>
