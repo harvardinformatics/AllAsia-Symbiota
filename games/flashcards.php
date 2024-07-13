@@ -216,10 +216,10 @@ $sciArr = array();
 							</div>
 							<div style='margin-top:3px;'>
 								<?php
-									//Display Common Names: 0 = false, 1 = true
-									if($displayCommonNames){
-										echo '<input id="showcommon" name="showcommon" type="checkbox" value="1" '.($showCommon?"checked":"").' /> <label for="showcommon">Display Common Names</label>'."\n";
-									}
+								//Display Common Names: 0 = false, 1 = true
+								if($DISPLAY_COMMON_NAMES){
+									echo '<input id="showcommon" name="showcommon" type="checkbox" value="1" '.($showCommon?"checked":"").' /> <label for="showcommon">Display Common Names</label>'."\n";
+								}
 								?>
 							</div>
 							<button type="submit" onclick="document.getElementById('taxonfilterform').submit();">Show Image</button>

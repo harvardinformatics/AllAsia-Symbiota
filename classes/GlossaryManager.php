@@ -907,9 +907,10 @@ class GlossaryManager extends Manager {
 		global $SYMB_UID;
 		if(!$imgWebUrl) return 'ERROR: web url is null ';
 		$urlBase = $this->urlBase;
-		//If central images are on remote server and new ones stored locally, then we need to use full domain
-		//e.g. this portal is sister portal to central portal
-		if($GLOBALS['imageDomain']) $urlBase = $this->getDomain().$urlBase;
+		if(!empty($GLOBALS['IMAGE_DOMAIN'])){
+			//Central images are on remote server and new ones stored locally, thus need to use full local domain (this portal is sister portal to central portal)
+			$urlBase = $this->getDomain().$urlBase;
+		}
 		if(strtolower(substr($imgWebUrl,0,7)) != 'http://' && strtolower(substr($imgWebUrl,0,8)) != 'https://'){
 			$imgWebUrl = $urlBase.$imgWebUrl;
 		}

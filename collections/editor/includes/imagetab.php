@@ -186,15 +186,15 @@ $photographerArr = $occManager->getPhotographerArr();
 							$tnUrl = $imgArr["tnurl"];
 							if((!$imgUrl || $imgUrl == 'empty') && $origUrl) $imgUrl = $origUrl;
 							if(!$tnUrl && $imgUrl) $tnUrl = $imgUrl;
-							if(array_key_exists("imageDomain",$GLOBALS)){
-								if(substr($imgUrl,0,1)=="/"){
-									$imgUrl = $GLOBALS["imageDomain"].$imgUrl;
+							if(array_key_exists('IMAGE_DOMAIN', $GLOBALS)){
+								if(substr($imgUrl, 0, 1) == '/'){
+									$imgUrl = $GLOBALS['IMAGE_DOMAIN'] . $imgUrl;
 								}
-								if($origUrl && substr($origUrl,0,1)=="/"){
-									$origUrl = $GLOBALS["imageDomain"].$origUrl;
+								if($origUrl && substr($origUrl, 0, 1) == '/'){
+									$origUrl = $GLOBALS['IMAGE_DOMAIN'] . $origUrl;
 								}
-								if($tnUrl && substr($tnUrl,0,1)=="/"){
-									$tnUrl = $GLOBALS["imageDomain"].$tnUrl;
+								if($tnUrl && substr($tnUrl, 0, 1) == '/'){
+									$tnUrl = $GLOBALS['IMAGE_DOMAIN'] . $tnUrl;
 								}
 							}
 							echo '<a href="' . $imgUrl . '" target="_blank">';
