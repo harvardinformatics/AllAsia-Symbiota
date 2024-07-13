@@ -97,8 +97,11 @@ class OccurrenceEditorManager {
 				$retArr = $propArr['editorProps'];
 				if(isset($retArr['modules-panel'])){
 					foreach($retArr['modules-panel'] as $module){
-						if(isset($module['paleo']['status']) && $module['paleo']['status']){
+						if(!empty($module['paleo']['status'])){
 							$this->collMap['paleoActivated'] = true;
+						}
+						if(!empty($module['matSample']['status'])){
+							$this->collMap['matSampleActivated'] = true;
 						}
 					}
 				}
