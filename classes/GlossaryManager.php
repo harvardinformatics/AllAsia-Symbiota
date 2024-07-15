@@ -37,7 +37,7 @@ class GlossaryManager extends Manager {
 		$this->imageRootUrl = $GLOBALS['$IMAGE_ROOT_URL'];
 		if(substr($this->imageRootUrl,-1) != "/") $this->imageRootUrl .= "/";
 		if(!empty($GLOBALS['IMG_TN_WIDTH'])){
-			$this->tnPixWidth = $GLOBALS['IMG_WEB_WIDTH'];
+			$this->tnPixWidth = $GLOBALS['IMG_TN_WIDTH'];
 		}
 		if(!empty($GLOBALS['IMG_WEB_WIDTH'])){
 			$this->webPixWidth = $GLOBALS['IMG_WEB_WIDTH'];
