@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', ()=>{
 	document.getElementById('accessibility-button').disabled=false;
-	updateButtonTextBasedOnEnabledStylesheet('<?php echo $LANG['TOGGLE_508_OFF'] ?>', '<?php echo $LANG['TOGGLE_508_ON'] ?>');
+	updateButtonTextBasedOnEnabledStylesheet(toggleOff508, toggleOn508);
 });
 
 const openDialogButton = document.getElementById('accessibility-options-button');

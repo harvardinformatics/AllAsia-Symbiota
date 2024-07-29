@@ -86,28 +86,6 @@ $RIGHTS_TERMS = array(
 	'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' => 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
 );
 
-/*
- //Default editor properties; properties defined in collection will override these values
- $EDITOR_PROPERTIES = array(
- 'modules-panel' => array(
- 'paleo' => array('status'=>0,'titleOverride'=>'Paleonotology Terms')
- ),
- 'features' => array('catalogDupeCheck'=>1,'otherCatNumDupeCheck'=>0,'dupeSearch'=>1),
- 'labelOverrides' => array(),
- 'cssTerms' => array(
- '#recordNumberDiv'=>array('float'=>'left','margin-right'=>'2px'),
- '#recordNumberDiv input'=>array('width'=>'60px'),
- '#eventDateDiv'=>array('float'=>'left'),
- '#eventDateDiv input'=>array('width'=>'110px')
- ),
- 'customCSS' => array(),
- 'customLookups' => array(
- 'processingStatus' => array('Unprocessed','Stage 1','Stage 2','Pending Review','Expert Required','Reviewed','Closed')
- )
- );
- // json: {"editorProps":{"modules-panel":{"paleo":{"status":1}}}}
- */
-
  // Should public users be able to create accounts?
 $SHOULD_BE_ABLE_TO_CREATE_PUBLIC_USER = true;
 // end Should public users be able to create accounts?
@@ -123,10 +101,10 @@ $SHOULD_USE_MINIMAL_MAP_HEADER = false;
 
 $COOKIE_SECURE = false;
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) {
-	header("strict-transport-security: max-age=600");
+	header('strict-transport-security: max-age=600');
 	$COOKIE_SECURE = true;
 }
 
 //Base code shared by all pages; leave as is
-include_once("symbbase.php");
+include_once('symbbase.php');
 /* --DO NOT ADD ANY EXTRA SPACES BELOW THIS LINE-- */
