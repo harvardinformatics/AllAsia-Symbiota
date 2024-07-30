@@ -31,7 +31,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 					?>
 					<span class="button button-tertiary">
 						<a onclick="window.location.href='#'">
-							<?= $LANG['CONTACT_US'] ?>
+							<?= $LANG['H_CONTACT_US'] ?>
 						</a>
 					</span>
 					<span class="button button-secondary">
@@ -118,11 +118,11 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 										<a href="#">Link 3</a>
 									</li>
 								</ul>
-							</li>	
+							</li>
 						</ul>
 					</li>
 					<li id="lang-select-li">
-						<label for="language-selection"><?= $LANG['SELECT_LANGUAGE'] ?>: </label>
+						<label for="language-selection"><?= $LANG['H_SELECT_LANGUAGE'] ?>: </label>
 						<select oninput="setLanguage(this)" id="language-selection" name="language-selection">
 							<option value="en">English</option>
 							<option value="es" <?= ($LANG_TAG=='es'?'SELECTED':'') ?>>Espa&ntilde;ol</option>

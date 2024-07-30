@@ -5,6 +5,8 @@ Language: English
 ------------------
 */
 
+
+//header variables
 $LANG['H_HOME'] = 'Home';
 
 $LANG['H_SEARCH'] = 'Search';
@@ -44,17 +46,13 @@ $LANG['H_MY_PROFILE'] = 'My Profile';
 $LANG['H_LOGOUT'] = 'Sign Out';
 $LANG['H_LOGIN'] = 'Sign In';
 $LANG['H_NEW_ACCOUNT'] = 'New Account';
+$LANG['H_SELECT_LANGUAGE'] = 'Select Language';
+$LANG['H_CONTACT_US'] = 'Contact Us';
 
-$LANG['TOGGLE_508_OFF'] = "Toggle Condensed Form Layout";
-$LANG['TOGGLE_508_ON'] = "Toggle Vertical Form Layout";
-$LANG['SELECT_LANGUAGE'] = 'Select Language';
+//Footer variables
+$LANG['F_TOGGLE_508_OFF'] = 'Toggle Condensed Form Layout';
+$LANG['F_TOGGLE_508_ON'] = 'Toggle Vertical Form Layout';
 
-$LANG['CONTACT_US'] = 'Contact Us';
-$LANG['LOGIN'] = 'Log In';
-$LANG['SEARCH_COLLECTIONS'] = 'Search Collections';
-$LANG['CHECKLISTS'] = 'Checklists';
-$LANG['ABOUT_SYMBIOTA'] = 'About Symbiota';
-$LANG['HELP'] = 'Help';
 $LANG['SPECIMENS'] = 'Specimens';
 $LANG['IMG_CONTR'] = 'Image Contributors';
 $LANG['OBS'] = 'Observations';
@@ -65,7 +63,6 @@ $LANG['NAV_IMG_CONTR'] = 'Image Contributors';
 $LANG['NAV_IMG_SEARCH'] = 'Image Search';
 $LANG['SKIP_NAV'] = 'Skip Navigation';
 
-// Footer-specific
 $LANG['ACCESSIBILITY_OPTIONS'] = 'Accessibility Options';
 $LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'More accessibility features will be added over time. Toggle those that suit your needs.';
 $LANG['CLOSE'] = 'Close';

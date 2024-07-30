@@ -3,7 +3,7 @@
 		<h1><?= $LANG['ACCESSIBILITY_OPTIONS']; ?></h1>
 		<p class="bottom-breathing-room-rel"><?= $LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION']; ?></p>
 		<button type="button" class="btn btn-primary bottom-breathing-room-rel" onclick="toggleAccessibilityStyles('<?php echo $CLIENT_ROOT . '/includes' . '/' ?>', '<?php echo $CSS_BASE_PATH ?>', '<?php echo $LANG['TOGGLE_508_OFF'] ?>', '<?php echo $LANG['TOGGLE_508_ON'] ?>')" id="accessibility-button" data-accessibility="accessibility-button">
-			<?php echo (isset($LANG['TOGGLE_508_ON'])?$LANG['TOGGLE_508_ON']:'Switch Form Layout'); ?>
+			<?= $LANG['F_TOGGLE_508_ON'] ?>
 		</button>
 		<form method="dialog">
 			<button type="submit" class="btn btn-primary"><?= $LANG['CLOSE']; ?></button>
@@ -43,7 +43,7 @@
 	<script type="text/javascript">
 		document.addEventListener('DOMContentLoaded', ()=>{
 			document.getElementById('accessibility-button').disabled=false;
-			updateButtonTextBasedOnEnabledStylesheet('<?php echo $LANG['TOGGLE_508_OFF'] ?>', '<?php echo $LANG['TOGGLE_508_ON'] ?>');
+			updateButtonTextBasedOnEnabledStylesheet('<?= $LANG['F_TOGGLE_508_OFF'] ?>', '<?= $LANG['F_TOGGLE_508_ON'] ?>');
 		});
 
 		const openDialogButton = document.getElementById('accessibility-options-button');

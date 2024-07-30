@@ -2,7 +2,7 @@
 // try{
     // if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/header.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/header.en.php');
     // else include_once($SERVER_ROOT . '/content/lang/header.' . $LANG_TAG . '.php');
-// } 
+// }
 // catch(Exception $error){
 //     // var_dump($error);
 // }
@@ -64,14 +64,14 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						</a>
 					</li>
 					<li>
-						<label for="language-selection"><?= $LANG['SELECT_LANGUAGE'] ?>: </label>
+						<label for="language-selection"><?= $LANG['H_SELECT_LANGUAGE'] ?>: </label>
 						<select oninput="setLanguage(this)" id="language-selection" name="language-selection">
 							<option value="en">English</option>
 							<option value="es" <?= ($LANG_TAG=='es'?'SELECTED':'') ?>>Espa&ntilde;ol</option>
 							<option value="fr" <?= ($LANG_TAG=='fr'?'SELECTED':'') ?>>Français</option>
 						</select>
 					</li>
-					
+
 						<?php
 						if ($USER_DISPLAY_NAME) {
 							?>
@@ -91,13 +91,13 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 							?>
 							<li>
 								<a onclick="window.location.href='#'">
-									<?= $LANG['CONTACT_US']; ?>
+									<?= $LANG['H_CONTACT_US']; ?>
 								</a>
 							</li>
 							<li>
-									<a href="<?= $CLIENT_ROOT . "/profile/index.php?refurl=" . htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
-										<?= (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login') ?>
-									</a>
+								<a href="<?= $CLIENT_ROOT . "/profile/index.php?refurl=" . htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
+									<?= (isset($LANG['H_LOGIN'])?$LANG['H_LOGIN']:'Login') ?>
+								</a>
 							</li>
 							<?php
 						}

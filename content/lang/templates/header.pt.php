@@ -2,11 +2,11 @@
 /*
 ------------------
 Language: Português (Portuguese)
-Translated by: Google Translate
-Date Translated: 2024-02-16
+Translated by: Google Translate (2024-02-16)
 ------------------
 */
 
+//header variables
 $LANG['H_HOME'] = 'Início';
 
 $LANG['H_SEARCH'] = 'Pesquisar';
@@ -46,17 +46,13 @@ $LANG['H_MY_PROFILE'] = 'Meu Perfil';
 $LANG['H_LOGOUT'] = 'Sair';
 $LANG['H_LOGIN'] = 'Entrar';
 $LANG['H_NEW_ACCOUNT'] = 'Nova Conta';
-$LANG['SELECT_LANGUAGE'] = 'Selecionar Idioma';
+$LANG['H_SELECT_LANGUAGE'] = 'Selecionar Idioma';
+$LANG['H_CONTACT_US'] = 'Entre em Contato Conosco';
 
-$LANG['TOGGLE_508_OFF'] = "Modo Condensado";
-$LANG['TOGGLE_508_ON'] = "Modo de Acessibilidade";
+//Footer variables
+$LANG['F_TOGGLE_508_OFF'] = 'Modo Condensado';
+$LANG['F_TOGGLE_508_ON'] = 'Modo de Acessibilidade';
 
-$LANG['CONTACT_US'] = 'Entre em Contato Conosco';
-$LANG['LOGIN'] = 'Login';
-$LANG['SEARCH_COLLECTIONS'] = 'Pesquisar Coleções';
-$LANG['CHECKLISTS'] = 'Inventários Taxonômicos';
-$LANG['ABOUT_SYMBIOTA'] = 'Sobre o Symbiota';
-$LANG['HELP'] = 'Ajuda';
 $LANG['SPECIMENS'] = 'Amostras';
 $LANG['IMG_CONTR'] = 'Contribuidores de imagem';
 $LANG['OBS'] = 'Observações';

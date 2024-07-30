@@ -5,6 +5,8 @@ Language: Español (Spanish)
 ------------------
 */
 
+
+//header variables
 $LANG['H_HOME'] = 'Inicio';
 
 $LANG['H_SEARCH'] = 'Buscar';
@@ -44,16 +46,13 @@ $LANG['H_MY_PROFILE'] = 'Mi Perfil';
 $LANG['H_LOGOUT'] = 'Finalizar Sesión';
 $LANG['H_LOGIN'] = 'Iniciar Sesi&oacute;n';
 $LANG['H_NEW_ACCOUNT'] = 'Nueva Cuenta';
-$LANG['TOGGLE_508_OFF'] = "Alternar el Diseño de Formulario Condensado";
-$LANG['TOGGLE_508_ON'] = "Alternar Diseño de Formulario Vertical";
-$LANG['SELECT_LANGUAGE'] = 'Seleccionar Idioma';
+$LANG['H_SELECT_LANGUAGE'] = 'Seleccionar Idioma';
+$LANG['H_CONTACT_US'] = 'Contáctenos';
 
-$LANG['CONTACT_US'] = 'Contáctenos';
-$LANG['LOGIN'] = 'Acceso';
-$LANG['SEARCH_COLLECTIONS'] = 'Buscar Colecciones';
-$LANG['CHECKLISTS'] = 'Listas de Control';
-$LANG['ABOUT_SYMBIOTA'] = 'Acerca de Symbiota';
-$LANG['HELP'] = 'Ayuda';
+//Footer variables
+$LANG['H_TOGGLE_508_OFF'] = 'Alternar el Diseño de Formulario Condensado';
+$LANG['H_TOGGLE_508_ON'] = 'Alternar Diseño de Formulario Vertical';
+
 $LANG['SPECIMENS'] = 'Especímenes';
 $LANG['IMG_CONTR'] = 'Contribuidores de imágenes';
 $LANG['OBS'] = 'Observaciones';
