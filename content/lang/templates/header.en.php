@@ -48,20 +48,12 @@ $LANG['H_LOGIN'] = 'Sign In';
 $LANG['H_NEW_ACCOUNT'] = 'New Account';
 $LANG['H_SELECT_LANGUAGE'] = 'Select Language';
 $LANG['H_CONTACT_US'] = 'Contact Us';
+$LANG['H_SKIP_NAV'] = 'Skip Navigation';
 
 //Footer variables
 $LANG['F_TOGGLE_508_OFF'] = 'Toggle Condensed Form Layout';
 $LANG['F_TOGGLE_508_ON'] = 'Toggle Vertical Form Layout';
 
-$LANG['SPECIMENS'] = 'Specimens';
-$LANG['IMG_CONTR'] = 'Image Contributors';
-$LANG['OBS'] = 'Observations';
-
-$LANG['NAV_HOME'] = 'Home';
-$LANG['NAV_IMG_LIB'] = 'Image Library';
-$LANG['NAV_IMG_CONTR'] = 'Image Contributors';
-$LANG['NAV_IMG_SEARCH'] = 'Image Search';
-$LANG['SKIP_NAV'] = 'Skip Navigation';
 
 $LANG['ACCESSIBILITY_OPTIONS'] = 'Accessibility Options';
 $LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'More accessibility features will be added over time. Toggle those that suit your needs.';

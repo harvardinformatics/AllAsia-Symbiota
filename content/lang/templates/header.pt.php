@@ -48,20 +48,12 @@ $LANG['H_LOGIN'] = 'Entrar';
 $LANG['H_NEW_ACCOUNT'] = 'Nova Conta';
 $LANG['H_SELECT_LANGUAGE'] = 'Selecionar Idioma';
 $LANG['H_CONTACT_US'] = 'Entre em Contato Conosco';
+$LANG['H_SKIP_NAV'] = 'Pular Navegação';
 
 //Footer variables
 $LANG['F_TOGGLE_508_OFF'] = 'Modo Condensado';
 $LANG['F_TOGGLE_508_ON'] = 'Modo de Acessibilidade';
 
-$LANG['SPECIMENS'] = 'Amostras';
-$LANG['IMG_CONTR'] = 'Contribuidores de imagem';
-$LANG['OBS'] = 'Observações';
-
-$LANG['NAV_HOME'] = 'Início';
-$LANG['NAV_IMG_LIB'] = 'Biblioteca de Imagens';
-$LANG['NAV_IMG_CONTR'] = 'Contribuidores de Imagem';
-$LANG['NAV_IMG_SEARCH'] = 'Pesquisa de Imagens';
-$LANG['SKIP_NAV'] = 'Pular Navegação';
 
 // Footer-specific
 $LANG['ACCESSIBILITY_OPTIONS'] = 'Opções de acessibilidade';
