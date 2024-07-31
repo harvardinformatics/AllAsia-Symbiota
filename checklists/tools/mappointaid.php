@@ -179,7 +179,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
 	</head>
 	<body style="display:flex; flex-direction: column; background-color:#ffffff;" onload="initialize()">
 		<?php
-			if($shouldUseMinimalMapHeader) include_once($SERVER_ROOT . '/includes/minimal_header_template.php');
+		if($shouldUseMinimalMapHeader) include_once($SERVER_ROOT . '/includes/minimalheader.php');
 		?>
 		<h1 class="page-heading screen-reader-only">Map Point Helper</h1>
 		<div style="padding:0.5rem; width: fit-content; height:fit-content" class="minimal-header-margin">
