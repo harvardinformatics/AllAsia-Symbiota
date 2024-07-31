@@ -1,18 +1,18 @@
 <footer>
-	<dialog id="accessibility-modal" class="accessibility-dialog" aria-label="<?= $LANG['ACCESSIBILITY_OPTIONS']; ?>">
-		<h1><?= $LANG['ACCESSIBILITY_OPTIONS']; ?></h1>
-		<p class="bottom-breathing-room-rel"><?= $LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION']; ?></p>
-		<button type="button" class="btn btn-primary bottom-breathing-room-rel" onclick="toggleAccessibilityStyles('<?= $CLIENT_ROOT . '/includes' . '/' ?>', '<?= $CSS_BASE_PATH ?>', '<?= $LANG['TOGGLE_508_OFF'] ?>', '<?= $LANG['TOGGLE_508_ON'] ?>')" id="accessibility-button" data-accessibility="accessibility-button">
-			<?= $LANG['TOGGLE_508_ON'] ?>
+	<dialog id="accessibility-modal" class="accessibility-dialog" aria-label="<?= $LANG['F_ACCESSIBILITY_OPTIONS']; ?>">
+		<h1><?= $LANG['F_ACCESSIBILITY_OPTIONS']; ?></h1>
+		<p class="bottom-breathing-room-rel"><?= $LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION']; ?></p>
+		<button type="button" class="btn btn-primary bottom-breathing-room-rel" onclick="toggleAccessibilityStyles('<?php echo $CLIENT_ROOT . '/includes' . '/' ?>', '<?php echo $CSS_BASE_PATH ?>', '<?php echo $LANG['F_TOGGLE_508_OFF'] ?>', '<?php echo $LANG['F_TOGGLE_508_ON'] ?>')" id="accessibility-button" data-accessibility="accessibility-button">
+			<?= $LANG['F_TOGGLE_508_ON'] ?>
 		</button>
 		<form method="dialog">
-			<button type="submit" class="btn btn-primary"><?= $LANG['CLOSE']; ?></button>
+			<button type="submit" class="btn btn-primary"><?= $LANG['F_CLOSE']; ?></button>
 		</form>
 	</dialog>
 	<div class="logo-gallery">
 		<button id="accessibility-options-button" type="button" class="btn btn-primary  accessibility-option-button">
 			<span class="button__item-container">
-				<?= $LANG['ACCESSIBILITY_OPTIONS']; ?>
+				<?= $LANG['F_ACCESSIBILITY_OPTIONS']; ?>
 				<span>
 					<img alt="accessibility icon of a person" src="<?= $CLIENT_ROOT ?>/images/accessibility_FILL0_wght400_GRAD0_opsz24.svg" />
 				</span>
