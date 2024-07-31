@@ -1,11 +1,18 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
-if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/checklists/clgmap.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/checklists/clgmap.en.php');
-else include_once($SERVER_ROOT.'/content/lang/checklists/clgmap.' . $LANG_TAG . '.php');
+if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/checklists/clgmap.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/checklists/clgmap.' . $LANG_TAG . '.php');
+else include_once($SERVER_ROOT.'/content/lang/checklists/clgmap.en.php');
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/header.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/header.en.php');
+else include_once($SERVER_ROOT . '/content/lang/header.' . $LANG_TAG . '.php');
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$pid = filter_var($_REQUEST['pid'], FILTER_SANITIZE_NUMBER_INT);
+$pid = $_REQUEST['pid'];
+$target = array_key_exists('target',$_REQUEST)?$_REQUEST['target']:'checklists';
+
+//Sanitation
+$pid = htmlspecialchars($pid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE);
+if(!is_numeric($pid)) $pid = 0;
 
 $clManager = new ChecklistManager();
 $clManager->setProj($pid);
@@ -15,11 +22,11 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
 <!DOCTYPE html>
 <html lang="<?php echo $LANG_TAG ?>">
    <head>
-		<?php
-		include_once($SERVER_ROOT.'/includes/leafletMap.php');
-		include_once($SERVER_ROOT.'/includes/googleMap.php');
-		?>
-		<title><?= $DEFAULT_TITLE . ' - ' . $LANG['TITLE'] ?></title>
+      <?php
+        include_once($SERVER_ROOT.'/includes/leafletMap.php');
+	     include_once($SERVER_ROOT.'/includes/googleMap.php');
+      ?>
+		<title><?php echo $DEFAULT_TITLE.' - '.(isset($LANG['H_INVENTORIES'])?$LANG['H_INVENTORIES']:'Species Checklists'); ?></title>
 
 		<script type="text/javascript">
 
@@ -41,7 +48,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
                markers.push(L.marker(latlng)
                   .bindTooltip(checklist.name)
                   .bindPopup(`<div style=\'width:300px;\'>
-                     <b>${checklist.name}</b><br/><?= $LANG['DOUBLE_CLICK'] ?>
+                     <b>${checklist.name}</b><br/><?php echo (isset($LANG['DOUBLE_CLICK'])?$LANG['DOUBLE_CLICK']:'Double Click to open'); ?>
                      </div>`)
                   .on('dblclick', () => navigateToCheckList(checklistId, pid)));
             }
@@ -74,7 +81,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
                })
                const infoWin = new google.maps.InfoWindow({
                   content: `<div style=\'width:300px;\'>
-                     <b>${checklist.name}</b><br/><?= $LANG['DOUBLE_CLICK'] ?>
+                     <b>${checklist.name}</b><br/><?php echo (isset($LANG['DOUBLE_CLICK'])?$LANG['DOUBLE_CLICK']:'Double Click to open'); ?>
                   </div>`
                });
 
@@ -102,7 +109,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
                pid = data.getAttribute('data-pid');
                checklists = JSON.parse(data.getAttribute('data-checklists'));
             } catch (err) {
-               alert("<?= $LANG['FAILED_TO_LOAD'] ?>");
+               alert("<?php echo (isset($LANG['FAILED_TO_LOAD'])?$LANG['FAILED_TO_LOAD']:'Failed to load checklist data'); ?>");
             }
 
             <?php if(empty($GOOGLE_MAP_KEY)) { ?>
@@ -127,7 +134,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
 	</head>
 	<body style="background-color:#ffffff;" onload="initialize()">
       <?php
-			// if($shouldUseMinimalMapHeader) include_once($SERVER_ROOT . '/includes/minimal_header_template.php');
+			// if($shouldUseMinimalMapHeader) include_once($SERVER_ROOT . '/includes/minimalheader.php');
 		?>
       <h1 class="page-heading screen-reader-only" style="margin-top:30px;">Checklist Map</h1>
 		<div id="map_canvas"></div>
@@ -135,7 +142,7 @@ $shouldUseMinimalMapHeader = $SHOULD_USE_MINIMAL_MAP_HEADER ?? false;
         id="service-container"
         class="service-container"
         data-checklists="<?= htmlspecialchars(json_encode($clManager->getResearchPoints()))?>"
-        data-pid="<?= $pid ?>"
+        data-pid="<?= htmlspecialchars($pid)?>"
       >
       </div>
 	</body>
