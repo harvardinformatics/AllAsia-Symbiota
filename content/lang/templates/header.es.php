@@ -56,4 +56,6 @@ $LANG['F_TOGGLE_508_ON'] = 'Alternar Diseño de Formulario Vertical';
 $LANG['F_ACCESSIBILITY_OPTIONS'] = 'Opciones de accesibilidad';
 $LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Con el tiempo se agregarán más funciones de accesibilidad. Alterna aquellos que se adapten a tus necesidades.';
 $LANG['F_CLOSE'] = 'Cerrar';
+
+include('header.es.override.php');
 ?>

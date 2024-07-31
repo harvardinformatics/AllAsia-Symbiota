@@ -56,4 +56,6 @@ $LANG['F_TOGGLE_508_ON'] = 'Basculer la Disposition Verticale du Formulaire';
 $LANG['F_ACCESSIBILITY_OPTIONS'] = 'Options d\'accessibilité';
 $LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'D\'autres fonctionnalités d\'accessibilité seront ajoutées au fil du temps. Basculez ceux qui correspondent à vos besoins.';
 $LANG['F_CLOSE'] = 'Fermer';
+
+include('header.fr.override.php');
 ?>

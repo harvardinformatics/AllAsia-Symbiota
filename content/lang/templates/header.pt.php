@@ -57,4 +57,5 @@ $LANG['F_ACCESSIBILITY_OPTIONS'] = 'Opções de acessibilidade';
 $LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Mais recursos de acessibilidade serão adicionados ao longo do tempo. Alterne aqueles que atendem às suas necessidades.';
 $LANG['F_CLOSE'] = 'Fechar';
 
+include('header.pt.override.php');
 ?>
