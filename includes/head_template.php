@@ -29,5 +29,6 @@ if($ACCESSIBILITY_ACTIVE){
 }
 ?>
 
+<link href="<?= $CSS_BASE_PATH ?>/symbiota/customizations.css?ver=<?= $CSS_VERSION ?>" type="text/css" rel="stylesheet">
 <script src="<?= $CLIENT_ROOT ?>/js/symb/lang.js" type="text/javascript"></script>
 <script src="<?= $CLIENT_ROOT ?>/js/symb/accessibilityUtils.js" type="text/javascript"></script>
