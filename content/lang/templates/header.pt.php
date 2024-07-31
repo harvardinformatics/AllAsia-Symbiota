@@ -53,11 +53,8 @@ $LANG['H_SKIP_NAV'] = 'Pular Navegação';
 //Footer variables
 $LANG['F_TOGGLE_508_OFF'] = 'Modo Condensado';
 $LANG['F_TOGGLE_508_ON'] = 'Modo de Acessibilidade';
-
-
-// Footer-specific
-$LANG['ACCESSIBILITY_OPTIONS'] = 'Opções de acessibilidade';
-$LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Mais recursos de acessibilidade serão adicionados ao longo do tempo. Alterne aqueles que atendem às suas necessidades.';
-$LANG['CLOSE'] = 'Fechar';
+$LANG['F_ACCESSIBILITY_OPTIONS'] = 'Opções de acessibilidade';
+$LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Mais recursos de acessibilidade serão adicionados ao longo do tempo. Alterne aqueles que atendem às suas necessidades.';
+$LANG['F_CLOSE'] = 'Fechar';
 
 ?>

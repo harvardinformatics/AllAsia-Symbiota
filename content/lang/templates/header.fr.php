@@ -53,12 +53,7 @@ $LANG['H_SKIP_NAV'] = 'Sauter la Navigation';
 //Footer variables
 $LANG['F_TOGGLE_508_OFF'] = 'Utiliser la Mise en Page de Formulaire Condensé';
 $LANG['F_TOGGLE_508_ON'] = 'Basculer la Disposition Verticale du Formulaire';
-
-
-
-// Footer-specific
-$LANG['ACCESSIBILITY_OPTIONS'] = 'Options d\'accessibilité';
-$LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'D\'autres fonctionnalités d\'accessibilité seront ajoutées au fil du temps. Basculez ceux qui correspondent à vos besoins.';
-$LANG['CLOSE'] = 'Fermer';
-
+$LANG['F_ACCESSIBILITY_OPTIONS'] = 'Options d\'accessibilité';
+$LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'D\'autres fonctionnalités d\'accessibilité seront ajoutées au fil du temps. Basculez ceux qui correspondent à vos besoins.';
+$LANG['F_CLOSE'] = 'Fermer';
 ?>

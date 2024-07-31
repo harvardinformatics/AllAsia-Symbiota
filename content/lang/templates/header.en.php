@@ -53,9 +53,7 @@ $LANG['H_SKIP_NAV'] = 'Skip Navigation';
 //Footer variables
 $LANG['F_TOGGLE_508_OFF'] = 'Toggle Condensed Form Layout';
 $LANG['F_TOGGLE_508_ON'] = 'Toggle Vertical Form Layout';
-
-
-$LANG['ACCESSIBILITY_OPTIONS'] = 'Accessibility Options';
-$LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'More accessibility features will be added over time. Toggle those that suit your needs.';
-$LANG['CLOSE'] = 'Close';
+$LANG['F_ACCESSIBILITY_OPTIONS'] = 'Accessibility Options';
+$LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'More accessibility features will be added over time. Toggle those that suit your needs.';
+$LANG['F_CLOSE'] = 'Close';
 ?>

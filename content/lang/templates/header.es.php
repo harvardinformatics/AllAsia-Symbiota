@@ -51,11 +51,9 @@ $LANG['H_CONTACT_US'] = 'Contáctenos';
 $LANG['H_SKIP_NAV'] = 'Saltar Navegación';
 
 //Footer variables
-$LANG['H_TOGGLE_508_OFF'] = 'Alternar el Diseño de Formulario Condensado';
-$LANG['H_TOGGLE_508_ON'] = 'Alternar Diseño de Formulario Vertical';
-
-// Footer-specific
-$LANG['ACCESSIBILITY_OPTIONS'] = 'Opciones de accesibilidad';
-$LANG['ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Con el tiempo se agregarán más funciones de accesibilidad. Alterna aquellos que se adapten a tus necesidades.';
-$LANG['CLOSE'] = 'Cerrar';
+$LANG['F_TOGGLE_508_OFF'] = 'Alternar el Diseño de Formulario Condensado';
+$LANG['F_TOGGLE_508_ON'] = 'Alternar Diseño de Formulario Vertical';
+$LANG['F_ACCESSIBILITY_OPTIONS'] = 'Opciones de accesibilidad';
+$LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Con el tiempo se agregarán más funciones de accesibilidad. Alterna aquellos que se adapten a tus necesidades.';
+$LANG['F_CLOSE'] = 'Cerrar';
 ?>
