@@ -1,6 +1,6 @@
 <?php
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/header.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/header.' . $LANG_TAG . '.php');
-else include_once($SERVER_ROOT . '/content/lang/header.en.php');
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/templates/header.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT . '/content/lang/templates/header.en.php');
+else include_once($SERVER_ROOT . '/content/lang/templates/header.' . $LANG_TAG . '.php');
 $SHOULD_USE_HARVESTPARAMS = $SHOULD_USE_HARVESTPARAMS ?? false;
 $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '/collections/search/index.php';
 ?>

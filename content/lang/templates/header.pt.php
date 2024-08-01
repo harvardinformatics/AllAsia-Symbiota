@@ -56,6 +56,19 @@ $LANG['F_TOGGLE_508_ON'] = 'Modo de Acessibilidade';
 $LANG['F_ACCESSIBILITY_OPTIONS'] = 'Opções de acessibilidade';
 $LANG['F_ACCESSIBILITY_OPTIONS_DESCRIPTION'] = 'Mais recursos de acessibilidade serão adicionados ao longo do tempo. Alterne aqueles que atendem às suas necessidades.';
 $LANG['F_CLOSE'] = 'Fechar';
+$LANG['F_ACCESSIBILITY_ICON'] = 'ícone de acessibilidade de uma pessoa';
+$LANG['F_VISIT_NSF'] = 'Visite o site da National Science Foundation';
+$LANG['F_NSF_LOGO'] = 'Logo da National Science Foundation';
+$LANG['F_VISIT_IDIGBIO'] = 'Visite o site do iDigBio';
+$LANG['F_IDIGBIO_LOGO'] = 'Logo da iDigBio, or, Integrated Digitized Biocollections';
+$LANG['F_BIOKIC'] = 'Biodiversity Knowledge Integration Center';
+$LANG['F_BIOKIC_LOGO'] = 'Logo da Biodiversity Knowledge Integration Center';
+$LANG['F_NSF_AWARDS'] = 'Este projeto foi possível graças ao National Science Foundation Awards';
+$LANG['F_MORE_INFO'] = 'Para mais informações sobre Symbiota';
+$LANG['F_READ_DOCS'] = 'leia os documentos';
+$LANG['F_CONTACT'] = 'ou contato o';
+$LANG['F_SSH'] = 'Symbiota Support Hub (SSH)';
+$LANG['F_POWERED_BY'] = 'Distribuído por';
 
 include('header.pt.override.php');
 ?>
