@@ -7,14 +7,14 @@ include_once($SERVER_ROOT . '/rpc/crossPortalHeaders.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
 
-$cntPerPage = array_key_exists('cntperpage', $_REQUEST) ? $_REQUEST['cntperpage'] : 100;
-$pageNumber = array_key_exists('page', $_REQUEST) ? $_REQUEST['page'] : 1;
-$recLimit = (array_key_exists('recordlimit',$_REQUEST) && is_numeric($_REQUEST['recordlimit']) ? $_REQUEST['recordlimit']:15000);
+$cntPerPage = array_key_exists('cntperpage', $_REQUEST) ? filter_var($_REQUEST['cntperpage'], FILTER_SANITIZE_NUMBER_INT) : 100;
+$pageNumber = array_key_exists('page', $_REQUEST) ? filter_var($_REQUEST['page'], FILTER_SANITIZE_NUMBER_INT) : 1;
+$recLimit = (array_key_exists('recordlimit',$_REQUEST) && is_numeric($_REQUEST['recordlimit']) ? filter_var($_REQUEST['recordlimit'], FILTER_SANITIZE_NUMBER_INT) : 15000);
 
-//Sanitation
-$cntPerPage = filter_var($cntPerPage, FILTER_SANITIZE_NUMBER_INT);
-$pageNumber = filter_var($pageNumber, FILTER_SANITIZE_NUMBER_INT);
-$recLimit = filter_var($recLimit, FILTER_SANITIZE_NUMBER_INT);
+//Set default upon input variable failure
+if(!$cntPerPage) $cntPerPage = 100;
+if(!$pageNumber) $pageNumber = 1;
+if(!$recLimit) $recLimit = 15000;
 
 $mapManager = new OccurrenceMapManager();
 $searchVar = $mapManager->getQueryTermStr();
