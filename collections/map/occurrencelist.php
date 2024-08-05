@@ -2,7 +2,7 @@
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT.'/content/lang/collections/list.'.$LANG_TAG.'.php');
 include_once($SERVER_ROOT.'/classes/OccurrenceMapManager.php');
-include_once($SERVER_ROOT.'/classes/Manager.php');
+include_once($SERVER_ROOT.'/classes/UtilityFunctions.php');
 include_once($SERVER_ROOT . '/rpc/crossPortalHeaders.php');
 
 header("Content-Type: text/html; charset=".$CHARSET);
@@ -21,7 +21,7 @@ $searchVar = $mapManager->getQueryTermStr();
 $recCnt = $mapManager->getRecordCnt();
 $occArr = array();
 
-$host = Manager::getDomain() . $CLIENT_ROOT;
+$host = UtilityFunctions::getDomain() . $CLIENT_ROOT;
 
 if(!$recLimit || $recCnt < $recLimit){
 	$occArr = $mapManager->getOccurrenceArr($pageNumber, $cntPerPage);

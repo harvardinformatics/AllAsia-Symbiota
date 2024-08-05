@@ -89,7 +89,7 @@ class Manager  {
 		return $this->warningArr;
 	}
 
-	public static function getDomain(){
+	public function getDomain(){
 		$domain = 'http://';
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) $domain = 'https://';
 		if(!empty($GLOBALS['SERVER_HOST'])){
