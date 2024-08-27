@@ -65,9 +65,8 @@
    9. Customize language tags
       - Overide existing language tags or create new tags by modifying the override files in content/lang/templates/
          - Example: modify content/lang/templates/header.es.override.php to replace the defualt values used when browsing the portal in spanish.
-   10. Misc: 
-      - Modify usagepolicy.php as needed  
 4. Misc configurations and recommendations
+   - Modify usagepolicy.php as needed 
    - Install robots.txt file within root directory - The robots.txt file is a standard method used by websites to indicate to visiting web crawlers and other web robots which portions of the website they are allowed to visit and under what conditions. A robots.txt template can be found within the /includes directory. This file should be moved into the domain's root directory, which may or may not be the Symbiota root directory. The file paths listed within the file should be adjusted to match the portal installation path (e.g., start with $CLIENT_ROOT). See links below for more information:
      - https://developers.google.com/search/docs/crawling-indexing/robots/create-robots-txt
      - https://en.wikipedia.org/wiki/Robots.txt
