@@ -3,3 +3,17 @@ Place your CSS customizations here.
 This stylesheet is defined last and will override all previously loaded sheets. You may reference variables defined in variables.css 
  */
  
+.welcome-text {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  font-weight: bold;
+  text-shadow: 0 0 5px black;
+  color: white;
+}
+
+.button-tertiary {
+  background-color: #ffffff7f;
+  border: 1px solid var(--bright-color);
+  padding: 0.5rem 0.9rem;
+}
