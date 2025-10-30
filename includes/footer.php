@@ -14,7 +14,7 @@
 		</a>
 	</div>
 	<p>
-		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2101884" target="_blank">#2101884</a>.
+		<?= $LANG['F_NSF_AWARDS'] ?> <a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=2101884" target="_blank">#2101884</a>.
 	</p>
 	<p>
 		<?= $LANG['F_POWERED_BY'] ?> <a href="https://symbiota.org/" target="_blank">Symbiota</a>.
